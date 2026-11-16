@@ -1,26 +1,64 @@
 // Marjan: serve the design preview under /design-branch and keep the rest of
-// marjantravels.com on a "Coming soon" page until launch.
+// marjantravels.com on a branded "Coming soon" page until launch.
 //
 // The site's links are root-relative (href="/contact-us/"), so HTML responses
 // get those links rewritten to /design-branch/... on the way out.
+// Preview pages that don't exist yet (About, Contact, Services...) show the
+// same Coming soon page with a small link back to the preview home page.
 // At launch: delete this file, remove "main" and "run_worker_first" from
 // wrangler.jsonc, and the site will be served from the root again.
 
 const PREFIX = '/design-branch';
+const LOGO_PATH = '/_brand/marjan-logo.svg';
+const LOGO_ASSET = '/assets/brand/marjan-logo.svg';
+const LOGO_ANIMATED_PATH = '/_brand/marjan-logo-animated.svg';
+const LOGO_ANIMATED_ASSET = '/assets/brand/marjan-logo-animated.svg';
 
-const COMING_SOON = `<!doctype html>
+// Brand colours taken from the client logo (logo/svg/02-client-logo-lines.svg).
+// The logo animation lives inside marjan-logo-animated.svg (pure CSS, loops).
+const comingSoonPage = ({ link } = {}) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Marjan Travel &amp; Tours</title>
+<meta name="theme-color" content="#ffffff">
+<title>Marjan Travel &amp; Tours | Coming soon</title>
+<link rel="icon" href="${LOGO_PATH}" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
 <style>
+  *{box-sizing:border-box}
   html,body{height:100%;margin:0}
-  body{display:grid;place-items:center;background:#FDFAF5;color:#0B2429;
-       font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;padding:16px}
-  h1{color:#C9401F;font-size:clamp(28px,6vw,44px);margin:0 0 8px}
-  p{margin:0;opacity:.75}
+  body{
+    min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px 16px; text-align:center; background:#fff; color:#011249;
+    font-family:Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .logo{width:min(420px, 80vw); height:auto; display:block}
+  h1{
+    margin:clamp(24px, 5vh, 44px) 0 0; font-weight:500; font-size:clamp(13px, 2.4vw, 16px);
+    letter-spacing:.42em; text-indent:.42em; text-transform:uppercase; color:#011249;
+    animation:in 1s .6s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .link{margin-top:20px; font-size:14px; color:#0359C6; text-decoration:none; font-weight:600}
+  .link:hover,.link:focus-visible{text-decoration:underline}
+  @keyframes in{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion:reduce){h1{animation:none}}
 </style></head>
-<body><main><h1>Marjan Travel &amp; Tours</h1><p>Our new website is coming soon.</p></main></body></html>`;
+<body>
+  <img class="logo" src="${LOGO_ANIMATED_PATH}" alt="Marjan Travel &amp; Tours" width="420" height="385">
+  <h1>Coming soon</h1>
+  ${link ? `<a class="link" href="${link.href}">${link.label}</a>` : ''}
+</body></html>`;
+
+const HOME_PAGE = () => comingSoonPage();
+const MISSING_PAGE = () => comingSoonPage({ link: { href: `${PREFIX}/`, label: '← Back to home' } });
+
+const html = (body, status = 200) =>
+  new Response(body, {
+    status,
+    headers: { 'content-type': 'text/html; charset=utf-8', 'x-robots-tag': 'noindex', 'cache-control': 'no-cache' },
+  });
 
 const prefixPath = (v) => (v && v.startsWith('/') && !v.startsWith('//') ? PREFIX + v : v);
 
@@ -39,18 +77,26 @@ export default {
     if (url.pathname === '/robots.txt') {
       return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     }
+    if (url.pathname === LOGO_PATH || url.pathname === '/favicon.ico' || url.pathname === LOGO_ANIMATED_PATH) {
+      const logo = new URL(url);
+      logo.pathname = url.pathname === LOGO_ANIMATED_PATH ? LOGO_ANIMATED_ASSET : LOGO_ASSET;
+      return env.ASSETS.fetch(new Request(logo, request));
+    }
     if (url.pathname === PREFIX) {
       return Response.redirect(`${url.origin}${PREFIX}/${url.search}`, 301);
     }
     if (!url.pathname.startsWith(PREFIX + '/')) {
-      return new Response(COMING_SOON, {
-        headers: { 'content-type': 'text/html; charset=utf-8', 'x-robots-tag': 'noindex' },
-      });
+      return html(HOME_PAGE());
     }
 
     const inner = new URL(url);
     inner.pathname = url.pathname.slice(PREFIX.length);
     const upstream = await env.ASSETS.fetch(new Request(inner, request));
+
+    // A preview page that hasn't been built yet: show the branded Coming soon page.
+    if (upstream.status === 404 && (request.headers.get('accept') || '').includes('text/html')) {
+      return html(MISSING_PAGE(), 404);
+    }
 
     const res = new Response(upstream.body, upstream);
     res.headers.set('x-robots-tag', 'noindex, nofollow');
