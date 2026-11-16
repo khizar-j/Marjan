@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Marjan Travel & Tours: static site served by Cloudflare Workers.
+  "name": "marjan",
+  "compatibility_date": "2026-11-16",
+  // Build the site into website/dist before every deploy.
+  "build": {
+    "command": "node website/build.mjs"
+  },
+  "assets": {
+    "directory": "./website/dist"
+  },
+  "routes": [
+    { "pattern": "marjantravels.com", "custom_domain": true },
+    { "pattern": "www.marjantravels.com", "custom_domain": true }
+  ]
+}
