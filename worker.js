@@ -46,7 +46,7 @@ const comingSoonPage = ({ link } = {}) => `<!doctype html>
   @media (prefers-reduced-motion:reduce){h1{animation:none}}
 </style></head>
 <body>
-  <img class="logo" src="${LOGO_ANIMATED_PATH}" alt="Marjan Travel &amp; Tours" width="420" height="385">
+  <img class="logo" src="${LOGO_ANIMATED_PATH}" alt="Marjan Travel &amp; Tours" width="420" height="358">
   <h1>Coming soon</h1>
   ${link ? `<a class="link" href="${link.href}">${link.label}</a>` : ''}
 </body></html>`;
