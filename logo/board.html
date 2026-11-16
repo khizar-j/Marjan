@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Logo board</title>
+<style>
+  body { margin: 0; padding: 16px; background: #EFE4D3; font: 12px system-ui; color: #0B2429; }
+  .g { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  figure { margin: 0; background: #fff; border-radius: 12px; padding: 18px; display: grid; place-items: center; min-height: 170px; position: relative; }
+  figure.dark { background: #0B2429; }
+  figure img { max-width: 100%; max-height: 150px; }
+  figure.icon img { max-height: 110px; }
+  figcaption { position: absolute; left: 10px; top: 6px; font-size: 10px; color: #888; }
+</style></head>
+<body><div class="g" id="g"></div>
+<script>
+  const files = ['01-client-logo-tagline','02-client-logo-lines','03-client-logo-coral-tagline','04-client-logo-coral-lines',
+    '05-A-coral','06-A-coral-reversed','07-A-coral-icon','08-B-route','09-B-route-reversed','10-B-route-icon',
+    '11-C-gateway','12-C-gateway-reversed','13-C-gateway-icon','14-D-seal','15-D-seal-reversed','16-D-seal-icon'];
+  const g = document.getElementById('g');
+  for (const f of files) g.insertAdjacentHTML('beforeend', `<figure class="${f.includes('reversed') ? 'dark' : ''} ${f.includes('icon') ? 'icon' : ''}"><figcaption>${f}</figcaption><img src="svg/${f}.svg?v=${Date.now()}" alt=""></figure>`);
+</script></body></html>

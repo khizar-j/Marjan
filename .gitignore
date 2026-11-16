@@ -1,0 +1,14 @@
+# Build output (regenerate with: cd website && node build.mjs)
+website/dist/
+
+# Dependencies
+node_modules/
+
+# Personal Claude Code settings
+.claude/settings.local.json
+
+# Office lock files and OS clutter
+~$*
+Thumbs.db
+desktop.ini
+.DS_Store

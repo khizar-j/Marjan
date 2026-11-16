@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "marjan-site",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4321", "--directory", "website/dist"],
+      "port": 4321
+    },
+    {
+      "name": "marjan-logo",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4322", "--directory", "logo"],
+      "port": 4322
+    }
+  ]
+}
