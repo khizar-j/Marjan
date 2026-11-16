@@ -1,6 +1,6 @@
 # Builds website/src/assets/brand/marjan-logo-animated.svg (Coming soon page) and
 # website/src/assets/brand/marjan-logo.svg (static full logo) and
-# website/src/assets/brand/marjan-icon.svg (main icon only, used as the favicon) from
+# website/src/assets/brand/marjan-icon.svg (pin on a white tile, used as the favicon) from
 # logo/svg/02-client-logo-lines.svg, with the same clean-up applied to both.
 # Run from the repo root:  python3 logo/source/animate.py
 #
@@ -87,10 +87,14 @@ static = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="904 80 4320 3680" 
 open(OUT_STATIC, 'w').write(static)
 print('wrote', OUT_STATIC, len(static), 'bytes')
 
-icon = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="2070 -40 2560 2560" role="img" aria-labelledby="t"><title id="t">Marjan Travel &amp; Tours</title>{defs}
+# Favicon: the pin alone (no plane, no wordmark) on a white rounded tile, so it
+# stays bold at 16px and readable on dark browser tab bars.
+icon = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="1827 80 2400 2400" role="img" aria-labelledby="t"><title id="t">Marjan Travel &amp; Tours</title>{defs}
+<rect x="1827" y="80" width="2400" height="2400" rx="520" fill="#fff"/>
+<g transform="translate(3027 1280) scale(.86) translate(-3027 -1280)">
 <path fill="url(#pin-gradient)" fill-rule="evenodd" d="{pin}"/>
 <path fill="url(#mountain-gradient)" fill-rule="evenodd" d="{path('mountains')}"/>
-<path fill="#011249" fill-rule="evenodd" d="{plane}"/>
+</g>
 </svg>'''
 open(OUT_ICON, 'w').write(icon)
 print('wrote', OUT_ICON, len(icon), 'bytes')
