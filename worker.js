@@ -11,6 +11,8 @@
 const PREFIX = '/design-branch';
 const LOGO_PATH = '/_brand/marjan-logo.svg';
 const LOGO_ASSET = '/assets/brand/marjan-logo.svg';
+const ICON_PATH = '/_brand/marjan-icon.svg';               // favicon: main icon only
+const ICON_ASSET = '/assets/brand/marjan-icon.svg';
 const LOGO_ANIMATED_PATH = '/_brand/marjan-logo-animated.svg';
 const LOGO_ANIMATED_ASSET = '/assets/brand/marjan-logo-animated.svg';
 
@@ -22,7 +24,7 @@ const comingSoonPage = ({ link } = {}) => `<!doctype html>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#ffffff">
 <title>Marjan Travel &amp; Tours | Coming soon</title>
-<link rel="icon" href="${LOGO_PATH}" type="image/svg+xml">
+<link rel="icon" href="${ICON_PATH}" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
@@ -77,9 +79,15 @@ export default {
     if (url.pathname === '/robots.txt') {
       return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     }
-    if (url.pathname === LOGO_PATH || url.pathname === '/favicon.ico' || url.pathname === LOGO_ANIMATED_PATH) {
+    const brand = {
+      [LOGO_PATH]: LOGO_ASSET,
+      [LOGO_ANIMATED_PATH]: LOGO_ANIMATED_ASSET,
+      [ICON_PATH]: ICON_ASSET,
+      '/favicon.ico': ICON_ASSET,
+    }[url.pathname];
+    if (brand) {
       const logo = new URL(url);
-      logo.pathname = url.pathname === LOGO_ANIMATED_PATH ? LOGO_ANIMATED_ASSET : LOGO_ASSET;
+      logo.pathname = brand;
       return env.ASSETS.fetch(new Request(logo, request));
     }
     if (url.pathname === PREFIX) {
