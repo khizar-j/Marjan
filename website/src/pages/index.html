@@ -22,7 +22,7 @@
   "alternateName": ["Marjan Travel and Tours", "Marjan Travels"],
   "slogan": "Dream it. Book it. Live it.",
   "url": "https://[DOMAIN]/",
-  "logo": "https://[DOMAIN]/images/marjan-travel-tours-logo.png",
+  "logo": "https://[DOMAIN]/assets/img/logo.png",
   "image": "https://[DOMAIN]/images/marjan-travel-tours-office-[CITY].jpg",
   "description": "Marjan Travel & Tours is a licensed travel agency in [CITY], Pakistan, offering visa consultancy and processing, Umrah packages, domestic tour packages across Pakistan, international tour packages and corporate tours.",
   "telephone": "[PHONE]",
@@ -127,7 +127,6 @@
 
   <div class="container hero__inner">
     <div class="hero__content">
-      <p class="hero__kicker"><span class="pulse" aria-hidden="true"></span><span>Licensed travel agency · {{ph CITY}}, Pakistan</span></p>
       <h1 id="hero-title" class="hero__title">Your Trusted Travel Agency in {{ph CITY}} for Umrah, Visas &amp; Tours</h1>
       <p class="hero__tagline" aria-label="Dream it. Book it. Live it.">
         <span>Dream it.</span> <span>Book it.</span> <span>Live it.</span>
@@ -139,34 +138,6 @@
       </div>
     </div>
 
-    <div class="hero__float" aria-hidden="true">
-      <div class="float-set is-active" data-set="umrah">
-        <div class="fc-wrap fc-a" style="--depth:.7"><div class="fcard"><span class="fcard__icon">{{icon hotel}}</span><span><strong>Hotels near the Haram</strong><small>3-star to 5-star options</small></span></div></div>
-        <div class="fc-wrap fc-b" style="--depth:1.2"><div class="fcard"><span class="fcard__icon">{{icon check}}</span><span><strong>Visa · Flights · Transport</strong><small>Included in every package</small></span></div></div>
-        <div class="fc-wrap fc-c" style="--depth:1.7"><div class="fchip">{{icon calendar}}7, 14, 15, 21 &amp; 28 days</div></div>
-      </div>
-      <div class="float-set" data-set="north">
-        <div class="fc-wrap fc-a" style="--depth:.7"><div class="fcard"><span class="fcard__icon">{{icon mountain}}</span><span><strong>Hunza · Skardu · Swat</strong><small>Naran Kaghan, Murree, Neelum</small></span></div></div>
-        <div class="fc-wrap fc-b" style="--depth:1.2"><div class="fcard"><span class="fcard__icon">{{icon users}}</span><span><strong>Family, honeymoon &amp; group</strong><small>With an experienced guide</small></span></div></div>
-        <div class="fc-wrap fc-c" style="--depth:1.7"><div class="fchip">{{icon bus}}Comfortable transport</div></div>
-      </div>
-      <div class="float-set" data-set="abroad">
-        <div class="fc-wrap fc-a" style="--depth:.7"><div class="fcard"><span class="fcard__icon">{{icon globe}}</span><span><strong>Dubai · Turkey · Baku</strong><small>Thailand, Malaysia, Maldives</small></span></div></div>
-        <div class="fc-wrap fc-b" style="--depth:1.2"><div class="fcard"><span class="fcard__icon">{{icon passport}}</span><span><strong>Visa assistance included</strong><small>Flights, hotels, sightseeing</small></span></div></div>
-        <div class="fc-wrap fc-c" style="--depth:1.7"><div class="fchip">{{icon receipt}}One clear price</div></div>
-      </div>
-      <div class="float-set" data-set="visa">
-        <div class="fc-wrap fc-a" style="--depth:.7"><div class="fcard"><span class="fcard__icon">{{icon passport}}</span><span><strong>UAE · UK · Schengen</strong><small>Turkey, Thailand, Malaysia, Saudi</small></span></div></div>
-        <div class="fc-wrap fc-b" style="--depth:1.2"><div class="fcard"><span class="fcard__icon">{{icon eye}}</span><span><strong>Honest document review</strong><small>Before you spend on fees</small></span></div></div>
-        <div class="fc-wrap fc-c" style="--depth:1.7"><div class="fchip">{{icon calendar}}Appointment booking</div></div>
-      </div>
-      <div class="float-set" data-set="corporate">
-        <div class="fc-wrap fc-a" style="--depth:.7"><div class="fcard"><span class="fcard__icon">{{icon briefcase}}</span><span><strong>One dedicated coordinator</strong><small>Planned end to end</small></span></div></div>
-        <div class="fc-wrap fc-b" style="--depth:1.2"><div class="fcard"><span class="fcard__icon">{{icon receipt}}</span><span><strong>Proper invoicing</strong><small>For your accounts team</small></span></div></div>
-        <div class="fc-wrap fc-c" style="--depth:1.7"><div class="fchip">{{icon users}}Retreats · Incentives · Conferences</div></div>
-      </div>
-      <p class="hero__caption">{{icon pin}}<span data-caption>Masjid al-Haram, Makkah</span></p>
-    </div>
 
     <div class="planner" data-planner>
       <div class="planner__tabs" role="group" aria-label="Choose your journey">
@@ -228,10 +199,9 @@
 <section class="intro section" aria-label="About Marjan Travel &amp; Tours">
   <div class="container intro__grid">
     <div class="intro__aside" data-reveal>
-      <p class="eyebrow">Who we are</p>
       <div class="seal" aria-hidden="true">
         <svg viewBox="0 0 120 120" class="seal__ring"><defs><path id="seal-path" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"/></defs><text><textPath href="#seal-path">Dream it · Book it · Live it · Dream it · Book it · Live it ·</textPath></text></svg>
-        <span class="seal__mark">{{icon coral}}</span>
+        <span class="seal__mark"><img src="/assets/img/logo-mark.svg" width="600" height="600" alt=""></span>
       </div>
     </div>
     <div class="intro__body">
@@ -241,107 +211,109 @@
   </div>
 </section>
 
-<!-- ============ 3 · SERVICES (expanding panels on desktop, swipe cards on mobile) ============ -->
+<!-- ============ 3 · SERVICES (service index + large preview; click any service, or it moves on every 10 s) ============ -->
 <section class="services section section--tint" id="services" aria-labelledby="services-title">
   <div class="container">
     <div class="section-head section-head--split">
-      <div data-reveal>
-        <p class="eyebrow">Our services</p>
-        <h2 id="services-title">Travel Services for Every Kind of Journey</h2>
-      </div>
+      <h2 id="services-title" data-reveal>Travel Services for Every Kind of Journey</h2>
       <p class="section-head__lead" data-reveal style="--d:1">Whether you are planning your first Umrah, a family holiday in the mountains or a team retreat abroad, one experienced team handles it from start to finish.</p>
     </div>
 
-    <div class="svc" data-svc>
-      <article class="svc__item" data-svc-item>
-        <div class="svc__media">{{img id="1553697388-94e804e2f0f6" ratio="4/5" widths="400,640,900,1200" sizes="(min-width: 1024px) 50vw, 94vw" w="900" alt="Visa Consultancy &amp; Processing by Marjan Travel &amp; Tours, [CITY]"}}</div>
-        <span class="svc__num">01 {{icon passport}}</span>
-        <div class="svc__body">
-          <h3 class="svc__title">Visa Consultancy &amp; Processing</h3>
-          <div class="svc__reveal"><div>
+    <div class="svx" data-svx>
+      <ol class="svx__list">
+        <li class="svx__item is-active" data-svx-item>
+          <button class="svx__head" type="button" id="svx-h1" aria-controls="svx-p1" aria-expanded="true">
+            <span class="svx__num">01</span>
+            <span class="svx__title">Visa Consultancy &amp; Processing</span>
+            <span class="svx__icon">{{icon passport}}</span>
+          </button>
+          <figure class="svx__media">{{img id="1553697388-94e804e2f0f6" ratio="4/3" widths="480,800,1100" sizes="(min-width: 1024px) 46vw, 92vw" w="1100" alt="Visa Consultancy &amp; Processing by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+          <div class="svx__panel" id="svx-p1" role="region" aria-labelledby="svx-h1"><div>
             <p>Visit, tourist, family and business visas for Dubai and the UAE, the UK, Schengen countries, Turkey, Thailand, Malaysia, Saudi Arabia and more. We review your documents, book your appointment and file your application correctly the first time.</p>
-            <a class="link-arrow link-arrow--light" href="/services/visa-consultancy/">Explore visa services {{icon arrow-right}}</a>
+            <a class="link-arrow" href="/services/visa-consultancy/">Explore visa services {{icon arrow-right}}</a>
           </div></div>
-        </div>
-      </article>
-      <article class="svc__item is-active" data-svc-item>
-        <div class="svc__media">{{img id="1627728734379-a5f8c099763e" ratio="4/5" widths="400,640,900,1200" sizes="(min-width: 1024px) 50vw, 94vw" w="900" alt="Umrah Packages by Marjan Travel &amp; Tours, [CITY]"}}</div>
-        <span class="svc__num">02 {{icon kaaba}}</span>
-        <div class="svc__body">
-          <h3 class="svc__title">Umrah Packages</h3>
-          <div class="svc__reveal"><div>
+          <span class="svx__bar" aria-hidden="true"></span>
+        </li>
+        <li class="svx__item" data-svx-item>
+          <button class="svx__head" type="button" id="svx-h2" aria-controls="svx-p2" aria-expanded="false">
+            <span class="svx__num">02</span>
+            <span class="svx__title">Umrah Packages</span>
+            <span class="svx__icon">{{icon kaaba}}</span>
+          </button>
+          <figure class="svx__media">{{img id="1627728734379-a5f8c099763e" ratio="4/3" widths="480,800,1100" sizes="(min-width: 1024px) 46vw, 92vw" w="1100" alt="Umrah Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+          <div class="svx__panel" id="svx-p2" role="region" aria-labelledby="svx-h2"><div>
             <p>7, 14, 15, 21 and 28-day Umrah packages from Pakistan with Umrah visa, return flights, hotels close to the Haram and Makkah–Madinah transport. Choose from economy, standard and 5-star options, including Ramadan 2027 packages.</p>
-            <a class="link-arrow link-arrow--light" href="/services/umrah-packages/">View Umrah packages 2026–27 {{icon arrow-right}}</a>
+            <a class="link-arrow" href="/services/umrah-packages/">View Umrah packages 2026–27 {{icon arrow-right}}</a>
           </div></div>
-        </div>
-      </article>
-      <article class="svc__item" data-svc-item>
-        <div class="svc__media">{{img id="1521892125404-76a993e24362" ratio="4/5" widths="400,640,900,1200" sizes="(min-width: 1024px) 50vw, 94vw" w="900" alt="Domestic Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</div>
-        <span class="svc__num">03 {{icon mountain}}</span>
-        <div class="svc__body">
-          <h3 class="svc__title">Domestic Tour Packages</h3>
-          <div class="svc__reveal"><div>
+          <span class="svx__bar" aria-hidden="true"></span>
+        </li>
+        <li class="svx__item" data-svx-item>
+          <button class="svx__head" type="button" id="svx-h3" aria-controls="svx-p3" aria-expanded="false">
+            <span class="svx__num">03</span>
+            <span class="svx__title">Domestic Tour Packages</span>
+            <span class="svx__icon">{{icon mountain}}</span>
+          </button>
+          <figure class="svx__media">{{img id="1521892125404-76a993e24362" ratio="4/3" widths="480,800,1100" sizes="(min-width: 1024px) 46vw, 92vw" w="1100" alt="Domestic Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+          <div class="svx__panel" id="svx-p3" role="region" aria-labelledby="svx-h3"><div>
             <p>Discover Pakistan with guided tours to Hunza, Skardu, Swat, Naran Kaghan, Murree, Neelum Valley and Fairy Meadows. Family, honeymoon and group trips with comfortable transport, handpicked hotels and an experienced guide.</p>
-            <a class="link-arrow link-arrow--light" href="/services/pakistan-tour-packages/">See Pakistan tour packages {{icon arrow-right}}</a>
+            <a class="link-arrow" href="/services/pakistan-tour-packages/">See Pakistan tour packages {{icon arrow-right}}</a>
           </div></div>
-        </div>
-      </article>
-      <article class="svc__item" data-svc-item>
-        <div class="svc__media">{{img id="1512453979798-5ea266f8880c" ratio="4/5" widths="400,640,900,1200" sizes="(min-width: 1024px) 50vw, 94vw" w="900" alt="International Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</div>
-        <span class="svc__num">04 {{icon globe}}</span>
-        <div class="svc__body">
-          <h3 class="svc__title">International Tour Packages</h3>
-          <div class="svc__reveal"><div>
+          <span class="svx__bar" aria-hidden="true"></span>
+        </li>
+        <li class="svx__item" data-svx-item>
+          <button class="svx__head" type="button" id="svx-h4" aria-controls="svx-p4" aria-expanded="false">
+            <span class="svx__num">04</span>
+            <span class="svx__title">International Tour Packages</span>
+            <span class="svx__icon">{{icon globe}}</span>
+          </button>
+          <figure class="svx__media">{{img id="1512453979798-5ea266f8880c" ratio="4/3" widths="480,800,1100" sizes="(min-width: 1024px) 46vw, 92vw" w="1100" alt="International Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+          <div class="svx__panel" id="svx-p4" role="region" aria-labelledby="svx-h4"><div>
             <p>Holiday packages from Pakistan to Dubai, Turkey, Azerbaijan (Baku), Thailand, Malaysia, Bali, the Maldives and Europe, with visa assistance, flights, hotels and sightseeing in one clear price.</p>
-            <a class="link-arrow link-arrow--light" href="/services/international-tour-packages/">Browse international tour packages {{icon arrow-right}}</a>
+            <a class="link-arrow" href="/services/international-tour-packages/">Browse international tour packages {{icon arrow-right}}</a>
           </div></div>
-        </div>
-      </article>
-      <article class="svc__item" data-svc-item>
-        <div class="svc__media">{{img id="1506869640319-fe1a24fd76dc" ratio="4/5" widths="400,640,900,1200" sizes="(min-width: 1024px) 50vw, 94vw" w="900" alt="Corporate Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</div>
-        <span class="svc__num">05 {{icon briefcase}}</span>
-        <div class="svc__body">
-          <h3 class="svc__title">Corporate Tour Packages</h3>
-          <div class="svc__reveal"><div>
+          <span class="svx__bar" aria-hidden="true"></span>
+        </li>
+        <li class="svx__item" data-svx-item>
+          <button class="svx__head" type="button" id="svx-h5" aria-controls="svx-p5" aria-expanded="false">
+            <span class="svx__num">05</span>
+            <span class="svx__title">Corporate Tour Packages</span>
+            <span class="svx__icon">{{icon briefcase}}</span>
+          </button>
+          <figure class="svx__media">{{img id="1506869640319-fe1a24fd76dc" ratio="4/3" widths="480,800,1100" sizes="(min-width: 1024px) 46vw, 92vw" w="1100" alt="Corporate Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+          <div class="svx__panel" id="svx-p5" role="region" aria-labelledby="svx-h5"><div>
             <p>Company trips, team-building retreats, incentive tours, conferences and group Umrah for employees, planned end to end with one dedicated coordinator and proper invoicing for your accounts team.</p>
-            <a class="link-arrow link-arrow--light" href="/services/corporate-tour-packages/">Plan a corporate trip {{icon arrow-right}}</a>
+            <a class="link-arrow" href="/services/corporate-tour-packages/">Plan a corporate trip {{icon arrow-right}}</a>
           </div></div>
-        </div>
-      </article>
-    </div>
-    <div class="svc-ctrl" data-svc-ctrl>
-      <p class="svc-ctrl__count" aria-hidden="true"><b data-svc-count>02</b> <span>/ 05</span></p>
-      <div class="svc-ctrl__steps">
-        <button class="svc-ctrl__step" type="button" data-svc-step aria-label="Show Visa Consultancy &amp; Processing"><i></i></button>
-        <button class="svc-ctrl__step is-active" type="button" data-svc-step aria-label="Show Umrah Packages" aria-current="true"><i></i></button>
-        <button class="svc-ctrl__step" type="button" data-svc-step aria-label="Show Domestic Tour Packages"><i></i></button>
-        <button class="svc-ctrl__step" type="button" data-svc-step aria-label="Show International Tour Packages"><i></i></button>
-        <button class="svc-ctrl__step" type="button" data-svc-step aria-label="Show Corporate Tour Packages"><i></i></button>
-      </div>
-      <button class="svc-ctrl__pause" type="button" data-svc-pause aria-label="Pause services slideshow">{{icon pause i-pause}}{{icon play i-play}}</button>
+          <span class="svx__bar" aria-hidden="true"></span>
+        </li>
+      </ol>
+      <button class="svx__pause" type="button" data-svx-pause aria-label="Pause services slideshow">{{icon pause i-pause}}{{icon play i-play}}</button>
     </div>
   </div>
 </section>
 
-<!-- ============ 4 · WHY CHOOSE US ============ -->
+<!-- ============ 4 · WHY CHOOSE US (six reasons around an arch-shaped photo) ============ -->
 <section class="why section section--dark" aria-labelledby="why-title">
-  <div class="container why__grid">
-    <div class="why__head">
-      <p class="eyebrow eyebrow--light" data-reveal>Why Marjan</p>
-      <h2 id="why-title" data-reveal style="--d:1">Why Travellers Choose Marjan Travel &amp; Tours</h2>
-      <figure class="why__photo" data-reveal style="--d:2">
-        {{img id="1612128952123-88ed13410495" ratio="4/3" widths="480,800,1100" sizes="(min-width: 1024px) 38vw, 92vw" w="1100" alt="Boats on a turquoise lake in Hunza Valley, Pakistan"}}
-        <figcaption>{{icon pin}}Hunza Valley, Gilgit-Baltistan</figcaption>
-      </figure>
+  <div class="container">
+    <div class="section-head section-head--center" data-reveal>
+      <h2 id="why-title">Why Travellers Choose Marjan Travel &amp; Tours</h2>
     </div>
-    <ul class="why__list">
-      <li class="why__item" data-reveal><span class="why__icon">{{icon shield}}</span><p><strong>Licensed and verified.</strong> We are registered with {{ph LICENSING BODY}} and verified by the Ministry of Religious Affairs for Umrah. Our licence numbers are printed on every quotation.</p></li>
-      <li class="why__item" data-reveal style="--d:1"><span class="why__icon">{{icon layers}}</span><p><strong>One team for everything.</strong> Visa, flights, hotels, transport and tours are handled together, so nothing falls through the gaps between different agents.</p></li>
-      <li class="why__item" data-reveal><span class="why__icon">{{icon receipt}}</span><p><strong>Clear, itemised pricing.</strong> You receive a written quotation that lists every cost. No hidden charges appear after you pay.</p></li>
-      <li class="why__item" data-reveal style="--d:1"><span class="why__icon">{{icon eye}}</span><p><strong>Honest visa advice.</strong> If your file has a weak point, we tell you before you spend money on fees, and we show you how to strengthen it.</p></li>
-      <li class="why__item" data-reveal><span class="why__icon">{{icon headset}}</span><p><strong>Support while you travel.</strong> Our WhatsApp support line is available {{ph SUPPORT HOURS}} while you are on your trip, in Urdu or English.</p></li>
-      <li class="why__item" data-reveal style="--d:1"><span class="why__icon">{{icon compass}}</span><p><strong>Local know-how.</strong> Our tour team has travelled the routes we sell, from the Karakoram Highway to the streets of Istanbul, so our advice comes from experience.</p></li>
-    </ul>
+    <div class="arch">
+      <ul class="arch__col arch__col--l">
+        <li class="arch__item" data-reveal><span class="arch__icon">{{icon shield}}</span><div><h3>Licensed and verified</h3><p>We are registered with {{ph LICENSING BODY}} and verified by the Ministry of Religious Affairs for Umrah. Our licence numbers are printed on every quotation.</p></div></li>
+        <li class="arch__item" data-reveal style="--d:1"><span class="arch__icon">{{icon layers}}</span><div><h3>One team for everything</h3><p>Visa, flights, hotels, transport and tours are handled together, so nothing falls through the gaps between different agents.</p></div></li>
+        <li class="arch__item" data-reveal style="--d:2"><span class="arch__icon">{{icon receipt}}</span><div><h3>Clear, itemised pricing</h3><p>You receive a written quotation that lists every cost. No hidden charges appear after you pay.</p></div></li>
+      </ul>
+      <figure class="arch__media" data-reveal>
+        <div class="arch__photo">{{img id="1612128952123-88ed13410495" ratio="4/5" widths="400,640,900" sizes="(min-width: 1024px) 360px, 300px" w="640" alt="Boats on a turquoise lake in Hunza Valley, Pakistan"}}</div>
+        <figcaption class="arch__badge"><span class="arch__badge-icon">{{icon users}}</span><span><strong>{{ph NUMBER}}+ travellers</strong><small>helped since {{ph YEAR FOUNDED}}</small></span></figcaption>
+      </figure>
+      <ul class="arch__col arch__col--r">
+        <li class="arch__item" data-reveal><span class="arch__icon">{{icon eye}}</span><div><h3>Honest visa advice</h3><p>If your file has a weak point, we tell you before you spend money on fees, and we show you how to strengthen it.</p></div></li>
+        <li class="arch__item" data-reveal style="--d:1"><span class="arch__icon">{{icon headset}}</span><div><h3>Support while you travel</h3><p>Our WhatsApp support line is available {{ph SUPPORT HOURS}} while you are on your trip, in Urdu or English.</p></div></li>
+        <li class="arch__item" data-reveal style="--d:2"><span class="arch__icon">{{icon compass}}</span><div><h3>Local know-how</h3><p>Our tour team has travelled the routes we sell, from the Karakoram Highway to the streets of Istanbul, so our advice comes from experience.</p></div></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -350,7 +322,6 @@
   <div class="container">
     <div class="section-head section-head--split">
       <div data-reveal>
-        <p class="eyebrow">Umrah 2026–27</p>
         <h2 id="pk-title">Popular Umrah Packages 2026–27 from Pakistan</h2>
       </div>
       <p class="section-head__lead" data-reveal style="--d:1">All packages include Umrah visa, return flights, hotel stay in Makkah and Madinah, and ground transport. Prices are per person, based on {{ph SHARING TYPE}} sharing.</p>
@@ -403,12 +374,11 @@
   </div>
 </section>
 
-<!-- ============ 6 · DESTINATIONS ============ -->
-<section class="dest section section--tint" aria-labelledby="dest-title">
+<!-- ============ 6 · DESTINATIONS (pick a place, the large 16:9 photo changes) ============ -->
+<section class="dest dest--fit section section--tint" aria-labelledby="dest-title">
   <div class="container">
     <div class="section-head section-head--split">
       <div data-reveal>
-        <p class="eyebrow">Destinations</p>
         <h2 id="dest-title">Top Destinations in Pakistan and Abroad</h2>
       </div>
       <div class="seg" role="tablist" aria-label="Destination region" data-tabs data-reveal style="--d:1">
@@ -420,78 +390,156 @@
 
     <div class="dest__panel" id="panel-pk" role="tabpanel" aria-labelledby="tab-pk">
       <h3 class="sr-only">Explore Pakistan</h3>
-      <ul class="bento bento--pk">
-        <li class="dcard dcard--lg" data-reveal><a href="/services/pakistan-tour-packages/">
-          {{img id="1646514323421-094bb563cd37" ratio="3/2" widths="480,800,1200" sizes="(min-width: 1024px) 60vw, 100vw" w="1200" alt="Karakoram Highway towards the Passu Cones, Hunza Valley"}}
-          <span class="dcard__body"><span class="dcard__name">Hunza Valley</span><span class="dcard__desc">Karimabad, Baltit and Altit forts, Attabad Lake and the Passu Cones.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard" data-reveal style="--d:1"><a href="/services/pakistan-tour-packages/">
-          {{img id="1709634483655-c0384d8a100f" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="Lake below snow-covered mountains near Skardu"}}
-          <span class="dcard__body"><span class="dcard__name">Skardu</span><span class="dcard__desc">Shangrila and Upper Kachura lakes, Shigar Fort and the Deosai Plains.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard" data-reveal style="--d:2"><a href="/services/pakistan-tour-packages/">
-          {{img id="1550586678-f7225f03c44b" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="Green mountain meadow with a wooden cabin in Swat"}}
-          <span class="dcard__body"><span class="dcard__name">Swat</span><span class="dcard__desc">Kalam, Malam Jabba and Mahodand Lake, the “Switzerland of Pakistan”.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard" data-reveal><a href="/services/pakistan-tour-packages/">
-          {{img id="1573143686363-30560f0abc1d" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="Lake Saiful Muluk surrounded by mountains, Naran Kaghan"}}
-          <span class="dcard__body"><span class="dcard__name">Naran Kaghan</span><span class="dcard__desc">Lake Saiful Muluk, Babusar Top and Lulusar Lake.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard" data-reveal style="--d:1"><a href="/services/pakistan-tour-packages/">
-          {{img id="1585654766816-8a9fe569d445" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="Snow-covered houses in Murree in winter"}}
-          <span class="dcard__body"><span class="dcard__name">Murree &amp; Galiyat</span><span class="dcard__desc">Weekend escapes from Islamabad and Lahore, with snow in winter.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard" data-reveal style="--d:2"><a href="/services/pakistan-tour-packages/">
-          {{img id="1659553761498-6a8728fbf281" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 100vw" w="640" alt="Village in a green valley between mountains, Neelum Valley"}}
-          <span class="dcard__body"><span class="dcard__name">Neelum Valley</span><span class="dcard__desc">Keran, Sharda and Arang Kel in Azad Kashmir.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-      </ul>
+      <div class="dsh" data-dsh>
+        <div class="dsh__stage">
+        <figure class="dsh__slide is-active" data-dsh-slide>
+          {{img id="1646514323421-094bb563cd37" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" alt="Karakoram Highway towards the Passu Cones, Hunza Valley"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Hunza Valley</h4>
+            <p class="dsh__desc">Karimabad, Baltit and Altit forts, Attabad Lake and the Passu Cones.</p>
+            <a class="dsh__link" href="/services/pakistan-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1709634483655-c0384d8a100f" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Lake below snow-covered mountains near Skardu"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Skardu</h4>
+            <p class="dsh__desc">Shangrila and Upper Kachura lakes, Shigar Fort and the Deosai Plains.</p>
+            <a class="dsh__link" href="/services/pakistan-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1550586678-f7225f03c44b" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Green mountain meadow with a wooden cabin in Swat"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Swat</h4>
+            <p class="dsh__desc">Kalam, Malam Jabba and Mahodand Lake, the “Switzerland of Pakistan”.</p>
+            <a class="dsh__link" href="/services/pakistan-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1573143686363-30560f0abc1d" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Lake Saiful Muluk surrounded by mountains, Naran Kaghan"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Naran Kaghan</h4>
+            <p class="dsh__desc">Lake Saiful Muluk, Babusar Top and Lulusar Lake.</p>
+            <a class="dsh__link" href="/services/pakistan-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1585654766816-8a9fe569d445" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Snow-covered houses in Murree in winter"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Murree &amp; Galiyat</h4>
+            <p class="dsh__desc">Weekend escapes from Islamabad and Lahore, with snow in winter.</p>
+            <a class="dsh__link" href="/services/pakistan-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1659553761498-6a8728fbf281" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Village in a green valley between mountains, Neelum Valley"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Neelum Valley</h4>
+            <p class="dsh__desc">Keran, Sharda and Arang Kel in Azad Kashmir.</p>
+            <a class="dsh__link" href="/services/pakistan-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        </div>
+        <ul class="dsh__list">
+        <li><button class="dsh__item is-active" type="button" aria-pressed="true" data-dsh-item>{{img id="1646514323421-094bb563cd37" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Hunza Valley</strong><small>Gilgit-Baltistan</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1709634483655-c0384d8a100f" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Skardu</strong><small>Gilgit-Baltistan</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1550586678-f7225f03c44b" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Swat</strong><small>Khyber Pakhtunkhwa</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1573143686363-30560f0abc1d" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Naran Kaghan</strong><small>Khyber Pakhtunkhwa</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1585654766816-8a9fe569d445" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Murree &amp; Galiyat</strong><small>Punjab</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1659553761498-6a8728fbf281" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Neelum Valley</strong><small>Azad Kashmir</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        </ul>
+      </div>
     </div>
 
     <div class="dest__panel" id="panel-ab" role="tabpanel" aria-labelledby="tab-ab" hidden>
       <h3 class="sr-only">Holidays Abroad</h3>
-      <ul class="bento bento--ab">
-        <li class="dcard dcard--lg"><a href="/services/international-tour-packages/">
-          {{img id="1518684079-3c830dcef090" ratio="3/2" widths="480,800,1200" sizes="(min-width: 1024px) 60vw, 100vw" w="1200" alt="Burj Al Arab on the coast of Dubai"}}
-          <span class="dcard__body"><span class="dcard__name">Dubai</span><span class="dcard__desc">Desert safari, Burj Khalifa and family theme parks.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard"><a href="/services/international-tour-packages/">
-          {{img id="1604156789095-3348604c0f43" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="Hot-air balloons over the valleys of Cappadocia, Turkey"}}
-          <span class="dcard__body"><span class="dcard__name">Turkey</span><span class="dcard__desc">Istanbul, Cappadocia hot-air balloons and the Antalya coast.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard"><a href="/services/international-tour-packages/">
-          {{img id="1596306499300-0b7b1689b9f6" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="The Flame Towers above Baku, Azerbaijan"}}
-          <span class="dcard__body"><span class="dcard__name">Baku, Azerbaijan</span><span class="dcard__desc">A short flight away, with European-style streets and mountain day trips.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard"><a href="/services/international-tour-packages/">
-          {{img id="1506665531195-3566af2b4dfa" ratio="4/3" widths="400,640,900" sizes="(min-width: 1024px) 30vw, 50vw" w="640" alt="Boats in a bay on Phi Phi Island, Thailand"}}
-          <span class="dcard__body"><span class="dcard__name">Thailand &amp; Malaysia</span><span class="dcard__desc">Beaches, islands and city breaks at great value.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-        <li class="dcard dcard--wide"><a href="/services/international-tour-packages/">
-          {{img id="1573843981267-be1999ff37cd" ratio="2/1" widths="480,800,1200" sizes="(min-width: 1024px) 60vw, 50vw" w="1200" alt="Overwater villas in the Maldives"}}
-          <span class="dcard__body"><span class="dcard__name">Maldives &amp; Bali</span><span class="dcard__desc">The most-requested honeymoon destinations.</span></span><span class="dcard__go">{{icon arrow-up-right}}</span></a></li>
-      </ul>
+      <div class="dsh" data-dsh>
+        <div class="dsh__stage">
+        <figure class="dsh__slide is-active" data-dsh-slide>
+          {{img id="1518684079-3c830dcef090" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" alt="Burj Al Arab on the coast of Dubai"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Dubai</h4>
+            <p class="dsh__desc">Desert safari, Burj Khalifa and family theme parks.</p>
+            <a class="dsh__link" href="/services/international-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1604156789095-3348604c0f43" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Hot-air balloons over the valleys of Cappadocia, Turkey"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Turkey</h4>
+            <p class="dsh__desc">Istanbul, Cappadocia hot-air balloons and the Antalya coast.</p>
+            <a class="dsh__link" href="/services/international-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1596306499300-0b7b1689b9f6" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="The Flame Towers above Baku, Azerbaijan"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Baku, Azerbaijan</h4>
+            <p class="dsh__desc">A short flight away, with European-style streets and mountain day trips.</p>
+            <a class="dsh__link" href="/services/international-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1506665531195-3566af2b4dfa" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Boats in a bay on Phi Phi Island, Thailand"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Thailand &amp; Malaysia</h4>
+            <p class="dsh__desc">Beaches, islands and city breaks at great value.</p>
+            <a class="dsh__link" href="/services/international-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        <figure class="dsh__slide" data-dsh-slide>
+          {{img id="1573843981267-be1999ff37cd" ratio="16/9" widths="640,960,1280,1600" sizes="(min-width: 1240px) 760px, (min-width: 1024px) 60vw, 92vw" w="1280" defer alt="Overwater villas in the Maldives"}}
+          <figcaption class="dsh__cap">
+            <h4 class="dsh__name">Maldives &amp; Bali</h4>
+            <p class="dsh__desc">The most-requested honeymoon destinations.</p>
+            <a class="dsh__link" href="/services/international-tour-packages/">Plan this trip {{icon arrow-right}}</a>
+          </figcaption>
+        </figure>
+        </div>
+        <ul class="dsh__list">
+        <li><button class="dsh__item is-active" type="button" aria-pressed="true" data-dsh-item>{{img id="1518684079-3c830dcef090" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Dubai</strong><small>United Arab Emirates</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1604156789095-3348604c0f43" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Turkey</strong><small>Istanbul, Cappadocia, Antalya</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1596306499300-0b7b1689b9f6" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Baku, Azerbaijan</strong><small>Old City and Caspian coast</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1506665531195-3566af2b4dfa" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Thailand &amp; Malaysia</strong><small>Beaches and city breaks</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><button class="dsh__item" type="button" aria-pressed="false" data-dsh-item>{{img id="1573843981267-be1999ff37cd" ratio="1/1" widths="96,192" sizes="64px" w="192" alt=""}}<span class="dsh__meta"><strong>Maldives &amp; Bali</strong><small>Honeymoon favourites</small></span>{{icon arrow-right dsh__arrow}}</button></li>
+        <li><a class="dsh__item dsh__item--more" href="/contact-us/"><span class="dsh__plus">{{icon plus}}</span><span class="dsh__meta"><strong>Somewhere else?</strong><small>Europe, Saudi Arabia and more</small></span>{{icon arrow-up-right dsh__arrow}}</a></li>
+        </ul>
+      </div>
     </div>
-
-    <div class="dest__cta" data-reveal><a class="btn btn--primary btn--lg" href="/contact-us/">Plan My Trip {{icon arrow-right}}</a></div>
   </div>
 </section>
 
-<!-- ============ 7 · HOW IT WORKS ============ -->
-<section class="steps section" aria-labelledby="steps-title">
+<!-- ============ 7 · HOW IT WORKS (travel route, the plane follows your scroll) ============ -->
+<section class="route section" aria-labelledby="steps-title">
   <div class="container">
     <div class="section-head section-head--center" data-reveal>
-      <p class="eyebrow">How it works</p>
       <h2 id="steps-title">How It Works: <em>Dream It. Book It. Live It.</em></h2>
     </div>
-    <div class="steps__track" aria-hidden="true"><span class="steps__fill"></span></div>
-    <ol class="steps__list" data-steps>
-      <li class="step" data-reveal>
-        <span class="step__dot" aria-hidden="true">1</span>
-        <figure class="step__media">{{img id="1545132147-d037e6c54cfd" ratio="4/5" widths="400,640,900" sizes="(min-width: 900px) 30vw, 92vw" w="640" alt="View of clouds from an aeroplane window"}}</figure>
-        <p class="step__text"><strong>Dream it.</strong> Tell us where you want to go, when, and who is travelling. A free consultation by WhatsApp, phone or at our {{ph CITY}} office takes about 15 minutes.</p>
-      </li>
-      <li class="step" data-reveal style="--d:1">
-        <span class="step__dot" aria-hidden="true">2</span>
-        <figure class="step__media">{{img id="1581553673739-c4906b5d0de8" ratio="4/5" widths="400,640,900" sizes="(min-width: 900px) 30vw, 92vw" w="640" alt="An open passport with colourful visa stamps"}}</figure>
-        <p class="step__text"><strong>Book it.</strong> Receive a written, itemised quotation. Once you confirm, we take care of visas, flights, hotels, transport and tour bookings, and keep you updated at every step.</p>
-      </li>
-      <li class="step" data-reveal style="--d:2">
-        <span class="step__dot" aria-hidden="true">3</span>
-        <figure class="step__media">{{img id="1691077015817-64ee69ec020c" ratio="4/5" widths="400,640,900" sizes="(min-width: 900px) 30vw, 92vw" w="640" alt="Night sky over snowy mountains near Fairy Meadows, Pakistan"}}</figure>
-        <p class="step__text"><strong>Live it.</strong> Travel with all your documents in hand and our support team one message away until you are home.</p>
-      </li>
-    </ol>
+    <div class="route__wrap" data-steps>
+      <div class="route__line" aria-hidden="true"><span class="route__fill"></span><span class="route__plane">{{icon plane}}</span></div>
+      <ol class="route__list">
+        <li class="step route__step" data-reveal>
+          <span class="route__stop" aria-hidden="true">{{icon compass}}</span>
+          <h3>Dream it.</h3>
+          <p>Tell us where you want to go, when, and who is travelling. A free consultation by WhatsApp, phone or at our office takes about 15 minutes.</p>
+          <span class="route__chip">{{icon clock}}Free, about 15 minutes</span>
+        </li>
+        <li class="step route__step" data-reveal style="--d:1">
+          <span class="route__stop" aria-hidden="true">{{icon receipt}}</span>
+          <h3>Book it.</h3>
+          <p>Get a written, itemised quotation. Once you confirm, we book your visa, flights, hotels and transport, and keep you updated at every step.</p>
+          <span class="route__chip">{{icon check}}Written, itemised quotation</span>
+        </li>
+        <li class="step route__step" data-reveal style="--d:2">
+          <span class="route__stop" aria-hidden="true">{{icon plane}}</span>
+          <h3>Live it.</h3>
+          <p>Travel with every document in hand and your plans arranged, while our support team stays one WhatsApp message away until you are home.</p>
+          <span class="route__chip">{{icon headset}}Support until you are home</span>
+        </li>
+      </ol>
+    </div>
+    <div class="route__cta" data-reveal><a class="btn btn--primary btn--lg" href="/contact-us/">Start with a free consultation {{icon arrow-right}}</a></div>
   </div>
 </section>
 
@@ -501,54 +549,134 @@
     <h2 id="stats-title" class="stats__title" data-reveal>Marjan Travel &amp; Tours in Numbers</h2>
     <dl class="stats__grid">
       <div class="stat" data-reveal><dt>Years of experience</dt><dd><span class="count" data-count>{{ph YEARS}}</span>+</dd></div>
-      <div class="stat" data-reveal style="--d:1"><dt>Pilgrims and travellers served</dt><dd><span class="count" data-count>{{ph NUMBER|8,500}}</span>+</dd></div>
+      <div class="stat" data-reveal style="--d:1"><dt>Average Google rating</dt><dd><span class="count" data-count>{{ph RATING}}</span>★</dd></div>
       <div class="stat" data-reveal style="--d:2"><dt>Visa applications processed</dt><dd><span class="count" data-count>{{ph NUMBER|3,200}}</span>+</dd></div>
-      <div class="stat" data-reveal style="--d:3"><dt>Average Google rating</dt><dd><span class="count" data-count>{{ph RATING}}</span>★</dd></div>
+      <div class="stat" data-reveal style="--d:3"><dt>Pilgrims and travellers served</dt><dd><span class="count" data-count>{{ph NUMBER|8,500}}</span>+</dd></div>
     </dl>
   </div>
 </section>
 
-<!-- ============ 9 · TESTIMONIALS ============ -->
-<!-- Add 3 to 6 REAL Google reviews (first name, city, service used, month of travel). Never write or edit reviews yourself. No Review schema here. -->
+<!-- ============ 9 · REVIEWS (carousel, no photos) ============ -->
+<!-- SAMPLE REVIEWS FOR THE DESIGN PREVIEW ONLY. Before launch, replace every review below with a REAL Google review
+     (first name, city, service, month), copied word for word, and delete the "sample" tag. Never publish invented reviews.
+     No Review schema on this page. -->
 <section class="reviews section" aria-labelledby="reviews-title">
-  <div class="container reviews__grid">
-    <div class="reviews__summary" data-reveal>
-      <p class="eyebrow">Reviews</p>
-      <h2 id="reviews-title">What Our Travellers Say</h2>
-      <div class="rating">
-        <span class="rating__score">{{ph RATING}}</span>
-        <span class="rating__meta"><span class="stars" aria-hidden="true">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span><span>Average rating on Google</span></span>
+  <div class="container">
+    <div class="rv-head">
+      <h2 id="reviews-title" data-reveal>What Our Travellers Say</h2>
+      <div class="rv-nav" data-reveal style="--d:1">
+        <span class="sample-tag">Sample reviews · replace with real Google reviews before launch</span>
+        <button class="rv-btn rv-btn--prev" type="button" data-rv-prev aria-label="Previous reviews">{{icon arrow-right}}</button>
+        <button class="rv-btn" type="button" data-rv-next aria-label="Next reviews">{{icon arrow-right}}</button>
       </div>
-      <a class="link-arrow" href="[GOOGLE BUSINESS PROFILE URL]">Read all reviews on Google {{icon arrow-right}}</a>
     </div>
-    <div class="reviews__track" data-scroller="rv">
-      <figure class="review" data-reveal>
-        <span class="stars" aria-hidden="true">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
-        <blockquote><p>“{{ph REAL GOOGLE REVIEW TEXT}}”</p></blockquote>
-        <figcaption><span class="review__avatar" aria-hidden="true">{{icon quote}}</span><span><strong>{{ph FIRST NAME}}, {{ph CITY}}</strong><span>{{ph SERVICE USED}} · {{ph MONTH OF TRAVEL}}</span></span></figcaption>
+  </div>
+  <div class="rv-track" data-rv-track data-scroller="rv" tabindex="0" role="region" aria-label="Traveller reviews, scroll sideways for more">
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“We booked our first family Umrah through Marjan. The visa came through on time, our hotel in Makkah was a short walk from the Haram, and their WhatsApp team replied even late at night.”</p></blockquote>
+        <figcaption><strong>Ayesha K., Lahore</strong><span>Umrah · March 2026</span></figcaption>
       </figure>
-      <figure class="review" data-reveal style="--d:1">
-        <span class="stars" aria-hidden="true">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
-        <blockquote><p>“{{ph REAL GOOGLE REVIEW TEXT}}”</p></blockquote>
-        <figcaption><span class="review__avatar" aria-hidden="true">{{icon quote}}</span><span><strong>{{ph FIRST NAME}}, {{ph CITY}}</strong><span>{{ph SERVICE USED}} · {{ph MONTH OF TRAVEL}}</span></span></figcaption>
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“Our UK visit visa file had a weak bank statement. They told us honestly, helped us fix it before applying, and the visa was approved. No false promises, just good guidance.”</p></blockquote>
+        <figcaption><strong>Usman R., Gujranwala</strong><span>UK visit visa · January 2026</span></figcaption>
       </figure>
-      <figure class="review" data-reveal style="--d:2">
-        <span class="stars" aria-hidden="true">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
-        <blockquote><p>“{{ph REAL GOOGLE REVIEW TEXT}}”</p></blockquote>
-        <figcaption><span class="review__avatar" aria-hidden="true">{{icon quote}}</span><span><strong>{{ph FIRST NAME}}, {{ph CITY}}</strong><span>{{ph SERVICE USED}} · {{ph MONTH OF TRAVEL}}</span></span></figcaption>
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“Six days in Hunza and Skardu with my parents. The driver was careful on the Karakoram Highway, the hotels were clean and the pace was right for older travellers.”</p></blockquote>
+        <figcaption><strong>Hira S., Islamabad</strong><span>Hunza &amp; Skardu tour · June 2026</span></figcaption>
       </figure>
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“They planned our honeymoon in Baku: flights, hotel and visa in one go. The written quotation matched the final price exactly, with nothing added later.”</p></blockquote>
+        <figcaption><strong>Bilal &amp; Mahnoor, Lahore</strong><span>Baku honeymoon · April 2026</span></figcaption>
+      </figure>
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“Marjan arranged a three-day retreat in Swat for 42 of our staff. One coordinator, one invoice and no headaches for our admin team.”</p></blockquote>
+        <figcaption><strong>Faisal A., Karachi</strong><span>Corporate retreat · May 2026</span></figcaption>
+      </figure>
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“Our second Umrah with them, this time in Ramadan. Everything was organised, from the Madinah transfer to the ziyarat. I would recommend them for anyone travelling with elderly parents.”</p></blockquote>
+        <figcaption><strong>Naveed M., Sialkot</strong><span>Ramadan Umrah · March 2026</span></figcaption>
+      </figure>
+      <figure class="rv">
+        <span class="stars" role="img" aria-label="5 out of 5 stars">{{icon star}}{{icon star}}{{icon star}}{{icon star}}{{icon star}}</span>
+        <blockquote><p>“We got our Dubai family visas in under a week. They checked every document before submitting, so there was no back and forth with the embassy.”</p></blockquote>
+        <figcaption><strong>Sana T., Faisalabad</strong><span>Dubai visa · August 2026</span></figcaption>
+      </figure>
+    </div>
+</section>
+
+<!-- ============ 10 · GET A QUOTE (enquiry form; sends the details on WhatsApp) ============ -->
+<section class="quote section section--tint" id="get-a-quote" aria-labelledby="quote-title">
+  <div class="container">
+    <div class="quote__card" data-reveal>
+      <div class="quote__intro">
+        <h2 id="quote-title">Get a Free Quote</h2>
+        <p>Tell us about your trip and we will send you a written, itemised quotation, usually within {{ph RESPONSE TIME}}.</p>
+        <ul class="quote__contacts">
+          <li><span class="quote__icon">{{icon phone}}</span><span><small>Call us</small><a href="tel:[PHONE]">{{ph PHONE}}</a></span></li>
+          <li><span class="quote__icon">{{icon whatsapp}}</span><span><small>WhatsApp</small><a href="#" data-wa>Chat with our team</a></span></li>
+          <li><span class="quote__icon">{{icon clock}}</span><span><small>Office hours</small><span>{{ph OFFICE HOURS}}</span></span></li>
+        </ul>
+        <p class="quote__promise">{{icon check}}No obligation and no hidden charges</p>
+      </div>
+      <form class="quote__form" data-quote-form>
+        <label class="field">
+          <span class="field__label">Full name</span>
+          <input type="text" name="name" autocomplete="name" required placeholder="Your name">
+        </label>
+        <label class="field">
+          <span class="field__label">Phone or WhatsApp</span>
+          <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required placeholder="03XX XXXXXXX">
+        </label>
+        <label class="field">
+          <span class="field__label">Service</span>
+          <span class="field__select">
+            <select name="service" required data-error="Please choose a service.">
+              <option value="" selected disabled>Choose a service</option>
+              <option>Umrah package</option>
+              <option>Visa consultancy</option>
+              <option>Pakistan tour</option>
+              <option>International holiday</option>
+              <option>Corporate trip</option>
+            </select>{{icon chevron-down}}
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">When</span>
+          <span class="field__select"><select name="month" data-month-select><option>Flexible</option></select>{{icon chevron-down}}</span>
+        </label>
+        <label class="field">
+          <span class="field__label">Travellers</span>
+          <input type="number" name="travellers" min="1" max="500" value="2" inputmode="numeric">
+        </label>
+        <label class="field">
+          <span class="field__label">Departing from <em>(optional)</em></span>
+          <input type="text" name="city" autocomplete="address-level2" placeholder="e.g. Lahore">
+        </label>
+        <label class="field field--wide">
+          <span class="field__label">Anything else we should know? <em>(optional)</em></span>
+          <textarea name="notes" rows="3" placeholder="Hotel preference, budget, dates, special requests"></textarea>
+        </label>
+        <div class="quote__submit field--wide">
+          <button class="btn btn--primary btn--lg btn--block" type="submit">{{icon whatsapp}}Send my quote request</button>
+          <p>Opens WhatsApp with your details filled in, ready to send.</p>
+        </div>
+      </form>
     </div>
   </div>
 </section>
 
-<!-- ============ 10 · FAQ ============ -->
+<!-- ============ 11 · FAQ ============ -->
 <section class="faq section section--tint" aria-labelledby="faq-title">
   <div class="container faq__grid">
     <div class="faq__aside" data-reveal>
-      <p class="eyebrow">FAQ</p>
       <h2 id="faq-title">Frequently Asked Questions</h2>
       <div class="faq__help">
-        <span class="faq__help-icon">{{icon whatsapp}}</span>
         <p><strong>Still have a question?</strong> Message our team on WhatsApp in Urdu or English.</p>
         <a class="btn btn--outline btn--sm" href="#" data-wa>Ask on WhatsApp</a>
       </div>
@@ -586,13 +714,12 @@
   </div>
 </section>
 
-<!-- ============ 11 · CLOSING CTA ============ -->
+<!-- ============ 12 · CLOSING CTA ============ -->
 <section class="cta" aria-labelledby="cta-title">
   <div class="container">
     <div class="cta__card" data-reveal>
       <div class="cta__media">{{img id="1626440847069-d8073e1a0cca" ratio="16/9" widths="640,1024,1440,1920" sizes="(min-width: 1280px) 1240px, 100vw" w="1440" alt="Mountains and green valley in northern Pakistan"}}</div>
       <div class="cta__content">
-        <p class="eyebrow eyebrow--light">Free, no-obligation quotation</p>
         <h2 id="cta-title">Ready to Plan Your Next Journey?</h2>
         <p>Tell us where you would like to go and we will send you a clear, no-obligation quotation. Pilgrimage, family holiday, business trip or team retreat, it all starts with one message.</p>
         <div class="cta__btns">
