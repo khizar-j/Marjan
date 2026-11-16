@@ -1,4 +1,7 @@
-# Builds website/src/assets/brand/marjan-logo-animated.svg from logo/svg/02-client-logo-lines.svg.
+# Builds website/src/assets/brand/marjan-logo-animated.svg (Coming soon page) and
+# website/src/assets/brand/marjan-logo.svg (static full logo) and
+# website/src/assets/brand/marjan-icon.svg (main icon only, used as the favicon) from
+# logo/svg/02-client-logo-lines.svg, with the same clean-up applied to both.
 # Run from the repo root:  python3 logo/source/animate.py
 #
 # Loop: the main icon (pin, mountains, trail and plane together) breathes
@@ -8,6 +11,8 @@ import re
 
 SRC = 'logo/svg/02-client-logo-lines.svg'
 OUT = 'website/src/assets/brand/marjan-logo-animated.svg'
+OUT_STATIC = 'website/src/assets/brand/marjan-logo.svg'
+OUT_ICON = 'website/src/assets/brand/marjan-icon.svg'      # favicon: main icon only
 s = open(SRC).read()
 defs = re.search(r'<defs>.*?</defs>', s, re.S).group(0)
 
@@ -70,3 +75,22 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="904 80 4320 3680" rol
 </svg>'''
 open(OUT, 'w').write(svg)
 print('wrote', OUT, len(svg), 'bytes')
+
+static = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="904 80 4320 3680" role="img" aria-labelledby="t"><title id="t">Marjan Travel &amp; Tours logo</title>{defs}
+<path fill="url(#pin-gradient)" fill-rule="evenodd" d="{pin}"/>
+<path fill="url(#mountain-gradient)" fill-rule="evenodd" d="{path('mountains')}"/>
+<path fill="#011249" fill-rule="evenodd" d="{plane}"/>
+<path fill="#011249" stroke="#011249" stroke-width="5" stroke-linejoin="round" fill-rule="evenodd" d="{word}"/>
+<path fill="#0257C5" fill-rule="evenodd" d="{jpin}"/>
+<path fill="#0254C0" fill-rule="evenodd" d="{band}"/>
+</svg>'''
+open(OUT_STATIC, 'w').write(static)
+print('wrote', OUT_STATIC, len(static), 'bytes')
+
+icon = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="2070 -40 2560 2560" role="img" aria-labelledby="t"><title id="t">Marjan Travel &amp; Tours</title>{defs}
+<path fill="url(#pin-gradient)" fill-rule="evenodd" d="{pin}"/>
+<path fill="url(#mountain-gradient)" fill-rule="evenodd" d="{path('mountains')}"/>
+<path fill="#011249" fill-rule="evenodd" d="{plane}"/>
+</svg>'''
+open(OUT_ICON, 'w').write(icon)
+print('wrote', OUT_ICON, len(icon), 'bytes')
