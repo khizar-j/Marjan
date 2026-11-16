@@ -3,12 +3,17 @@
   // Marjan Travel & Tours: static site served by Cloudflare Workers.
   "name": "marjan",
   "compatibility_date": "2026-11-16",
+  // Pre-launch: worker.js serves the site under /design-branch and a
+  // "Coming soon" page everywhere else. Remove "main" and "run_worker_first" at launch.
+  "main": "worker.js",
   // Build the site into website/dist before every deploy.
   "build": {
     "command": "node website/build.mjs"
   },
   "assets": {
-    "directory": "./website/dist"
+    "directory": "./website/dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
   },
   "routes": [
     { "pattern": "marjantravels.com", "custom_domain": true },
