@@ -27,10 +27,16 @@ plane = ''.join(sp for sp in wm if bbox(sp)[2] < 1100)
 word = ''.join(sp for sp in wm if bbox(sp)[2] >= 1100)
 # The pin layer has a light-blue copy of the plane from the trace: drop it.
 pin = ''.join(sp for sp in subpaths('pin') if not (bbox(sp)[0] > 3800 and bbox(sp)[3] < 1000))
-# Location icon over the "j" only; the trace also left blue slivers on the
-# tops of the "r" and "j", which are not in the client's logo: drop them.
-jpin = ''.join(sp for sp in subpaths('j-pin') if bbox(sp)[3] < 2400)
-band = path('travel-tours-band')
+# The trace put three bits of the letters into the blue layers: the tip of the
+# "r" and the top of the "j" (in the j-pin layer) and the bottom curve of the
+# "j" (in the band layer). They belong to the navy wordmark.
+jp = subpaths('j-pin')
+jpin = ''.join(sp for sp in jp if bbox(sp)[3] < 2400)          # location icon only
+letter_bits = [sp for sp in jp if bbox(sp)[3] >= 2400]
+bp = subpaths('travel-tours-band')
+letter_bits += [sp for sp in bp if bbox(sp)[3] < 3230]          # bottom of the "j"
+band = ''.join(sp for sp in bp if bbox(sp)[3] >= 3230)
+word += ''.join(letter_bits)
 
 css = '''<style>
   .icon{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 4s ease-in-out infinite}
@@ -54,7 +60,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="904 80 4320 3680" rol
   <path fill="#011249" fill-rule="evenodd" d="{plane}"/>
 </g>
 <g class="rise">
-  <path fill="#011249" fill-rule="evenodd" d="{word}"/>
+  <path fill="#011249" stroke="#011249" stroke-width="5" stroke-linejoin="round" fill-rule="evenodd" d="{word}"/>
   <path class="jpin" fill="#0257C5" fill-rule="evenodd" d="{jpin}"/>
 </g>
 <g class="rise d2">
