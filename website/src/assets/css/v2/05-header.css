@@ -1,0 +1,41 @@
+/* Version 2 · header: a white, rounded bar that floats a little below the top edge, on every screen size.
+   It is white over the hero too: there is no see-through stage, so nothing fades to white as the page starts to
+   move, and a fast flick on a phone can't flash it. It still slides away as you scroll down and comes back as you
+   scroll up (main.js moves the whole .site-header; the bar is .site-header__inner).
+   The outer .site-header is a clear strip that lets clicks through; it is 22px taller than the bar's space so,
+   when main.js slides it away, the bar's soft shadow goes too. */
+.v2 { --bar-gap: 12px; --bar-top: 12px; } /* --bar-gap: space at the bar's sides on small screens; --bar-top: above it */
+/* Tablets and desktop: 26px above the bar (14px more than at first, asked for), so it clearly floats free of the
+   top edge. --header-h grows by the same 14px, so the bar keeps its 64px height and the hero copy, the pinned
+   services scene and same-page links all start below it. */
+@media (min-width: 640px) {
+  .v2 { --bar-top: 26px; --header-h: 90px; }
+  :root:has(body.v2) { scroll-padding-top: 104px; } /* same-page links stop below the lower bar */
+}
+@media (max-width: 639.98px) { .v2 { --bar-gap: 10px; --bar-top: 10px; } }
+
+.v2 .site-header,
+.v2.has-hero .site-header:not(.is-solid) {
+  --bar: float; /* read by main.js */
+  height: calc(var(--header-h) + 22px); padding: var(--bar-top) 0 22px;
+  color: var(--ink); background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  pointer-events: none;
+}
+.v2 .site-header__inner {
+  pointer-events: auto;
+  width: min(100% - 2 * var(--bar-gap), var(--container) + 36px);
+  padding: 0 10px 0 18px; border-radius: var(--r-lg);
+  background: #fff; box-shadow: var(--shadow-1);
+}
+/* always the dark logo and the light menu button, as on the solid bar */
+.v2.has-hero .site-header:not(.is-solid) .brand__logo--on-light { display: block; }
+.v2.has-hero .site-header:not(.is-solid) .brand__logo--on-dark { display: none; }
+.v2.has-hero .site-header:not(.is-solid) .menu-btn,
+.v2 .menu-btn { background: rgba(127, 127, 127, .14); -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* Phones: the round menu button sits 5px inside the bar's rounded end, so their curves run together */
+@media (max-width: 1023.98px) {
+  .v2 .site-header__inner { padding: 0 5px 0 16px; }
+  .v2 .site-header .menu-btn { border-radius: 50%; }
+}
+/* the Services menu opens 10px below the bar (its invisible bridge keeps the hover across the gap) */
+.v2 .mega { top: calc(100% + 10px); }

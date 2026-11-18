@@ -1,0 +1,85 @@
+<!-- ============ 3 · SERVICES (service index + large preview)
+     v2 (js/v2/20-story.js): desktop = a short pinned scene, scrolling steps through the services and each new photo
+     rises in from the bottom as the last one goes up and out (clicking a service still opens it); phones and
+     tablets = every service open, each photo opening
+     as you scroll. No timer, so the pause button is gone. ============ -->
+<section class="services section section--tint" id="services" aria-labelledby="services-title">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <h2 id="services-title" data-reveal>Travel Services for Every Kind of Journey</h2>
+      <p class="section-head__lead" data-reveal style="--d:1">Whether you are planning your first Umrah, a family holiday in the mountains or a team retreat abroad, one experienced team handles it from start to finish.</p>
+    </div>
+
+    <div class="svx-track">
+      <div class="svx" data-svs>
+        <ol class="svx__list">
+          <li class="svx__item is-active" data-reveal>
+            <button class="svx__head" type="button" id="svx-h1" aria-controls="svx-p1" aria-expanded="true">
+              <span class="svx__num">01</span>
+              <span class="svx__title">Visa Consultancy &amp; Processing</span>
+              <span class="svx__icon">{{icon passport}}</span>
+            </button>
+            <figure class="svx__media">{{img id="1553697388-94e804e2f0f6" ratio="4/3" widths="480,800,1100" sizes="(min-width: 640px) 46vw, 92vw" w="1100" alt="Visa Consultancy &amp; Processing by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+            <div class="svx__panel" id="svx-p1" role="region" aria-labelledby="svx-h1"><div>
+              <p>Visit, tourist, family and business visas for Dubai and the UAE, the UK, Schengen countries, Turkey, Thailand, Malaysia, Saudi Arabia and more. We review your documents, book your appointment and file your application correctly the first time.</p>
+              <a class="link-arrow" href="/services/visa-consultancy/">Explore visa services {{icon arrow-right}}</a>
+            </div></div>
+            <span class="svx__bar" aria-hidden="true"></span>
+          </li>
+          <li class="svx__item" data-reveal>
+            <button class="svx__head" type="button" id="svx-h2" aria-controls="svx-p2" aria-expanded="false">
+              <span class="svx__num">02</span>
+              <span class="svx__title">Umrah Packages</span>
+              <span class="svx__icon">{{icon kaaba}}</span>
+            </button>
+            <figure class="svx__media">{{img id="1627728734379-a5f8c099763e" ratio="4/3" widths="480,800,1100" sizes="(min-width: 640px) 46vw, 92vw" w="1100" alt="Umrah Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+            <div class="svx__panel" id="svx-p2" role="region" aria-labelledby="svx-h2"><div>
+              <p>7, 14, 15, 21 and 28-day Umrah packages from Pakistan with Umrah visa, return flights, hotels close to the Haram and Makkah–Madinah transport. Choose from economy, standard and 5-star options, including Ramadan 2027 packages.</p>
+              <a class="link-arrow" href="/services/umrah-packages/">View Umrah packages 2026–27 {{icon arrow-right}}</a>
+            </div></div>
+            <span class="svx__bar" aria-hidden="true"></span>
+          </li>
+          <li class="svx__item" data-reveal>
+            <button class="svx__head" type="button" id="svx-h3" aria-controls="svx-p3" aria-expanded="false">
+              <span class="svx__num">03</span>
+              <span class="svx__title">Domestic Tour Packages</span>
+              <span class="svx__icon">{{icon mountain}}</span>
+            </button>
+            <figure class="svx__media">{{img id="1521892125404-76a993e24362" ratio="4/3" widths="480,800,1100" sizes="(min-width: 640px) 46vw, 92vw" w="1100" alt="Domestic Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+            <div class="svx__panel" id="svx-p3" role="region" aria-labelledby="svx-h3"><div>
+              <p>Discover Pakistan with guided tours to Hunza, Skardu, Swat, Naran Kaghan, Murree, Neelum Valley and Fairy Meadows. Family, honeymoon and group trips with comfortable transport, handpicked hotels and an experienced guide.</p>
+              <a class="link-arrow" href="/services/pakistan-tour-packages/">See Pakistan tour packages {{icon arrow-right}}</a>
+            </div></div>
+            <span class="svx__bar" aria-hidden="true"></span>
+          </li>
+          <li class="svx__item" data-reveal>
+            <button class="svx__head" type="button" id="svx-h4" aria-controls="svx-p4" aria-expanded="false">
+              <span class="svx__num">04</span>
+              <span class="svx__title">International Tour Packages</span>
+              <span class="svx__icon">{{icon globe}}</span>
+            </button>
+            <figure class="svx__media">{{img id="1512453979798-5ea266f8880c" ratio="4/3" widths="480,800,1100" sizes="(min-width: 640px) 46vw, 92vw" w="1100" alt="International Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+            <div class="svx__panel" id="svx-p4" role="region" aria-labelledby="svx-h4"><div>
+              <p>Holiday packages from Pakistan to Dubai, Turkey, Azerbaijan (Baku), Thailand, Malaysia, Bali, the Maldives and Europe, with visa assistance, flights, hotels and sightseeing in one clear price.</p>
+              <a class="link-arrow" href="/services/international-tour-packages/">Browse international tour packages {{icon arrow-right}}</a>
+            </div></div>
+            <span class="svx__bar" aria-hidden="true"></span>
+          </li>
+          <li class="svx__item" data-reveal>
+            <button class="svx__head" type="button" id="svx-h5" aria-controls="svx-p5" aria-expanded="false">
+              <span class="svx__num">05</span>
+              <span class="svx__title">Corporate Tour Packages</span>
+              <span class="svx__icon">{{icon briefcase}}</span>
+            </button>
+            <figure class="svx__media">{{img id="1506869640319-fe1a24fd76dc" ratio="4/3" widths="480,800,1100" sizes="(min-width: 640px) 46vw, 92vw" w="1100" alt="Corporate Tour Packages by Marjan Travel &amp; Tours, [CITY]"}}</figure>
+            <div class="svx__panel" id="svx-p5" role="region" aria-labelledby="svx-h5"><div>
+              <p>Company trips, team-building retreats, incentive tours, conferences and group Umrah for employees, planned end to end with one dedicated coordinator and proper invoicing for your accounts team.</p>
+              <a class="link-arrow" href="/services/corporate-tour-packages/">Plan a corporate trip {{icon arrow-right}}</a>
+            </div></div>
+            <span class="svx__bar" aria-hidden="true"></span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>

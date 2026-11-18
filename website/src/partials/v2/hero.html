@@ -1,0 +1,96 @@
+<!-- ============ 1 · HERO (interactive journey picker over the client's 8-second video for each journey) ============
+     Each slide shows its poster (the video's first frame) at once; js/v2/10-hero.js adds the muted video after the
+     page has loaded. The clip sets the pace: each journey plays its clip once, then the next one starts as it ends.
+     data-video is the file stem: -1080.mp4 (the client's file as uploaded), -m.mp4 (phones, upright cut). data-duration is only the
+     fallback timer for visitors who get posters only (Save-Data). -->
+<section class="hero" aria-labelledby="hero-title" data-hero data-duration="8000" data-no-parallax>
+  <div class="hero__media">
+    <figure class="hero__slide is-active" data-slide="umrah" data-video="/assets/video/hero-umrah" style="--pos:58% 50%">
+      <picture>
+        <source media="(max-width: 639.98px) and (orientation: portrait)" srcset="/assets/video/hero-umrah-m.webp">
+        <img src="/assets/video/hero-umrah.webp" width="1600" height="900" fetchpriority="high" alt="Pilgrims in white circling the Kaaba in Masjid al-Haram, Makkah: Umrah packages from Pakistan by Marjan Travel &amp; Tours">
+      </picture>
+    </figure>
+    <figure class="hero__slide" data-slide="north" data-video="/assets/video/hero-north" style="--pos:50% 50%">
+      <picture>
+        <source media="(max-width: 639.98px) and (orientation: portrait)" data-srcset="/assets/video/hero-north-m.webp">
+        <img data-src="/assets/video/hero-north.webp" width="1600" height="900" decoding="async" alt="Travellers on a bridge over a mountain river in northern Pakistan">
+      </picture>
+    </figure>
+    <figure class="hero__slide" data-slide="abroad" data-video="/assets/video/hero-abroad" style="--pos:62% 50%">
+      <picture>
+        <source media="(max-width: 639.98px) and (orientation: portrait)" data-srcset="/assets/video/hero-abroad-m.webp">
+        <img data-src="/assets/video/hero-abroad.webp" width="1600" height="900" decoding="async" alt="The Dubai skyline and Burj Khalifa at dusk">
+      </picture>
+    </figure>
+    <figure class="hero__slide" data-slide="visa" data-video="/assets/video/hero-visa" style="--pos:66% 50%">
+      <picture>
+        <source media="(max-width: 639.98px) and (orientation: portrait)" data-srcset="/assets/video/hero-visa-m.webp">
+        <img data-src="/assets/video/hero-visa.webp" width="1600" height="900" decoding="async" alt="The UAE flag flying over the Dubai skyline">
+      </picture>
+    </figure>
+    <figure class="hero__slide" data-slide="corporate" data-video="/assets/video/hero-corporate" style="--pos:66% 50%">
+      <picture>
+        <source media="(max-width: 639.98px) and (orientation: portrait)" data-srcset="/assets/video/hero-corporate-m.webp">
+        <img data-src="/assets/video/hero-corporate.webp" width="1600" height="900" decoding="async" alt="A business traveller with a suitcase looking out of an airport window">
+      </picture>
+    </figure>
+    <div class="hero__shade" aria-hidden="true"></div>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content">
+      <h1 id="hero-title" class="hero__title">Your Trusted Travel Agency in {{ph CITY}} for Umrah, Visas &amp; Tours</h1>
+      <p class="hero__tagline" aria-label="Dream it. Book it. Live it.">
+        <span>Dream it.</span> <span>Book it.</span> <span>Live it.</span>
+      </p>
+      <p class="hero__lead">Umrah, visas, Pakistan tours, holidays abroad and corporate trips, with flights, hotels and transport arranged for you.</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary btn--lg" href="/contact-us/">Get a Free Quote {{icon arrow-right}}</a>
+        <a class="btn btn--glass btn--lg" href="https://wa.me/" data-wa>{{icon whatsapp}}WhatsApp Us</a>
+      </div>
+    </div>
+
+
+    <div class="planner" data-planner>
+      <div class="planner__tabs" role="group" aria-label="Choose your journey">
+        <button class="planner__tab is-active" type="button" aria-pressed="true" data-journey="umrah">{{icon kaaba}}<span>Umrah</span></button>
+        <button class="planner__tab" type="button" aria-pressed="false" data-journey="north">{{icon mountain}}<span>Pakistan Tours</span></button>
+        <button class="planner__tab" type="button" aria-pressed="false" data-journey="abroad">{{icon globe}}<span>Holidays Abroad</span></button>
+        <button class="planner__tab" type="button" aria-pressed="false" data-journey="visa">{{icon passport}}<span>Visas</span></button>
+        <button class="planner__tab" type="button" aria-pressed="false" data-journey="corporate">{{icon briefcase}}<span>Corporate</span></button>
+        <button class="planner__pause" type="button" aria-label="Pause slideshow and video" data-autoplay-toggle>{{icon pause i-pause}}{{icon play i-play}}</button>
+      </div>
+      <form class="planner__form" action="/contact-us/" method="get" data-planner-form>
+        <input type="hidden" name="journey" value="Umrah" data-journey-input>
+        <label class="planner__field planner__field--wide">
+          <span class="planner__label" data-option-label>Package</span>
+          <span class="planner__control">
+            <select name="option" data-option>
+              <option>Economy Umrah · 15 days</option>
+              <option selected>Standard Umrah · 21 days</option>
+              <option>Premium 5-Star Umrah · 14 days</option>
+              <option>Ramadan Umrah 2027</option>
+              <option>Custom Umrah package</option>
+            </select>{{icon chevron-down}}
+          </span>
+        </label>
+        <div class="planner__field">
+          <label class="planner__label" for="travellers">Travellers</label>
+          <span class="planner__control stepper">
+            <button type="button" data-step="-1" aria-label="Fewer travellers">{{icon minus}}</button>
+            <input id="travellers" name="travellers" type="number" inputmode="numeric" min="1" max="500" value="2" data-travellers>
+            <button type="button" data-step="1" aria-label="More travellers">{{icon plus}}</button>
+          </span>
+        </div>
+        <label class="planner__field">
+          <span class="planner__label">When</span>
+          <span class="planner__control">
+            <select name="month" data-month><option>Flexible</option></select>{{icon chevron-down}}
+          </span>
+        </label>
+        <button class="btn btn--primary planner__submit" type="submit">{{icon whatsapp}}<span>Get my quote</span></button>
+      </form>
+    </div>
+  </div>
+</section>

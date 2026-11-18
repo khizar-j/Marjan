@@ -138,6 +138,7 @@
   const actionbar = $('[data-actionbar]');
   const fab = $('[data-fab]');
   const devpill = $('[data-devpill]');
+  const verswitch = $('[data-verswitch]');
   let menuOpen = false;
   /* The top bar moves with the page, like Twitter's: scrolling down pushes it up out of view pixel
      for pixel, scrolling up pulls it back down. It never flips between two states, so fast changes
@@ -145,8 +146,25 @@
      eases the rest of the way: fully back if you were heading up, fully away if you were heading down. */
   const HIDE_FROM = 600; // px: over the hero the bar always stays
   const SETTLE_DELAY = 180; // ms of stillness before a half-shown bar finishes its slide
+  /* Phones and tablets with the see-through bar (version 1): the bar used to turn white as soon as the page moved,
+     yet stay on screen for the first 600px. A flick covers 600px in a fraction of a second, so a white bar flashed
+     up and vanished. Now, on those screens, the bar scrolls away with the page from the very top, still
+     see-through, and only turns white when it comes back (you scroll up) or once the hero is off the screen.
+     Version 2's floating bar is white all the time (--bar: float in css/v2/05-header.css), so it keeps the
+     600px rule everywhere. */
+  const floatBar = getComputedStyle(header).getPropertyValue('--bar').trim() === 'float';
+  const smallQ = matchMedia('(max-width: 1023.98px)');
+  let revealed = false; // brought back by scrolling up, since the page was last at the top
   let barH = header.offsetHeight + 8; // + room for its shadow
-  addEventListener('resize', () => { barH = header.offsetHeight + 8; });
+  // the hero's height is kept here (updated when it changes), so scrolling never has to measure the page
+  let heroH = hero ? hero.offsetHeight : 0;
+  let heroEnd = heroH - header.offsetHeight; // past this, the bar is over the page, not the hero
+  if (hero && 'ResizeObserver' in window) new ResizeObserver(() => { heroH = hero.offsetHeight; heroEnd = heroH - header.offsetHeight; }).observe(hero);
+  addEventListener('resize', () => {
+    barH = header.offsetHeight + 8;
+    heroH = hero ? hero.offsetHeight : 0;
+    heroEnd = heroH - header.offsetHeight;
+  });
   let lastY = Math.max(0, scrollY);
   let offset = 0; // how far the bar is pushed up: 0 (shown) … barH (hidden)
   let lastDir = 0;
@@ -181,8 +199,10 @@
     const y = Math.min(max, Math.max(0, scrollY)); // ignore rubber-band overscroll on phones
     const dy = y - lastY;
     lastY = y;
-    header.classList.toggle('is-solid', y > 24);
-    if (keepBar() || y < HIDE_FROM) {
+    const early = smallQ.matches && !floatBar; // phones and tablets, version 1
+    if (y <= 24) revealed = false; else if (dy < 0) revealed = true;
+    header.classList.toggle('is-solid', y > 24 && (!early || revealed || y > heroEnd || keepBar()));
+    if (keepBar() || y < (early ? 1 : HIDE_FROM)) {
       clearTimeout(settleTimer);
       slideBar(0);
     } else if (dy) {
@@ -198,7 +218,7 @@
         }, SETTLE_DELAY);
       }
     }
-    const pastHero = y > (hero ? hero.offsetHeight - 160 : 240);
+    const pastHero = y > (hero ? heroH - 160 : 240);
     actionbar && actionbar.classList.toggle('is-visible', pastHero);
     fab && fab.classList.toggle('is-visible', pastHero);
     devpill && devpill.classList.toggle('is-visible', pastHero);
@@ -209,11 +229,18 @@
   /* ---------- Services mega menu ---------- */
   $$('[data-menu-trigger]').forEach((btn) => {
     const item = btn.closest('.nav__item');
-    const set = (open) => { item.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); };
-    btn.addEventListener('click', () => set(!item.classList.contains('is-open')));
+    // shut: closed on purpose (second click, Escape). The CSS also opens the menu on hover and keyboard focus, which
+    // used to hold it open after a second click on Services; .is-shut overrides both until the pointer leaves
+    const set = (open, shut = false) => {
+      item.classList.toggle('is-open', open);
+      item.classList.toggle('is-shut', shut);
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => { const open = !item.classList.contains('is-open'); set(open, !open); });
     item.addEventListener('mouseleave', () => set(false));
+    item.addEventListener('focusout', (e) => { if (!item.contains(e.relatedTarget)) item.classList.remove('is-shut'); });
     d.addEventListener('click', (e) => { if (!item.contains(e.target)) set(false); });
-    item.addEventListener('keydown', (e) => { if (e.key === 'Escape') { set(false); btn.focus(); } });
+    item.addEventListener('keydown', (e) => { if (e.key === 'Escape') { set(false, true); btn.focus(); } });
   });
 
   /* ---------- Mobile menu ---------- */
@@ -288,7 +315,7 @@
     const journeyInput = $('[data-journey-input]', hero);
     const caption = $('[data-caption]', hero);
     const keys = tabs.map((t) => t.dataset.journey);
-    const DURATION = 6000; // time on each journey; the active tab fills with 10% brand blue over this time
+    const DURATION = Number(hero.dataset.duration) || 6000; // ms on each journey (data-duration overrides); the active tab fills with 10% brand blue over this time
 
     let idx = 0;
     let engaged = false;
@@ -320,7 +347,7 @@
       $('[data-step="-1"]', hero).disabled = v <= 1;
     };
 
-    const go = (i) => {
+    const go = (i, auto = false) => { // auto: the timer moved on by itself (not a click, key or swipe)
       i = (i + keys.length) % keys.length;
       idx = i;
       const key = keys[i];
@@ -336,9 +363,10 @@
         t.style.setProperty('--p', 0);
       });
       sets.forEach((s) => s.classList.toggle('is-active', s.dataset.set === key));
+      const cap = slides.find((s) => s.dataset.slide === key)?.dataset.caption || j.caption; // a slide's data-caption wins
       if (caption) {
         caption.parentElement.classList.add('is-swapping');
-        setTimeout(() => { caption.textContent = j.caption; caption.parentElement.classList.remove('is-swapping'); }, 250);
+        setTimeout(() => { caption.textContent = cap; caption.parentElement.classList.remove('is-swapping'); }, 250);
       }
       optLabel.textContent = j.label;
       optSel.innerHTML = j.options.map((o, k) => `<option${k === (j.selected || 0) ? ' selected' : ''}>${o}</option>`).join('');
@@ -349,6 +377,7 @@
       if (row.scrollWidth > row.clientWidth) row.scrollTo({ left: tabs[i].offsetLeft - 8, behavior: reduceMotion ? 'auto' : 'smooth' });
       elapsed = 0;
       loadSlide(slides[(i + 1) % slides.length]); // warm the next image
+      hero.dispatchEvent(new CustomEvent('journey', { detail: { key, index: i, auto } })); // version 2 listens (videos)
     };
 
     const engage = () => {
@@ -408,11 +437,15 @@
       const tick = (t) => {
         const dt = Math.min(t - last, 1000);
         last = t;
-        if (!engaged && inView && !hoverPause && !userPaused && !d.hidden) {
+        const run = !engaged && inView && !hoverPause && !userPaused && !d.hidden;
+        // Optional hook (version 2): hero.journeyClock(run) lets a background clip set the pace. It returns how far
+        // the current journey is (0–1), or null to use the timer below.
+        const clip = hero.journeyClock ? hero.journeyClock(run) : null;
+        if (run) {
           elapsed += dt;
-          const p = Math.min(elapsed / DURATION, 1);
+          const p = clip == null ? Math.min(elapsed / DURATION, 1) : clip;
           tabs[idx].style.setProperty('--p', p.toFixed(4));
-          if (p >= 1) go(idx + 1);
+          if (p >= 1) go(idx + 1, true);
         }
         if (!engaged) requestAnimationFrame(tick);
       };
@@ -439,8 +472,8 @@
       sx = null;
     }, { passive: true });
 
-    // Pointer parallax on the image and floating cards
-    if (finePointer && !reduceMotion) {
+    // Pointer parallax on the image and floating cards (a hero with data-no-parallax opts out: version 2's videos)
+    if (finePointer && !reduceMotion && !hero.hasAttribute('data-no-parallax')) {
       let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
       const move = () => {
         cx += (tx - cx) * 0.08;
@@ -858,11 +891,27 @@
     state();
   }
 
+  /* ---------- Phones and tablets: photos start downloading about three screens ahead ----------
+     The browser's own lazy loading waits until a photo is roughly one screen away, so a fast flick reached photos
+     that had not arrived yet and showed empty boxes. Here every lazy photo switches to loading at once when it is
+     within three screens (only those: the page doesn't fetch everything up front). */
+  if ('IntersectionObserver' in window && matchMedia('(max-width: 1023.98px)').matches) {
+    const early = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.loading = 'eager';
+      early.unobserve(e.target);
+    }), { rootMargin: '300% 0px' });
+    $$('img[loading="lazy"]').forEach((img) => early.observe(img));
+  }
+
   /* ---------- Reveal on scroll ---------- */
   if ('IntersectionObserver' in window) {
+    // Phones and tablets: blocks start showing just before they scroll onto the screen (and fade in faster, CSS), so
+    // a fast flick never lands on a section that is still blank. Desktop: once they are 8% onto the screen.
+    const touchSize = matchMedia('(max-width: 1023.98px)').matches;
     const io = new IntersectionObserver((entries) => entries.forEach((e) => {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    }), { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+    }), touchSize ? { rootMargin: '0px 0px 15% 0px', threshold: 0 } : { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
     $$('[data-reveal]').forEach((el) => io.observe(el));
   } else {
     $$('[data-reveal]').forEach((el) => el.classList.add('in'));
@@ -872,13 +921,26 @@
   const steps = $('[data-steps]');
   if (steps) {
     const items = $$('.step', steps);
+    // Phones (steps stacked): the line runs from the first stop to the last one and no further. --tail is the last
+    // step's height, so CSS ends the line at that step's stop; at[k] is where stop k sits along the line (0 → 1),
+    // so each stop lights up as the plane reaches it, however long the text under each step is
+    let at = items.map((_, k) => k / (items.length - 1));
+    const measure = () => {
+      const last = items[items.length - 1];
+      steps.style.setProperty('--tail', `${last.offsetHeight}px`);
+      const span = last.offsetTop - items[0].offsetTop;
+      at = items.map((it, k) => (span > 1 ? (it.offsetTop - items[0].offsetTop) / span : k / (items.length - 1)));
+    };
     const update = () => {
       const r = steps.getBoundingClientRect();
       const vh = innerHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.75 - r.top) / (r.height * 0.85)));
       steps.style.setProperty('--p', p.toFixed(3));
-      items.forEach((it, k) => it.classList.toggle('is-on', p >= (k / (items.length - 1)) * 0.98 && p > 0.01));
+      items.forEach((it, k) => it.classList.toggle('is-on', p >= at[k] * 0.98 && p > 0.01));
     };
+    measure();
+    if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); update(); }).observe(steps);
+    else addEventListener('resize', () => { measure(); update(); });
     scrollFns.push(update);
     update();
   }
@@ -935,5 +997,20 @@
     toggle.checked = saved;
     if (saved) applySample(true);
     toggle.addEventListener('change', () => applySample(toggle.checked));
+  }
+
+  /* ---------- DESIGN PREVIEW: V1 | V2 switch (remove before launch) ---------- */
+  if (verswitch) {
+    const here = d.body.classList.contains('v2') ? '2' : '1';
+    $$('[data-v]', verswitch).forEach((a) => {
+      if (a.dataset.v === here) a.setAttribute('aria-current', 'page');
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return; // a new tab or window: leave it to the browser
+        e.preventDefault();
+        if (a.dataset.v === here) return;
+        verswitch.classList.add(`go-${a.dataset.v}`); // slide the thumb across, then open the other version
+        setTimeout(() => { location.href = a.href; }, 280);
+      });
+    });
   }
 })();
