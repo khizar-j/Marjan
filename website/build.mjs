@@ -9,6 +9,7 @@
 //                                    responsive Unsplash image (AVIF/WebP via auto=format)
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, cpSync, rmSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -67,7 +68,7 @@ function img(a) {
 
 function render(html, depth = 0) {
   if (depth > 10) throw new Error('Include depth exceeded');
-  html = html.replace(/\{\{>\s*([\w-]+)\s*\}\}/g, (_, name) =>
+  html = html.replace(/\{\{>\s*([\w/-]+)\s*\}\}/g, (_, name) =>
     render(readFileSync(join(SRC, 'partials', `${name}.html`), 'utf8'), depth + 1));
   if (depth > 0) return html;
   return html
@@ -90,17 +91,37 @@ function walk(dir) {
 if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 cpSync(join(SRC, 'assets'), join(OUT, 'assets'), { recursive: true });
+// Version 2 add-ons: the files in assets/css/v2 and assets/js/v2 are joined, in name order, into one
+// assets/css/v2.css and one assets/js/v2.js (one request each). The folders themselves are not published.
+for (const [dir, bundle] of [['css', 'v2.css'], ['js', 'v2.js']]) {
+  const from = join(SRC, 'assets', dir, 'v2');
+  if (!existsSync(from)) continue;
+  const parts = readdirSync(from).filter((f) => f.endsWith(`.${dir}`)).sort();
+  writeFileSync(join(OUT, 'assets', dir, bundle), parts.map((f) => `/* ---- v2/${f} ---- */\n${readFileSync(join(from, f), 'utf8')}`).join('\n'));
+  rmSync(join(OUT, 'assets', dir, 'v2'), { recursive: true, force: true });
+}
 for (const f of ['robots.txt', 'llms.txt']) {
   const p = join(SRC, f);
   if (existsSync(p)) cpSync(p, join(OUT, f));
 }
+
+// Cache-busting: every stylesheet and script link gets ?v=<8 hex of the file's content hash>, so a browser never
+// pairs a new page with an old cached file (that once showed the V1 | V2 tabs as plain, unstyled text)
+const stamps = new Map();
+const bust = (html) => html.replace(/(["'])(\/assets\/(?:css|js)\/[\w.-]+\.(?:css|js))\1/g, (m, q, url) => {
+  if (!stamps.has(url)) {
+    const p = join(OUT, url);
+    stamps.set(url, existsSync(p) ? createHash('md5').update(readFileSync(p)).digest('hex').slice(0, 8) : '');
+  }
+  return stamps.get(url) ? `${q}${url}?v=${stamps.get(url)}${q}` : m;
+});
 
 const pages = walk(join(SRC, 'pages'));
 for (const file of pages) {
   const rel = relative(join(SRC, 'pages'), file);
   const out = join(OUT, rel);
   mkdirSync(dirname(out), { recursive: true });
-  const html = render(readFileSync(file, 'utf8'));
+  const html = bust(render(readFileSync(file, 'utf8')));
   const left = html.match(/\{\{[^}]*\}\}/g);
   if (left) console.warn(`  ! unresolved in ${rel}:`, [...new Set(left)].slice(0, 5));
   writeFileSync(out, html);

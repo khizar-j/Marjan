@@ -1,0 +1,60 @@
+<!-- ============ 10 · GET A QUOTE (enquiry form; sends the details on WhatsApp). v2: the card rises in once and its fields follow in a short stagger (data-quote-card, js/v2/40-closing.js) ============ -->
+<section class="quote section section--tint" id="get-a-quote" aria-labelledby="quote-title">
+  <div class="container">
+    <div class="quote__card" data-quote-card>
+      <div class="quote__intro">
+        <h2 id="quote-title">Get a Free Quote</h2>
+        <p>Tell us about your trip and we will send you a written, itemised quotation, usually within {{ph RESPONSE TIME}}.</p>
+        <ul class="quote__contacts">
+          <li><span class="quote__icon">{{icon phone}}</span><span><small>Call us</small><a href="tel:[PHONE]">{{ph PHONE}}</a></span></li>
+          <li><span class="quote__icon">{{icon whatsapp}}</span><span><small>WhatsApp</small><a href="#" data-wa>Chat with our team</a></span></li>
+          <li><span class="quote__icon">{{icon clock}}</span><span><small>Office hours</small><span>{{ph OFFICE HOURS}}</span></span></li>
+        </ul>
+        <p class="quote__promise">{{icon check}}No obligation and no hidden charges</p>
+      </div>
+      <form class="quote__form" data-quote-form>
+        <label class="field">
+          <span class="field__label">Full name</span>
+          <input type="text" name="name" autocomplete="name" required placeholder="Your name">
+        </label>
+        <label class="field">
+          <span class="field__label">Phone or WhatsApp</span>
+          <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required placeholder="03XX XXXXXXX">
+        </label>
+        <label class="field">
+          <span class="field__label">Service</span>
+          <span class="field__select">
+            <select name="service" required data-error="Please choose a service.">
+              <option value="" selected disabled>Choose a service</option>
+              <option>Umrah package</option>
+              <option>Visa consultancy</option>
+              <option>Pakistan tour</option>
+              <option>International holiday</option>
+              <option>Corporate trip</option>
+            </select>{{icon chevron-down}}
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">When</span>
+          <span class="field__select"><select name="month" data-month-select><option>Flexible</option></select>{{icon chevron-down}}</span>
+        </label>
+        <label class="field">
+          <span class="field__label">Travellers</span>
+          <input type="number" name="travellers" min="1" max="500" value="2" inputmode="numeric">
+        </label>
+        <label class="field">
+          <span class="field__label">Departing from <em>(optional)</em></span>
+          <input type="text" name="city" autocomplete="address-level2" placeholder="e.g. Lahore">
+        </label>
+        <label class="field field--wide">
+          <span class="field__label">Anything else we should know? <em>(optional)</em></span>
+          <textarea name="notes" rows="3" placeholder="Hotel preference, budget, dates, special requests"></textarea>
+        </label>
+        <div class="quote__submit field--wide">
+          <button class="btn btn--primary btn--lg btn--block" type="submit">{{icon whatsapp}}Send my quote request</button>
+          <p>Opens WhatsApp with your details filled in, ready to send.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

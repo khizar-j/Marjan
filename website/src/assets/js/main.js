@@ -30,7 +30,7 @@
 
   /* ---------- Current page in nav ---------- */
   const here = location.pathname.replace(/index\.html$/, '');
-  $$('.nav__link[href], .mobile-menu a[href], .devpill a[href]').forEach((a) => {
+  $$('.nav__link[href], .mobile-menu a[href]').forEach((a) => {
     if (a.getAttribute('href') === here) a.setAttribute('aria-current', 'page');
   });
 
@@ -43,24 +43,185 @@
     requestAnimationFrame(() => { scrollFns.forEach((fn) => fn()); ticking = false; });
   }, { passive: true });
 
+  /* ---------- Smooth scrolling (Lenis, as set up by the Framer smooth-scroll component) ----------
+     Each mouse-wheel or trackpad turn moves the target; the page then glides from where it is
+     to the target over 1.5 s on an ease-out-expo curve, restarting the glide on every turn, so
+     scrolling feels continuous and floaty instead of stepping.
+     Touch, keyboard, the scrollbar and find-in-page stay native; the glide simply hands over to them.
+     Sideways scrolling (the carousels) and boxes that scroll on their own also stay native. */
+  const smooth = (() => {
+    const DURATION = 1.5; // seconds per glide: longer = softer and floatier (Lenis default is 1.2)
+    const ease = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)); // ease-out-expo, Lenis default
+    const LINE = 100 / 6; // px per wheel "line" (Firefox reports lines, not pixels)
+    let from = scrollY;
+    let target = scrollY;
+    let current = scrollY;
+    let lastSet = scrollY;
+    let elapsed = 0;
+    let raf = 0;
+    let last = 0;
+    const limit = () => Math.max(0, root.scrollHeight - innerHeight);
+    const clamp = (y) => Math.min(limit(), Math.max(0, y));
+    const frame = (now) => {
+      elapsed += last ? Math.min(0.1, Math.max(0, (now - last) / 1000)) : 1 / 60;
+      last = now;
+      const p = Math.min(1, elapsed / DURATION);
+      current = p === 1 ? target : from + (target - from) * ease(p);
+      scrollTo(0, current);
+      lastSet = scrollY;
+      raf = p === 1 ? 0 : requestAnimationFrame(frame);
+    };
+    const to = (y) => {
+      from = raf ? current : scrollY;
+      target = clamp(y);
+      elapsed = 0;
+      if (raf) return;
+      last = 0;
+      raf = requestAnimationFrame(frame);
+    };
+    const jump = (y) => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      scrollTo(0, clamp(y));
+      target = current = lastSet = scrollY;
+    };
+    // something else moved the page (scrollbar, keys, touch, focus): stop gliding and follow it
+    addEventListener('scroll', () => {
+      if (raf && Math.abs(scrollY - lastSet) > 1.5) { cancelAnimationFrame(raf); raf = 0; }
+      if (!raf) target = current = lastSet = scrollY;
+    }, { passive: true });
+    // true if the wheel should move a box under the pointer rather than the page. Only the boxes
+    // that can scroll up and down on their own are checked (cheap: no style reads per wheel turn);
+    // mark any new one with data-native-scroll.
+    const ownsWheel = (el, dy) => {
+      const box = el.closest('[data-native-scroll], textarea, .mobile-menu');
+      if (!box) return false;
+      if (box.hasAttribute('data-native-scroll')) return true;
+      return dy < 0 ? box.scrollTop > 0 : box.scrollTop + box.clientHeight < box.scrollHeight - 1;
+    };
+    addEventListener('wheel', (e) => {
+      if (e.defaultPrevented || e.ctrlKey || e.shiftKey || root.classList.contains('no-scroll')) return;
+      const k = e.deltaMode === 1 ? LINE : e.deltaMode === 2 ? innerHeight : 1;
+      const dy = e.deltaY * k;
+      if (!dy || Math.abs(e.deltaX * k) > Math.abs(dy)) return;
+      if (e.target instanceof Element && ownsWheel(e.target, dy)) return;
+      e.preventDefault();
+      to((raf ? target : scrollY) + dy);
+    }, { passive: false });
+    root.classList.add('has-smooth-scroll'); // CSS turns off native smooth scrolling, which would fight the glide
+    return { to, jump };
+  })();
+
+  /* ---------- Same-page links (#get-a-quote, #main…): glide there, below the fixed header ---------- */
+  d.addEventListener('click', (e) => {
+    const a = e.target instanceof Element && e.target.closest('a[href*="#"]');
+    if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || url.pathname !== location.pathname || url.hash.length < 2) return;
+    const el = d.getElementById(decodeURIComponent(url.hash.slice(1)));
+    if (!el) return;
+    e.preventDefault();
+    if (location.hash !== url.hash) history.pushState(null, '', url.hash);
+    const offset = (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0) + (parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
+    const y = el.getBoundingClientRect().top + scrollY - offset;
+    const keyboard = e.detail === 0; // Enter on a link: jump and move focus, like a normal link
+    if (keyboard || reduceMotion) smooth.jump(y); else smooth.to(y);
+    if (keyboard) {
+      if (!el.matches('a[href], button, input, select, textarea, [tabindex]')) el.setAttribute('tabindex', '-1');
+      el.focus({ preventScroll: true });
+    }
+  });
+
   /* ---------- Header ---------- */
   const header = $('[data-header]');
   const hero = $('[data-hero]');
   const actionbar = $('[data-actionbar]');
   const fab = $('[data-fab]');
   const devpill = $('[data-devpill]');
-  let lastY = scrollY;
+  const verswitch = $('[data-verswitch]');
   let menuOpen = false;
+  /* The top bar moves with the page, like Twitter's: scrolling down pushes it up out of view pixel
+     for pixel, scrolling up pulls it back down. It never flips between two states, so fast changes
+     of direction can't make it jump. Once scrolling stops, a half-shown bar waits a moment, then
+     eases the rest of the way: fully back if you were heading up, fully away if you were heading down. */
+  const HIDE_FROM = 600; // px: over the hero the bar always stays
+  const SETTLE_DELAY = 180; // ms of stillness before a half-shown bar finishes its slide
+  /* Phones and tablets with the see-through bar (version 1): the bar used to turn white as soon as the page moved,
+     yet stay on screen for the first 600px. A flick covers 600px in a fraction of a second, so a white bar flashed
+     up and vanished. Now, on those screens, the bar scrolls away with the page from the very top, still
+     see-through, and only turns white when it comes back (you scroll up) or once the hero is off the screen.
+     Version 2's floating bar is white all the time (--bar: float in css/v2/05-header.css), so it keeps the
+     600px rule everywhere. */
+  const floatBar = getComputedStyle(header).getPropertyValue('--bar').trim() === 'float';
+  const smallQ = matchMedia('(max-width: 1023.98px)');
+  let revealed = false; // brought back by scrolling up, since the page was last at the top
+  let barH = header.offsetHeight + 8; // + room for its shadow
+  // the hero's height is kept here (updated when it changes), so scrolling never has to measure the page
+  let heroH = hero ? hero.offsetHeight : 0;
+  let heroEnd = heroH - header.offsetHeight; // past this, the bar is over the page, not the hero
+  if (hero && 'ResizeObserver' in window) new ResizeObserver(() => { heroH = hero.offsetHeight; heroEnd = heroH - header.offsetHeight; }).observe(hero);
+  addEventListener('resize', () => {
+    barH = header.offsetHeight + 8;
+    heroH = hero ? hero.offsetHeight : 0;
+    heroEnd = heroH - header.offsetHeight;
+  });
+  let lastY = Math.max(0, scrollY);
+  let offset = 0; // how far the bar is pushed up: 0 (shown) … barH (hidden)
+  let lastDir = 0;
+  let settleTimer = 0;
+  let tween = 0;
+  let tweenTo = -1;
+  const placeBar = (v) => {
+    offset = v;
+    header.style.transform = v > 0.05 ? `translate3d(0, ${(-v).toFixed(2)}px, 0)` : '';
+    header.classList.toggle('is-hidden', v >= barH - 0.5);
+  };
+  const slideBar = (to) => { // ease the bar fully in (0) or fully out (barH)
+    if (tweenTo === to || offset === to) return;
+    cancelAnimationFrame(tween);
+    tweenTo = to;
+    const from = offset;
+    const dur = 320;
+    let start = 0;
+    const step = (now) => {
+      start = start || now;
+      const p = Math.min(1, (now - start) / dur);
+      placeBar(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) tween = requestAnimationFrame(step); else tweenTo = -1;
+    };
+    tween = requestAnimationFrame(step);
+  };
+  const stopSlide = () => { cancelAnimationFrame(tween); tweenTo = -1; };
+  const keepBar = () => menuOpen || !!$('.nav__item.is-open') || !!$(':focus-visible', header);
+  header.addEventListener('focusin', () => { clearTimeout(settleTimer); slideBar(0); });
   const onScroll = () => {
-    const y = scrollY;
-    header.classList.toggle('is-solid', y > 24);
-    header.classList.toggle('is-hidden', y > 700 && y > lastY + 2 && !menuOpen);
-    if (y < lastY - 2) header.classList.remove('is-hidden');
-    const pastHero = y > (hero ? hero.offsetHeight - 160 : 240);
+    const max = Math.max(0, root.scrollHeight - innerHeight);
+    const y = Math.min(max, Math.max(0, scrollY)); // ignore rubber-band overscroll on phones
+    const dy = y - lastY;
+    lastY = y;
+    const early = smallQ.matches && !floatBar; // phones and tablets, version 1
+    if (y <= 24) revealed = false; else if (dy < 0) revealed = true;
+    header.classList.toggle('is-solid', y > 24 && (!early || revealed || y > heroEnd || keepBar()));
+    if (keepBar() || y < (early ? 1 : HIDE_FROM)) {
+      clearTimeout(settleTimer);
+      slideBar(0);
+    } else if (dy) {
+      clearTimeout(settleTimer);
+      stopSlide();
+      lastDir = Math.sign(dy);
+      placeBar(Math.min(barH, Math.max(0, offset + dy)));
+      if (offset > 0 && offset < barH) {
+        settleTimer = setTimeout(() => {
+          // follow the last direction, unless the bar only moved a few pixels that way (a wobble)
+          const towardHidden = lastDir > 0 ? offset > 12 : barH - offset <= 12;
+          slideBar(towardHidden ? barH : 0);
+        }, SETTLE_DELAY);
+      }
+    }
+    const pastHero = y > (hero ? heroH - 160 : 240);
     actionbar && actionbar.classList.toggle('is-visible', pastHero);
     fab && fab.classList.toggle('is-visible', pastHero);
     devpill && devpill.classList.toggle('is-visible', pastHero);
-    lastY = y;
   };
   scrollFns.push(onScroll);
   onScroll();
@@ -68,11 +229,18 @@
   /* ---------- Services mega menu ---------- */
   $$('[data-menu-trigger]').forEach((btn) => {
     const item = btn.closest('.nav__item');
-    const set = (open) => { item.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); };
-    btn.addEventListener('click', () => set(!item.classList.contains('is-open')));
+    // shut: closed on purpose (second click, Escape). The CSS also opens the menu on hover and keyboard focus, which
+    // used to hold it open after a second click on Services; .is-shut overrides both until the pointer leaves
+    const set = (open, shut = false) => {
+      item.classList.toggle('is-open', open);
+      item.classList.toggle('is-shut', shut);
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => { const open = !item.classList.contains('is-open'); set(open, !open); });
     item.addEventListener('mouseleave', () => set(false));
+    item.addEventListener('focusout', (e) => { if (!item.contains(e.relatedTarget)) item.classList.remove('is-shut'); });
     d.addEventListener('click', (e) => { if (!item.contains(e.target)) set(false); });
-    item.addEventListener('keydown', (e) => { if (e.key === 'Escape') { set(false); btn.focus(); } });
+    item.addEventListener('keydown', (e) => { if (e.key === 'Escape') { set(false, true); btn.focus(); } });
   });
 
   /* ---------- Mobile menu ---------- */
@@ -147,7 +315,7 @@
     const journeyInput = $('[data-journey-input]', hero);
     const caption = $('[data-caption]', hero);
     const keys = tabs.map((t) => t.dataset.journey);
-    const DURATION = 6000; // time on each journey; the active tab fills with 10% coral over this time
+    const DURATION = Number(hero.dataset.duration) || 6000; // ms on each journey (data-duration overrides); the active tab fills with 10% brand blue over this time
 
     let idx = 0;
     let engaged = false;
@@ -179,7 +347,7 @@
       $('[data-step="-1"]', hero).disabled = v <= 1;
     };
 
-    const go = (i) => {
+    const go = (i, auto = false) => { // auto: the timer moved on by itself (not a click, key or swipe)
       i = (i + keys.length) % keys.length;
       idx = i;
       const key = keys[i];
@@ -195,8 +363,11 @@
         t.style.setProperty('--p', 0);
       });
       sets.forEach((s) => s.classList.toggle('is-active', s.dataset.set === key));
-      caption.parentElement.classList.add('is-swapping');
-      setTimeout(() => { caption.textContent = j.caption; caption.parentElement.classList.remove('is-swapping'); }, 250);
+      const cap = slides.find((s) => s.dataset.slide === key)?.dataset.caption || j.caption; // a slide's data-caption wins
+      if (caption) {
+        caption.parentElement.classList.add('is-swapping');
+        setTimeout(() => { caption.textContent = cap; caption.parentElement.classList.remove('is-swapping'); }, 250);
+      }
       optLabel.textContent = j.label;
       optSel.innerHTML = j.options.map((o, k) => `<option${k === (j.selected || 0) ? ' selected' : ''}>${o}</option>`).join('');
       journeyInput.value = j.name;
@@ -206,6 +377,7 @@
       if (row.scrollWidth > row.clientWidth) row.scrollTo({ left: tabs[i].offsetLeft - 8, behavior: reduceMotion ? 'auto' : 'smooth' });
       elapsed = 0;
       loadSlide(slides[(i + 1) % slides.length]); // warm the next image
+      hero.dispatchEvent(new CustomEvent('journey', { detail: { key, index: i, auto } })); // version 2 listens (videos)
     };
 
     const engage = () => {
@@ -265,11 +437,15 @@
       const tick = (t) => {
         const dt = Math.min(t - last, 1000);
         last = t;
-        if (!engaged && inView && !hoverPause && !userPaused && !d.hidden) {
+        const run = !engaged && inView && !hoverPause && !userPaused && !d.hidden;
+        // Optional hook (version 2): hero.journeyClock(run) lets a background clip set the pace. It returns how far
+        // the current journey is (0–1), or null to use the timer below.
+        const clip = hero.journeyClock ? hero.journeyClock(run) : null;
+        if (run) {
           elapsed += dt;
-          const p = Math.min(elapsed / DURATION, 1);
+          const p = clip == null ? Math.min(elapsed / DURATION, 1) : clip;
           tabs[idx].style.setProperty('--p', p.toFixed(4));
-          if (p >= 1) go(idx + 1);
+          if (p >= 1) go(idx + 1, true);
         }
         if (!engaged) requestAnimationFrame(tick);
       };
@@ -296,8 +472,8 @@
       sx = null;
     }, { passive: true });
 
-    // Pointer parallax on the image and floating cards
-    if (finePointer && !reduceMotion) {
+    // Pointer parallax on the image and floating cards (a hero with data-no-parallax opts out: version 2's videos)
+    if (finePointer && !reduceMotion && !hero.hasAttribute('data-no-parallax')) {
       let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
       const move = () => {
         cx += (tx - cx) * 0.08;
@@ -316,13 +492,11 @@
     }
   }
 
-  /* ---------- Services: click any panel, or it moves on by itself every 10 s ---------- */
-  $$('[data-svc]').forEach((wrap) => {
-    const items = $$('[data-svc-item]', wrap);
-    const ctrl = wrap.parentElement.querySelector('[data-svc-ctrl]');
-    const steps = ctrl ? $$('[data-svc-step]', ctrl) : [];
-    const count = ctrl && $('[data-svc-count]', ctrl);
-    const pauseBtn = ctrl && $('[data-svc-pause]', ctrl);
+  /* ---------- Services click a service, or it moves on by itself every 10 s ---------- */
+  $$('[data-svx]').forEach((wrap) => {
+    const items = $$('[data-svx-item]', wrap);
+    const heads = items.map((it) => $('.svx__head', it));
+    const pauseBtn = $('[data-svx-pause]', wrap);
     const DURATION = 10000;
     let idx = Math.max(0, items.findIndex((x) => x.classList.contains('is-active')));
     let elapsed = 0;
@@ -334,25 +508,17 @@
 
     const set = (i) => {
       idx = (i + items.length) % items.length;
-      items.forEach((x, k) => x.classList.toggle('is-active', k === idx));
-      steps.forEach((s, k) => {
-        s.classList.toggle('is-active', k === idx);
-        if (k === idx) s.setAttribute('aria-current', 'true'); else s.removeAttribute('aria-current');
-        s.style.setProperty('--p', 0);
+      items.forEach((x, k) => {
+        x.classList.toggle('is-active', k === idx);
+        x.style.setProperty('--p', 0);
+        heads[k].setAttribute('aria-expanded', String(k === idx));
       });
-      if (count) count.textContent = String(idx + 1).padStart(2, '0');
       elapsed = 0;
     };
 
-    items.forEach((it, k) => {
-      it.addEventListener('click', (e) => {
-        if (!it.classList.contains('is-active')) { e.preventDefault(); set(k); }
-      });
-      it.addEventListener('focusin', () => { if (!it.classList.contains('is-active')) set(k); });
-    });
-    steps.forEach((s, k) => s.addEventListener('click', () => set(k)));
+    heads.forEach((h, k) => h.addEventListener('click', () => set(k)));
 
-    // keyboard users get a still panel while they tab through it
+    // keyboard users get a still list while they tab through it
     wrap.addEventListener('focusin', (e) => { kbFocus = e.target.matches(':focus-visible'); });
     wrap.addEventListener('focusout', (e) => { if (!wrap.contains(e.relatedTarget)) kbFocus = false; });
 
@@ -368,7 +534,7 @@
       if (!userPaused && !kbFocus && !d.hidden) {
         elapsed += dt;
         const p = Math.min(elapsed / DURATION, 1);
-        if (steps[idx]) steps[idx].style.setProperty('--p', p.toFixed(4));
+        items[idx].style.setProperty('--p', p.toFixed(4));
         if (p >= 1) set(idx + 1);
       }
       raf = inView ? requestAnimationFrame(tick) : 0;
@@ -378,6 +544,49 @@
       inView = e.isIntersecting;
       if (inView && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
     }, { threshold: 0.35 }).observe(wrap);
+  });
+
+  /* ---------- Destinations pick a place and the large photo changes ---------- */
+  $$('[data-dsh]').forEach((box) => {
+    const slides = $$('[data-dsh-slide]', box);
+    const items = $$('[data-dsh-item]', box);
+    const load = (s) => {
+      const img = s && $('img[data-srcset]', s);
+      if (!img) return;
+      img.srcset = img.dataset.srcset;
+      img.src = img.dataset.src;
+      img.removeAttribute('data-srcset');
+    };
+    const set = (i) => {
+      slides.forEach((s, k) => {
+        if (k === i) load(s);
+        s.classList.toggle('is-active', k === i);
+      });
+      items.forEach((b, k) => {
+        b.classList.toggle('is-active', k === i);
+        b.setAttribute('aria-pressed', String(k === i));
+      });
+      load(slides[(i + 1) % slides.length]); // warm the next photo
+      // keep the chosen place visible in the phone swipe row
+      const row = items[i].closest('ul');
+      if (row.scrollWidth > row.clientWidth + 1) {
+        row.scrollTo({ left: items[i].parentElement.offsetLeft - row.offsetLeft - 8, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
+    };
+    items.forEach((b, k) => {
+      b.addEventListener('click', () => set(k));
+      b.addEventListener('pointerenter', () => load(slides[k]));
+      b.addEventListener('focus', () => load(slides[k]));
+    });
+    // once the section is on screen, fetch the other photos in the background
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        setTimeout(() => slides.forEach(load), 1200);
+      }, { rootMargin: '200px 0px' });
+      io.observe(box);
+    }
   });
 
   /* ---------- Tabs (destinations) ---------- */
@@ -412,6 +621,210 @@
     });
   });
 
+  /* ---------- Get a quote form sends the details to the team on WhatsApp ---------- */
+  const quoteForm = $('[data-quote-form]');
+  if (quoteForm) {
+    const month = $('[data-month-select]', quoteForm);
+    const fmtMonth = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
+    const today = new Date();
+    month.innerHTML = '<option>Flexible</option>' + Array.from({ length: 12 }, (_, i) =>
+      `<option>${fmtMonth.format(new Date(today.getFullYear(), today.getMonth() + i, 1))}</option>`).join('');
+    quoteForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!quoteForm.reportValidity()) return;
+      const f = Object.fromEntries(new FormData(quoteForm));
+      const n = Math.max(1, Number(f.travellers) || 1);
+      const lines = [
+        "Assalam o Alaikum Marjan Travel & Tours! I'd like a free quote.",
+        '',
+        `Name: ${f.name.trim()}`,
+        `Phone: ${f.phone.trim()}`,
+        `Service: ${f.service}`,
+        `When: ${f.month}`,
+        `Travellers: ${n} ${n === 1 ? 'person' : 'people'}`,
+      ];
+      if (f.city.trim()) lines.push(`Departing from: ${f.city.trim()}`);
+      if (f.notes.trim()) lines.push('', f.notes.trim());
+      lines.push('', '(Sent from your website)');
+      window.open(waLink(lines.join('\n')), '_blank', 'noopener');
+    });
+  }
+
+  /* ---------- Custom dropdowns: every <select> opens a styled list instead of the plain system one ----------
+     The real <select> stays in the form (hidden) and keeps the value, so the form code, the
+     WhatsApp messages and validation work as before. A button shows the chosen option; the list
+     opens below it (or above, if there is no room). Keyboard: arrows, Home/End, Enter/Space,
+     Escape, Tab, and typing the first letters of an option. */
+  {
+    const pop = d.createElement('div');
+    pop.className = 'cselect-pop';
+    pop.hidden = true;
+    const list = d.createElement('ul');
+    list.className = 'cselect-pop__list';
+    list.setAttribute('role', 'listbox');
+    list.tabIndex = -1;
+    list.setAttribute('data-native-scroll', ''); // the smooth-scroll code leaves wheel scrolling in here alone
+    pop.append(list);
+    d.body.append(pop);
+    const CHECK = '<svg class="cselect-pop__check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    let cur = null; // the dropdown that is open: { select, btn, anchor, hit, labelId }
+    let active = -1;
+    let typed = '';
+    let typedAt = 0;
+    const items = () => [...list.children];
+    const setActive = (i, reveal = true) => {
+      const all = items();
+      if (!all.length) return;
+      active = Math.max(0, Math.min(all.length - 1, i));
+      all.forEach((li, k) => li.classList.toggle('is-active', k === active));
+      const li = all[active];
+      list.setAttribute('aria-activedescendant', li.id);
+      if (!reveal) return; // keep the option in view inside the list without moving the page
+      if (li.offsetTop < list.scrollTop) list.scrollTop = li.offsetTop - 6;
+      else if (li.offsetTop + li.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = li.offsetTop + li.offsetHeight - list.clientHeight + 6;
+    };
+    const place = () => {
+      const r = cur.anchor.getBoundingClientRect();
+      const vw = root.clientWidth;
+      const w = Math.min(Math.max(r.width, 220), vw - 24);
+      const left = Math.min(Math.max(12, r.left), vw - 12 - w);
+      pop.style.width = `${w}px`;
+      pop.style.left = `${left + scrollX}px`;
+      const h = pop.offsetHeight;
+      const below = innerHeight - r.bottom;
+      const up = below < h + 16 && r.top > below;
+      pop.classList.toggle('is-up', up);
+      pop.style.top = `${(up ? r.top - h - 8 : r.bottom + 8) + scrollY}px`;
+    };
+    const close = (refocus = true) => {
+      if (!cur) return;
+      const c = cur;
+      cur = null;
+      pop.hidden = true;
+      c.btn.setAttribute('aria-expanded', 'false');
+      c.anchor.classList.remove('is-open');
+      if (refocus) c.btn.focus({ preventScroll: true });
+    };
+    const open = (c) => {
+      if (cur) close(false);
+      cur = c;
+      list.innerHTML = '';
+      [...c.select.options].forEach((o, k) => {
+        if (o.disabled || o.hidden) return; // e.g. the "Choose a service" prompt
+        const li = d.createElement('li');
+        li.id = `${c.btn.id}-o${k}`;
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', String(k === c.select.selectedIndex));
+        li.dataset.index = k;
+        li.innerHTML = `<span></span>${CHECK}`;
+        li.firstChild.textContent = o.text;
+        list.append(li);
+      });
+      list.setAttribute('aria-labelledby', c.labelId || c.btn.id);
+      pop.hidden = false;
+      place();
+      c.btn.setAttribute('aria-expanded', 'true');
+      c.anchor.classList.add('is-open');
+      const sel = items().findIndex((li) => li.getAttribute('aria-selected') === 'true');
+      setActive(sel >= 0 ? sel : 0);
+      list.focus({ preventScroll: true });
+    };
+    const choose = (li) => {
+      const c = cur;
+      const k = Number(li.dataset.index);
+      close(true);
+      if (c.select.selectedIndex === k) return;
+      c.select.selectedIndex = k;
+      c.select.dispatchEvent(new Event('input', { bubbles: true }));
+      c.select.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    list.addEventListener('pointermove', (e) => {
+      const li = e.target.closest('[role="option"]');
+      if (li) setActive(items().indexOf(li), false);
+    });
+    list.addEventListener('click', (e) => {
+      const li = e.target.closest('[role="option"]');
+      if (li) choose(li);
+    });
+    list.addEventListener('keydown', (e) => {
+      const all = items();
+      if (e.key === 'ArrowDown') setActive(active + 1);
+      else if (e.key === 'ArrowUp') setActive(active - 1);
+      else if (e.key === 'Home' || e.key === 'PageUp') setActive(0);
+      else if (e.key === 'End' || e.key === 'PageDown') setActive(all.length - 1);
+      else if (e.key === 'Enter' || e.key === ' ') { if (all[active]) choose(all[active]); }
+      else if (e.key === 'Escape') close(true);
+      else if (e.key === 'Tab') { close(true); return; } // focus then moves on from the button, as with a normal select
+      else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const now = Date.now();
+        typed = now - typedAt > 700 ? e.key.toLowerCase() : typed + e.key.toLowerCase();
+        typedAt = now;
+        const from = typed.length === 1 ? active + 1 : active;
+        for (let s = 0; s < all.length; s++) {
+          const i = (from + s) % all.length;
+          if (all[i].textContent.trim().toLowerCase().startsWith(typed)) { setActive(i); break; }
+        }
+      } else return;
+      e.preventDefault();
+    });
+    d.addEventListener('pointerdown', (e) => { if (cur && !pop.contains(e.target) && !cur.hit.contains(e.target)) close(false); });
+    addEventListener('resize', () => close(false));
+    addEventListener('blur', () => close(false));
+
+    let uid = 0;
+    $$('select').forEach((select) => {
+      const wrap = select.parentElement; // .planner__control or .field__select
+      const label = select.closest('label');
+      const labelText = label && $('.planner__label, .field__label', label);
+      const btn = d.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cselect';
+      btn.id = `cselect-${++uid}`;
+      btn.setAttribute('aria-haspopup', 'listbox');
+      btn.setAttribute('aria-expanded', 'false');
+      const value = d.createElement('span');
+      value.className = 'cselect__value';
+      btn.append(value);
+      if (labelText) {
+        labelText.id = labelText.id || `${btn.id}-label`;
+        btn.setAttribute('aria-labelledby', `${labelText.id} ${btn.id}`);
+      }
+      select.before(btn); // first in the <label>, so clicking the label opens the list
+      select.classList.add('cselect__native');
+      select.tabIndex = -1;
+      select.setAttribute('aria-hidden', 'true');
+      const anchor = select.closest('.planner__field') || wrap;
+      const c = { select, btn, anchor, hit: label || anchor, labelId: labelText && labelText.id };
+      const error = d.createElement('span');
+      error.className = 'field__error';
+      error.setAttribute('role', 'alert');
+      const sync = () => {
+        const o = select.options[select.selectedIndex];
+        value.textContent = o ? o.text : '';
+        const empty = !o || o.disabled || o.value === '';
+        btn.classList.toggle('is-placeholder', empty);
+        if (!empty) { wrap.classList.remove('is-invalid'); btn.removeAttribute('aria-invalid'); error.remove(); }
+      };
+      sync();
+      select.addEventListener('change', sync);
+      new MutationObserver(sync).observe(select, { childList: true, subtree: true, characterData: true }); // the hero swaps options
+      btn.addEventListener('click', () => (cur && cur.btn === btn ? close(true) : open(c)));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(c); }
+      });
+      // A required dropdown left empty: show it in red with a message, instead of the browser's bubble
+      select.addEventListener('invalid', (e) => {
+        e.preventDefault();
+        wrap.classList.add('is-invalid');
+        btn.setAttribute('aria-invalid', 'true');
+        error.textContent = select.dataset.error || 'Please choose an option.';
+        (label || wrap).append(error);
+        const first = select.form && [...select.form.elements].find((el) => el.willValidate && !el.validity.valid);
+        if (first === select) btn.focus();
+      });
+    });
+  }
+
   /* ---------- FAQ: one answer open at a time ----------
      <details name="faq"> does this natively in current browsers; this covers older ones. */
   const faqs = $$('details[name="faq"]');
@@ -419,29 +832,86 @@
     if (q.open) faqs.forEach((o) => { if (o !== q && o.open) o.open = false; });
   }));
 
-  /* ---------- Swipe rows: dots ---------- */
+  /* ---------- Swipe rows: one dot per scroll stop (7 reviews with 3 on screen = 5 dots) ---------- */
   $$('[data-scroller]').forEach((sc) => {
     const items = [...sc.children];
     const dots = d.createElement('div');
     dots.className = `dots dots--${sc.dataset.scroller}`;
     dots.setAttribute('aria-hidden', 'true');
-    items.forEach(() => dots.appendChild(d.createElement('span')));
     sc.after(dots);
     const update = () => {
       const max = sc.scrollWidth - sc.clientWidth;
-      const i = max <= 0 ? 0 : Math.round((sc.scrollLeft / max) * (items.length - 1));
-      [...dots.children].forEach((s, k) => s.classList.toggle('on', k === i));
+      const step = items.length > 1 ? items[1].offsetLeft - items[0].offsetLeft : 1;
+      const stops = max <= 1 ? 1 : Math.min(items.length, Math.ceil(max / step - 0.05) + 1);
+      if (dots.children.length !== stops) dots.innerHTML = '<span></span>'.repeat(stops);
+      const i = sc.scrollLeft >= max - 2 ? stops - 1 : Math.round(sc.scrollLeft / step);
+      [...dots.children].forEach((x, k) => x.classList.toggle('on', k === i));
+      dots.hidden = stops < 2;
     };
     sc.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
     addEventListener('resize', update);
     update();
   });
 
+  /* ---------- Reviews carousel: previous / next ---------- */
+  const rvTrack = $('[data-rv-track]');
+  if (rvTrack) {
+    const prev = $('[data-rv-prev]');
+    const next = $('[data-rv-next]');
+    const stepBy = () => {
+      const card = rvTrack.firstElementChild;
+      return card ? card.getBoundingClientRect().width + parseFloat(getComputedStyle(rvTrack).columnGap || 16) : rvTrack.clientWidth;
+    };
+    const state = () => {
+      const max = rvTrack.scrollWidth - rvTrack.clientWidth - 2;
+      prev.disabled = rvTrack.scrollLeft <= 2;
+      next.disabled = rvTrack.scrollLeft >= max;
+    };
+    prev.addEventListener('click', () => rvTrack.scrollBy({ left: -stepBy(), behavior: reduceMotion ? 'auto' : 'smooth' }));
+    next.addEventListener('click', () => rvTrack.scrollBy({ left: stepBy(), behavior: reduceMotion ? 'auto' : 'smooth' }));
+    // Under the cards: the dots, and on phones the two arrows either side of them
+    const nav = prev.parentElement;
+    const foot = d.createElement('div');
+    foot.className = 'rv-foot';
+    const dotsRow = rvTrack.nextElementSibling; // made by the swipe-row code above
+    rvTrack.after(foot);
+    if (dotsRow && dotsRow.classList.contains('dots')) foot.append(dotsRow);
+    const phone = matchMedia('(max-width: 767.98px)');
+    const placeArrows = () => {
+      if (phone.matches) { foot.prepend(prev); foot.append(next); } else nav.append(prev, next);
+    };
+    placeArrows();
+    phone.addEventListener('change', placeArrows);
+    rvTrack.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev.click(); }
+    });
+    rvTrack.addEventListener('scroll', () => requestAnimationFrame(state), { passive: true });
+    addEventListener('resize', state);
+    state();
+  }
+
+  /* ---------- Phones and tablets: photos start downloading about three screens ahead ----------
+     The browser's own lazy loading waits until a photo is roughly one screen away, so a fast flick reached photos
+     that had not arrived yet and showed empty boxes. Here every lazy photo switches to loading at once when it is
+     within three screens (only those: the page doesn't fetch everything up front). */
+  if ('IntersectionObserver' in window && matchMedia('(max-width: 1023.98px)').matches) {
+    const early = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.loading = 'eager';
+      early.unobserve(e.target);
+    }), { rootMargin: '300% 0px' });
+    $$('img[loading="lazy"]').forEach((img) => early.observe(img));
+  }
+
   /* ---------- Reveal on scroll ---------- */
   if ('IntersectionObserver' in window) {
+    // Phones and tablets: blocks start showing just before they scroll onto the screen (and fade in faster, CSS), so
+    // a fast flick never lands on a section that is still blank. Desktop: once they are 8% onto the screen.
+    const touchSize = matchMedia('(max-width: 1023.98px)').matches;
     const io = new IntersectionObserver((entries) => entries.forEach((e) => {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    }), { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+    }), touchSize ? { rootMargin: '0px 0px 15% 0px', threshold: 0 } : { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
     $$('[data-reveal]').forEach((el) => io.observe(el));
   } else {
     $$('[data-reveal]').forEach((el) => el.classList.add('in'));
@@ -451,13 +921,26 @@
   const steps = $('[data-steps]');
   if (steps) {
     const items = $$('.step', steps);
+    // Phones (steps stacked): the line runs from the first stop to the last one and no further. --tail is the last
+    // step's height, so CSS ends the line at that step's stop; at[k] is where stop k sits along the line (0 → 1),
+    // so each stop lights up as the plane reaches it, however long the text under each step is
+    let at = items.map((_, k) => k / (items.length - 1));
+    const measure = () => {
+      const last = items[items.length - 1];
+      steps.style.setProperty('--tail', `${last.offsetHeight}px`);
+      const span = last.offsetTop - items[0].offsetTop;
+      at = items.map((it, k) => (span > 1 ? (it.offsetTop - items[0].offsetTop) / span : k / (items.length - 1)));
+    };
     const update = () => {
       const r = steps.getBoundingClientRect();
       const vh = innerHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.75 - r.top) / (r.height * 0.85)));
       steps.style.setProperty('--p', p.toFixed(3));
-      items.forEach((it, k) => it.classList.toggle('is-on', p >= (k / (items.length - 1)) * 0.98 && p > 0.01));
+      items.forEach((it, k) => it.classList.toggle('is-on', p >= at[k] * 0.98 && p > 0.01));
     };
+    measure();
+    if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); update(); }).observe(steps);
+    else addEventListener('resize', () => { measure(); update(); });
     scrollFns.push(update);
     update();
   }
@@ -514,5 +997,20 @@
     toggle.checked = saved;
     if (saved) applySample(true);
     toggle.addEventListener('change', () => applySample(toggle.checked));
+  }
+
+  /* ---------- DESIGN PREVIEW: V1 | V2 switch (remove before launch) ---------- */
+  if (verswitch) {
+    const here = d.body.classList.contains('v2') ? '2' : '1';
+    $$('[data-v]', verswitch).forEach((a) => {
+      if (a.dataset.v === here) a.setAttribute('aria-current', 'page');
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return; // a new tab or window: leave it to the browser
+        e.preventDefault();
+        if (a.dataset.v === here) return;
+        verswitch.classList.add(`go-${a.dataset.v}`); // slide the thumb across, then open the other version
+        setTimeout(() => { location.href = a.href; }, 280);
+      });
+    });
   }
 })();

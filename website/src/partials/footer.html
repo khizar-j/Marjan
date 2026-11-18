@@ -3,8 +3,7 @@
     <div class="site-footer__top">
       <div class="site-footer__brand">
         <a class="brand brand--light" href="/" aria-label="Marjan Travel &amp; Tours, home">
-          <span class="brand__mark">{{icon coral}}</span>
-          <span class="brand__text"><span class="brand__name">Marjan</span><span class="brand__sub">Travel &amp; Tours</span></span>
+          <img class="brand__logo brand__logo--on-dark" src="/assets/img/logo-horizontal-on-dark.svg" width="1000" height="306" alt="">
         </a>
         <p>Marjan Travel &amp; Tours is a licensed travel agency in {{ph CITY}}, Pakistan, offering Umrah packages, visa consultancy, Pakistan tour packages, international holidays and corporate tours. <em>Dream it. Book it. Live it.</em></p>
         <ul class="socials" aria-label="Social media">
@@ -56,21 +55,27 @@
   </div>
 </footer>
 
+<!-- Phones and tablets: a bottom bar with the phone number and the quote button (icon beside the text); WhatsApp
+     floats on its own above it, as on desktop (.wa-fab) -->
 <nav class="actionbar" aria-label="Quick contact" data-actionbar>
-  <a href="#" data-wa>{{icon whatsapp}}<span>WhatsApp</span></a>
-  <a href="tel:[PHONE]">{{icon phone}}<span>Call</span></a>
+  <a href="tel:[PHONE]">{{icon phone}}<span><span class="sr-only">Call </span>{{ph PHONE}}</span></a>
   <a class="actionbar__primary" href="/contact-us/">{{icon receipt}}<span>Free Quote</span></a>
 </nav>
 
 <a class="wa-fab" href="#" data-wa data-fab aria-label="Chat with us on WhatsApp">{{icon whatsapp}}<span>WhatsApp us</span></a>
 
-<!-- DESIGN PREVIEW ONLY: remove this block (and the sample switch in main.js) before launch. -->
+<!-- DESIGN PREVIEW ONLY: remove this block (and the sample and V1 | V2 switches in main.js) before launch.
+     V1 is the home page at /, V2 the design variant at /v2/; the blue thumb sits on the version you are on. -->
 <div class="devpill" data-devpill>
-  <nav class="devpill__versions" aria-label="Design version"><a href="/">V1</a><a href="/v2/">V2</a></nav>
   <label class="devpill__switch">
     <input type="checkbox" data-sample-toggle>
     <span class="devpill__track" aria-hidden="true"></span>
     <span>Sample data</span>
   </label>
   <span class="devpill__hint">Yellow = placeholder to fill in</span>
+  <nav class="devpill__ver" aria-label="Design version" data-verswitch>
+    <a href="/" data-v="1" aria-label="Version 1">V1</a>
+    <a href="/v2/" data-v="2" aria-label="Version 2">V2</a>
+    <span class="devpill__thumb" aria-hidden="true"></span>
+  </nav>
 </div>
