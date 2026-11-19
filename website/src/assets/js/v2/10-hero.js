@@ -184,7 +184,7 @@
       seen = Math.max(1, Math.min(h, vh));
     };
     measure();
-    addEventListener('resize', measure);
+    MFX.onScreen(measure);
     if ('ResizeObserver' in window) new ResizeObserver(measure).observe(hero); // its height can change without a resize
     let cover = -1;
     let gone = false;

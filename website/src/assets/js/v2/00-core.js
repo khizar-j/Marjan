@@ -33,12 +33,14 @@
   let vh = 0;
   let svh = 0;
   let vw = 0;
+  const screenFns = [];
   const readScreen = () => {
     const h = large.offsetHeight || innerHeight;
-    if (touch && innerWidth === vw && Math.abs(h - vh) < 160) return;
+    if (touch && innerWidth === vw && Math.abs(h - vh) < 160) return false;
     vh = h;
     svh = Math.min(h, small.offsetHeight || h);
     vw = innerWidth;
+    return true;
   };
   readScreen();
 
@@ -57,7 +59,7 @@
   };
   const request = () => { if (!raf) raf = requestAnimationFrame(frame); };
   addEventListener('scroll', request, { passive: true });
-  addEventListener('resize', () => { readScreen(); request(); });
+  addEventListener('resize', () => { if (readScreen()) screenFns.forEach((fn) => fn()); request(); });
 
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
@@ -82,6 +84,9 @@
     vh: () => vh,
     /** the same with the phone toolbars showing (CSS 100svh): the smallest the screen gets while you scroll */
     svh: () => svh,
+    /** Calls fn when the screen really changes size (turning the phone, resizing a window), never for a phone's
+        toolbars sliding away or back. Use it in place of a 'resize' listener for anything that changes the layout. */
+    onScreen(fn) { screenFns.push(fn); },
     /** Calls cb(p, rect) with p from 0 to 1 as el moves through the screen. Returns a function that stops it. */
     progress(el, cb, { mode = 'through', span = 0.8 } = {}) { // mode: 'through' or 'enter'
       if (!el) return () => {};

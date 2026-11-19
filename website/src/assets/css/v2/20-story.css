@@ -64,9 +64,9 @@
 /* Pinned scene (about 1.8 extra screens of scrolling) in which the scroll steps through the services. The JS adds
    .is-loose (a plain list) when the scene would not fit under the header; short laptops get tighter rows. */
 @media (min-width: 1024px) and (min-height: 650px) {
-  .js .v2 .svx { --svh: min(640px, 100vh - var(--header-h) - 24px); min-height: var(--svh); }
-  .js .v2 .svx-track:not(.is-loose)::after { content: ""; display: block; height: 180vh; }
-  .js .v2 .svx-track:not(.is-loose) .svx { position: sticky; top: calc(var(--header-h) + (100vh - var(--header-h) - var(--svh)) / 2); }
+  .js .v2 .svx { --svh: min(640px, var(--vh-l, 100vh) - var(--header-h) - 24px); min-height: var(--svh); }
+  .js .v2 .svx-track:not(.is-loose)::after { content: ""; display: block; height: calc(var(--vh-l, 100vh) * 1.8); }
+  .js .v2 .svx-track:not(.is-loose) .svx { position: sticky; top: calc(var(--header-h) + (var(--vh-l, 100vh) - var(--header-h) - var(--svh)) / 2); }
 }
 @media (min-width: 1024px) and (max-height: 739.98px) {
   .v2 .svx__head { padding-block: 12px; }

@@ -115,7 +115,7 @@
       top = parseFloat(getComputedStyle(svs).top) || 0;
       const list = heads.reduce((h, x) => h + x.offsetHeight + 2, 0)
         + Math.max(...items.map((it) => $('.svx__panel > div', it).scrollHeight));
-      pin = top + Math.max(list, svs.offsetHeight) <= innerHeight + 1;
+      pin = top + Math.max(list, svs.offsetHeight) <= M.vh() + 1; // steady: not innerHeight (see js/v2/00-core.js)
       track.classList.toggle('is-loose', !pin);
       if (pin) room = Math.max(1, parseFloat(getComputedStyle(track, '::after').height) || 1);
     };
@@ -164,7 +164,7 @@
 
     wide.addEventListener('change', sync);
     pinned.addEventListener('change', measure);
-    addEventListener('resize', measure);
+    M.onScreen(measure); // not every 'resize': a phone's toolbars sliding would flip the scene to a list and back
     sync();
     measure();
   }
