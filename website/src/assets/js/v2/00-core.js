@@ -15,9 +15,35 @@
     return Math.min(1, Math.max(0, p));
   };
 
+  // The screen height every effect works from, steady while a phone browser's toolbars slide away or back. innerHeight
+  // grows and shrinks with them (by up to ~150px on an iPhone in Chrome), so effects worked out from it jumped
+  // mid-scroll as if the page had moved. This is the height with the toolbars away: CSS 100lvh (100vh where lvh is
+  // unknown, which phone browsers also keep at that size), measured from an empty fixed box. It changes only when the
+  // screen does (turning the phone, resizing the window); on touch screens a change under 160px at the same width is
+  // the toolbars, and is ignored. svh is the same with the toolbars showing (CSS 100svh), for the hero.
+  const touch = !matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const box = (h) => {
+    const el = document.createElement('div');
+    el.setAttribute('aria-hidden', 'true');
+    el.style.cssText = `position:fixed;top:0;left:0;width:0;height:100vh;height:${h};visibility:hidden;pointer-events:none`;
+    return document.body.appendChild(el);
+  };
+  const large = box('100lvh');
+  const small = box('100svh');
+  let vh = 0;
+  let svh = 0;
+  let vw = 0;
+  const readScreen = () => {
+    const h = large.offsetHeight || innerHeight;
+    if (touch && innerWidth === vw && Math.abs(h - vh) < 160) return;
+    vh = h;
+    svh = Math.min(h, small.offsetHeight || h);
+    vw = innerWidth;
+  };
+  readScreen();
+
   const frame = () => {
     raf = 0;
-    const vh = innerHeight;
     // measure everything first, then let the callbacks write styles (no read/write ping-pong)
     const rects = [...near].map((el) => [el, el.getBoundingClientRect()]);
     for (const [el, r] of rects) {
@@ -31,7 +57,7 @@
   };
   const request = () => { if (!raf) raf = requestAnimationFrame(frame); };
   addEventListener('scroll', request, { passive: true });
-  addEventListener('resize', request);
+  addEventListener('resize', () => { readScreen(); request(); });
 
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
@@ -52,6 +78,10 @@
   window.MFX = {
     /** true when the visitor asked for less motion: keep effects, but make distances smaller */
     reduced: () => reduce.matches,
+    /** the screen's height for scroll effects (px): like innerHeight, but it ignores the phone toolbars (see above) */
+    vh: () => vh,
+    /** the same with the phone toolbars showing (CSS 100svh): the smallest the screen gets while you scroll */
+    svh: () => svh,
     /** Calls cb(p, rect) with p from 0 to 1 as el moves through the screen. Returns a function that stops it. */
     progress(el, cb, { mode = 'through', span = 0.8 } = {}) { // mode: 'through' or 'enter'
       if (!el) return () => {};

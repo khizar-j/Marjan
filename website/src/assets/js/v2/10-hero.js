@@ -174,13 +174,18 @@
   if (sheet && window.MFX) {
     const intro = sheet.querySelector('[data-story-intro]');
     let seen = 1; // how much of the hero fits on screen (px)
+    // MFX.svh() (the screen with the toolbars showing), not innerHeight: on a phone innerHeight changes as the browser's
+    // toolbars slide away when you start scrolling, and a hero taller than the screen (iPhone SE) then jumped (its
+    // sticky top moved), and the cover with it. With svh the hero's foot (the planner) is on screen when it sticks.
     const measure = () => {
       const h = hero.offsetHeight;
-      hero.style.top = `${Math.min(0, innerHeight - h)}px`; // a hero taller than the screen sticks once its bottom is in view
-      seen = Math.max(1, Math.min(h, innerHeight));
+      const vh = MFX.svh();
+      hero.style.top = `${Math.min(0, vh - h)}px`; // a hero taller than the screen sticks once its bottom is in view
+      seen = Math.max(1, Math.min(h, vh));
     };
     measure();
     addEventListener('resize', measure);
+    if ('ResizeObserver' in window) new ResizeObserver(measure).observe(hero); // its height can change without a resize
     let cover = -1;
     let gone = false;
     const phone = matchMedia('(max-width: 639.98px)');

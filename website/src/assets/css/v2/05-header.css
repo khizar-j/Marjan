@@ -31,11 +31,12 @@
 .v2.has-hero .site-header:not(.is-solid) .brand__logo--on-light { display: block; }
 .v2.has-hero .site-header:not(.is-solid) .brand__logo--on-dark { display: none; }
 .v2.has-hero .site-header:not(.is-solid) .menu-btn,
-.v2 .menu-btn { background: rgba(127, 127, 127, .14); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.v2 .site-header .menu-btn { background: rgba(127, 127, 127, .14); -webkit-backdrop-filter: none; backdrop-filter: none; } /* the header's button only: the phone menu's close button keeps its light tint on navy */
 /* Phones: the round menu button sits 5px inside the bar's rounded end, so their curves run together */
 @media (max-width: 1023.98px) {
   .v2 .site-header__inner { padding: 0 5px 0 16px; }
   .v2 .site-header .menu-btn { border-radius: 50%; }
 }
-/* the Services menu opens 10px below the bar (its invisible bridge keeps the hover across the gap) */
-.v2 .mega { top: calc(100% + 10px); }
+/* the Services menu opens 10px below the bar (its invisible bridge keeps the hover across the gap). It is placed
+   against the whole .site-header (styles.css), whose top padding is --bar-top: the bar ends at --header-h */
+.v2 .mega { top: calc(var(--header-h) + 10px); }

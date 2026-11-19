@@ -18,6 +18,27 @@
     else addEventListener('resize', setTrust);
   }
 
+  /* ---------- A steady screen height (px), for the route below and html.short-screen ----------
+     innerHeight grows and shrinks as a phone browser's toolbars slide away and back (by up to ~150px), and
+     max-height media queries can follow it, so anything worked out from them jumped or changed layout mid-scroll.
+     This is the height of an empty fixed box 100vh tall (phone browsers keep vh at the size with the toolbars away);
+     on touch screens it is measured again only when the width changes (turning the phone). Version 2's MFX.vh()
+     works the same way. html.short-screen (760px or less) gives the quote form its tighter phone layout (CSS). */
+  const vhBox = d.createElement('div');
+  vhBox.setAttribute('aria-hidden', 'true');
+  vhBox.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
+  d.body.appendChild(vhBox);
+  let screenH = innerHeight;
+  let screenW = -1;
+  const readScreen = () => {
+    if (!finePointer && innerWidth === screenW) return;
+    screenW = innerWidth;
+    screenH = vhBox.offsetHeight || innerHeight;
+    root.classList.toggle('short-screen', screenH <= 760);
+  };
+  readScreen();
+  addEventListener('resize', readScreen);
+
   /* ---------- WhatsApp links ---------- */
   const waNumber = (root.dataset.whatsapp || '').replace(/\D/g, '');
   const DEFAULT_MSG = "Assalam o Alaikum Marjan Travel & Tours! I'd like to plan a trip.";
@@ -138,36 +159,48 @@
   const actionbar = $('[data-actionbar]');
   const fab = $('[data-fab]');
   const devpill = $('[data-devpill]');
-  const verswitch = $('[data-verswitch]');
   let menuOpen = false;
-  /* The top bar moves with the page, like Twitter's: scrolling down pushes it up out of view pixel
-     for pixel, scrolling up pulls it back down. It never flips between two states, so fast changes
+  /* Desktop (mouse, 1024px and wider): the top bar moves with the page, like Twitter's: scrolling down pushes it up
+     out of view pixel for pixel, scrolling up pulls it back down. It never flips between two states, so fast changes
      of direction can't make it jump. Once scrolling stops, a half-shown bar waits a moment, then
-     eases the rest of the way: fully back if you were heading up, fully away if you were heading down. */
+     eases the rest of the way: fully back if you were heading up, fully away if you were heading down.
+     Phones and tablets (touch screens, and any screen under 1024px): the bar slides fully away once you have scrolled
+     TURN px down, and fully back once you have scrolled TURN px up; a CSS transition does the slide (.is-snap in
+     styles.css). Phones scroll the page on a separate thread, and scroll events reach the page's script a frame or
+     more late, so a fixed bar that script moved on every scroll event was drawn behind the page and jittered against
+     it, worst during a flick's momentum and while the browser's toolbars slid away. */
   const HIDE_FROM = 600; // px: over the hero the bar always stays
-  const SETTLE_DELAY = 180; // ms of stillness before a half-shown bar finishes its slide
+  const SETTLE_DELAY = 180; // ms of stillness before a half-shown bar finishes its slide (desktop)
+  const TURN = 10; // px in one direction before the bar slides out or back (phones and tablets): wobbles do nothing
   /* Phones and tablets with the see-through bar (version 1): the bar used to turn white as soon as the page moved,
      yet stay on screen for the first 600px. A flick covers 600px in a fraction of a second, so a white bar flashed
-     up and vanished. Now, on those screens, the bar scrolls away with the page from the very top, still
+     up and vanished. Now, on those screens, the bar slides away from the very top (after TURN px), still
      see-through, and only turns white when it comes back (you scroll up) or once the hero is off the screen.
      Version 2's floating bar is white all the time (--bar: float in css/v2/05-header.css), so it keeps the
      600px rule everywhere. */
   const floatBar = getComputedStyle(header).getPropertyValue('--bar').trim() === 'float';
   const smallQ = matchMedia('(max-width: 1023.98px)');
+  const snapMode = () => smallQ.matches || !finePointer; // phones and tablets: slide fully in or out (see above)
   let revealed = false; // brought back by scrolling up, since the page was last at the top
   let barH = header.offsetHeight + 8; // + room for its shadow
   // the hero's height is kept here (updated when it changes), so scrolling never has to measure the page
   let heroH = hero ? hero.offsetHeight : 0;
   let heroEnd = heroH - header.offsetHeight; // past this, the bar is over the page, not the hero
   if (hero && 'ResizeObserver' in window) new ResizeObserver(() => { heroH = hero.offsetHeight; heroEnd = heroH - header.offsetHeight; }).observe(hero);
+  let offset = 0; // how far the bar is pushed up: 0 (shown) … barH (hidden)
   addEventListener('resize', () => {
+    const hidden = offset > 0 && offset >= barH - 0.5;
     barH = header.offsetHeight + 8;
     heroH = hero ? hero.offsetHeight : 0;
     heroEnd = heroH - header.offsetHeight;
+    if (hidden && offset !== barH) { stopSlide(); placeBar(barH); } // the bar's height changed: keep it fully away
   });
   let lastY = Math.max(0, scrollY);
-  let offset = 0; // how far the bar is pushed up: 0 (shown) … barH (hidden)
-  let lastDir = 0;
+  let lastDir = 0; // the way the page last moved: 1 down, -1 up
+  let turnY = lastY; // where the page was when it last changed direction (phones and tablets)
+  let lastW = innerWidth;
+  let lastH = innerHeight;
+  let menuHeld = false; // the phone menu was open (it locks the page, and puts it back where it was when it closes)
   let settleTimer = 0;
   let tween = 0;
   let tweenTo = -1;
@@ -192,23 +225,53 @@
     tween = requestAnimationFrame(step);
   };
   const stopSlide = () => { cancelAnimationFrame(tween); tweenTo = -1; };
+  // phones and tablets: the bar goes fully away (true) or fully back (false) at once; the CSS transition eases it
+  const snapBar = (hide) => {
+    const to = hide ? barH : 0;
+    if (offset === to && tweenTo < 0) return;
+    stopSlide();
+    placeBar(to);
+  };
+  const showBar = () => {
+    clearTimeout(settleTimer);
+    if (snapMode()) snapBar(false); else slideBar(0);
+  };
   const keepBar = () => menuOpen || !!$('.nav__item.is-open') || !!$(':focus-visible', header);
-  header.addEventListener('focusin', () => { clearTimeout(settleTimer); slideBar(0); });
+  header.addEventListener('focusin', showBar);
   const onScroll = () => {
-    const max = Math.max(0, root.scrollHeight - innerHeight);
+    // The phone menu locks the page while it is open and puts it back where it was when it closes. Neither is the
+    // visitor scrolling: the bar stays shown, and the first frame after the menu only takes the page's new position.
+    if (menuOpen) { menuHeld = true; showBar(); return; }
+    const w = innerWidth;
+    const h = innerHeight;
+    const max = Math.max(0, root.scrollHeight - h);
     const y = Math.min(max, Math.max(0, scrollY)); // ignore rubber-band overscroll on phones
-    const dy = y - lastY;
+    let dy = y - lastY;
     lastY = y;
+    const snap = snapMode();
+    header.classList.toggle('is-snap', snap);
+    // The browser's toolbars sliding away or back change the screen's height, and at the foot of the page they move
+    // the page too. On such a frame a move against the way the visitor is scrolling is the toolbars, not them, so it
+    // is skipped (desktop: a resized window moves nothing).
+    const resized = w !== lastW || h !== lastH;
+    lastW = w;
+    lastH = h;
+    if (menuHeld) { menuHeld = false; turnY = y; dy = 0; }
+    else if (resized && dy && (!snap || Math.sign(dy) !== lastDir)) { turnY += dy; dy = 0; }
+    if (dy && Math.sign(dy) !== lastDir) { lastDir = Math.sign(dy); turnY = y - dy; } // turned: measure from here
     const early = smallQ.matches && !floatBar; // phones and tablets, version 1
-    if (y <= 24) revealed = false; else if (dy < 0) revealed = true;
-    header.classList.toggle('is-solid', y > 24 && (!early || revealed || y > heroEnd || keepBar()));
     if (keepBar() || y < (early ? 1 : HIDE_FROM)) {
-      clearTimeout(settleTimer);
-      slideBar(0);
+      showBar();
+      turnY = y;
+    } else if (snap) {
+      // out once you have gone TURN px down, back once you have gone TURN px up (and white then, version 1)
+      if (dy && Math.abs(y - turnY) >= TURN) {
+        if (lastDir < 0) revealed = true;
+        snapBar(lastDir > 0);
+      }
     } else if (dy) {
       clearTimeout(settleTimer);
       stopSlide();
-      lastDir = Math.sign(dy);
       placeBar(Math.min(barH, Math.max(0, offset + dy)));
       if (offset > 0 && offset < barH) {
         settleTimer = setTimeout(() => {
@@ -218,6 +281,11 @@
         }, SETTLE_DELAY);
       }
     }
+    if (y <= 24) revealed = false;
+    // version 1 on phones: past the hero the bar is white, but one already sliding away keeps its look (a flick
+    // carries the page past the hero before the slide is over, and the bar turned white on its way out)
+    const away = offset >= barH - 0.5 && !header.classList.contains('is-solid');
+    header.classList.toggle('is-solid', y > 24 && (!early || revealed || keepBar() || (y > heroEnd && !away)));
     const pastHero = y > (hero ? heroH - 160 : 240);
     actionbar && actionbar.classList.toggle('is-visible', pastHero);
     fab && fab.classList.toggle('is-visible', pastHero);
@@ -231,10 +299,36 @@
     const item = btn.closest('.nav__item');
     // shut: closed on purpose (second click, Escape). The CSS also opens the menu on hover and keyboard focus, which
     // used to hold it open after a second click on Services; .is-shut overrides both until the pointer leaves
+    // One highlight glides between the service rows (css: .mega__list::before). Its row is .is-active until the
+    // pointer reaches another row, so the gaps between rows change nothing; it fades once the pointer leaves the list.
+    const list = $('.mega__list', item);
+    let row = null;
+    const mark = (link) => {
+      if (!list || link === row) return;
+      if (row) row.classList.remove('is-active');
+      if (link) {
+        // the highlight has faded out: show it on this row instead of gliding in from the last one
+        const snap = !row && parseFloat(getComputedStyle(list, '::before').opacity) < 0.05;
+        if (snap) list.classList.add('hl-snap');
+        list.style.setProperty('--hl-y', `${link.offsetTop}px`);
+        list.style.setProperty('--hl-h', `${link.offsetHeight}px`);
+        if (snap) { void list.offsetWidth; list.classList.remove('hl-snap'); }
+        link.classList.add('is-active');
+      }
+      list.classList.toggle('has-hl', !!link);
+      row = link;
+    };
+    if (list) {
+      list.addEventListener('pointerover', (e) => { const a = e.target.closest('.mega__link'); if (a) mark(a); });
+      list.addEventListener('pointerleave', () => mark(list.querySelector('.mega__link:focus-visible')));
+      list.addEventListener('focusin', (e) => { if (e.target.matches('.mega__link:focus-visible')) mark(e.target); });
+      list.addEventListener('focusout', (e) => { if (!list.contains(e.relatedTarget) && !list.matches(':hover')) mark(null); });
+    }
     const set = (open, shut = false) => {
       item.classList.toggle('is-open', open);
       item.classList.toggle('is-shut', shut);
       btn.setAttribute('aria-expanded', String(open));
+      if (!open) mark(null);
     };
     btn.addEventListener('click', () => { const open = !item.classList.contains('is-open'); set(open, !open); });
     item.addEventListener('mouseleave', () => set(false));
@@ -243,16 +337,46 @@
     item.addEventListener('keydown', (e) => { if (e.key === 'Escape') { set(false, true); btn.focus(); } });
   });
 
-  /* ---------- Mobile menu ---------- */
+  /* ---------- Mobile menu ----------
+     It fits the screen without scrolling: its sizes follow its height (see the "Mobile menu" CSS), which is measured
+     here into --mm-h when it opens and on resize; .is-tall lets it scroll only if it still can't fit.
+     While it is open the page behind is locked without moving it: html.no-scroll (overflow: hidden) stops the wheel,
+     the keys and, on Android and iOS 16+, touch scrolling, and touch drags are cancelled as well, because older iOS
+     Safari and Chrome on iOS still scroll or rubber-band the page under a fixed overlay. scrollY never changes, so on
+     close there is nothing to restore: the header, the glide and the scroll effects never see the page move. */
   const mm = $('[data-mobile-menu]');
   const openBtn = $('[data-menu-open]');
   const closeBtn = $('[data-menu-close]');
+  const fitMenu = () => {
+    mm.style.setProperty('--mm-h', `${mm.clientHeight}px`);
+    mm.classList.remove('is-tall');
+    // the height the content needs with no space above the foot (offsets ignore the opening slide's translate);
+    // landscape (grid): the foot sits beside the links, under the top row
+    const [top, nav, foot] = mm.children;
+    const links = nav.lastElementChild;
+    const navEnd = links.offsetTop + links.offsetHeight + parseFloat(getComputedStyle(nav).paddingBottom);
+    const footEnd = (getComputedStyle(mm).display === 'grid' ? top.offsetTop + top.offsetHeight : navEnd) + foot.offsetHeight;
+    mm.classList.toggle('is-tall', Math.max(navEnd, footEnd) + parseFloat(getComputedStyle(mm).paddingBottom) > mm.clientHeight + 1);
+  };
+  let touchY = 0;
+  const onTouchStart = (e) => { touchY = e.touches[0].clientY; };
+  const onTouchMove = (e) => {
+    if (e.touches.length > 1 || !e.cancelable) return; // pinch zoom stays available
+    const dy = e.touches[0].clientY - touchY;
+    const inMenu = mm.classList.contains('is-tall') && mm.contains(e.target); // only a menu too tall to fit scrolls, up to its ends
+    if (!inMenu || (dy > 0 && mm.scrollTop <= 0) || (dy < 0 && mm.scrollTop + mm.clientHeight >= mm.scrollHeight - 1)) e.preventDefault();
+  };
   const setMenu = (open) => {
     menuOpen = open;
     openBtn.setAttribute('aria-expanded', String(open));
     root.classList.toggle('no-scroll', open);
+    const listen = open ? 'addEventListener' : 'removeEventListener';
+    d[listen]('touchstart', onTouchStart, { passive: true });
+    d[listen]('touchmove', onTouchMove, { passive: false });
     if (open) {
       mm.hidden = false;
+      mm.scrollTop = 0;
+      fitMenu();
       requestAnimationFrame(() => requestAnimationFrame(() => mm.classList.add('is-open')));
       setTimeout(() => closeBtn.focus(), 50);
     } else {
@@ -274,6 +398,7 @@
     });
     $$('a', mm).forEach((a) => a.addEventListener('click', () => setMenu(false)));
     matchMedia('(min-width: 1024px)').addEventListener('change', (e) => { if (e.matches && menuOpen) setMenu(false); });
+    addEventListener('resize', () => { if (menuOpen) fitMenu(); }); // turning the phone, toolbars showing or hiding
   }
 
   /* ==========================================================================
@@ -917,10 +1042,22 @@
     $$('[data-reveal]').forEach((el) => el.classList.add('in'));
   }
 
-  /* ---------- How it works: progress line ---------- */
+  /* ---------- How it works: the plane glides along the route ----------
+     Where the plane should be comes from where the line sits on the screen, not from the block's height: it
+     leaves the first stop when the line is 85% of the way down the screen and lands on the last stop when the
+     line's end is 35% from the top. That is half a screen of scrolling on desktop (flat line, three columns) and
+     the line's length plus half a screen on phones (the line runs down the stacked steps), so the plane stays on
+     the screen the whole way. It doesn't jump there: it glides after that point (damping with a 0.4 s time
+     constant, the same at any frame rate), so a fast flick or a jump still reads as a smooth flight, and
+     scrolling back rewinds it the same way. Each stop lights up when the plane on screen reaches it. CSS moves
+     the plane and the blue fill with transforms only (--p and --run on the line). */
   const steps = $('[data-steps]');
-  if (steps) {
+  const routeLine = steps && $('.route__line', steps);
+  if (routeLine) {
     const items = $$('.step', steps);
+    const START = 0.85; // the line this far down the screen: the plane leaves the first stop
+    const END = 0.35; // the line's end this far down the screen: the plane lands on the last stop
+    const TAU = 0.4; // seconds the plane takes to cover ~63% of the way that is left
     // Phones (steps stacked): the line runs from the first stop to the last one and no further. --tail is the last
     // step's height, so CSS ends the line at that step's stop; at[k] is where stop k sits along the line (0 → 1),
     // so each stop lights up as the plane reaches it, however long the text under each step is
@@ -930,13 +1067,42 @@
       steps.style.setProperty('--tail', `${last.offsetHeight}px`);
       const span = last.offsetTop - items[0].offsetTop;
       at = items.map((it, k) => (span > 1 ? (it.offsetTop - items[0].offsetTop) / span : k / (items.length - 1)));
+      const box = routeLine.getBoundingClientRect();
+      routeLine.style.setProperty('--run', `${Math.max(box.width, box.height).toFixed(1)}px`); // length of the line
+    };
+    let shown = 0;
+    let goal = 0;
+    let raf = 0;
+    let last = 0;
+    let revealed = false;
+    const paint = () => {
+      routeLine.style.setProperty('--p', shown.toFixed(4));
+      items.forEach((it, k) => it.classList.toggle('is-on', shown >= at[k] * 0.98 && shown > 0.01));
+    };
+    const frame = (now) => {
+      const dt = last ? Math.min(0.1, Math.max(0, (now - last) / 1000)) : 1 / 60;
+      last = now;
+      shown = goal + (shown - goal) * Math.exp(-dt / TAU);
+      if (Math.abs(goal - shown) < 0.001) shown = goal; // under a pixel left: land, and stop the loop
+      paint();
+      raf = shown === goal ? 0 : requestAnimationFrame(frame);
     };
     const update = () => {
-      const r = steps.getBoundingClientRect();
-      const vh = innerHeight;
-      const p = Math.min(1, Math.max(0, (vh * 0.75 - r.top) / (r.height * 0.85)));
-      steps.style.setProperty('--p', p.toFixed(3));
-      items.forEach((it, k) => it.classList.toggle('is-on', p >= at[k] * 0.98 && p > 0.01));
+      const r = routeLine.getBoundingClientRect();
+      const vh = screenH; // steady while a phone's toolbars slide (see the top of this file)
+      goal = Math.min(1, Math.max(0, (vh * START - r.top) / (vh * (START - END) + r.height)));
+      // the steps start fading in as soon as the line comes onto the screen (the usual reveal waits until a block
+      // is 8% in on desktop), so their text is in place by the time the plane leaves the first stop
+      if (!revealed && r.top < vh) { revealed = true; items.forEach((it) => it.classList.add('in')); }
+      if (r.bottom < 0 || r.top > vh) { // off the screen: no need to fly there
+        cancelAnimationFrame(raf);
+        raf = 0;
+        if (shown !== goal) { shown = goal; paint(); }
+        return;
+      }
+      if (raf || shown === goal) return;
+      last = 0;
+      raf = requestAnimationFrame(frame);
     };
     measure();
     if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); update(); }).observe(steps);
@@ -997,20 +1163,5 @@
     toggle.checked = saved;
     if (saved) applySample(true);
     toggle.addEventListener('change', () => applySample(toggle.checked));
-  }
-
-  /* ---------- DESIGN PREVIEW: V1 | V2 switch (remove before launch) ---------- */
-  if (verswitch) {
-    const here = d.body.classList.contains('v2') ? '2' : '1';
-    $$('[data-v]', verswitch).forEach((a) => {
-      if (a.dataset.v === here) a.setAttribute('aria-current', 'page');
-      a.addEventListener('click', (e) => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return; // a new tab or window: leave it to the browser
-        e.preventDefault();
-        if (a.dataset.v === here) return;
-        verswitch.classList.add(`go-${a.dataset.v}`); // slide the thumb across, then open the other version
-        setTimeout(() => { location.href = a.href; }, 280);
-      });
-    });
   }
 })();

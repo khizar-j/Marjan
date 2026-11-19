@@ -40,7 +40,7 @@
     let lit = 0;
     const phone = matchMedia('(max-width: 639.98px)');
     M.progress(text, (_, r) => {
-      const vh = innerHeight;
+      const vh = M.vh(); // steady while a phone's toolbars slide away (innerHeight jumped and lit a line of words)
       // the first word lights when the text's top is 90% down the screen, the last when its bottom is 70% down.
       // Phones (asked for: much faster): the words light over a quarter of a screen of scrolling, from the text's
       // top 75% down the screen to 50% down, whatever the text's height (it was about two thirds of a screen)
@@ -156,7 +156,7 @@
     // phones and tablets: each photo rises in as its service scrolls in; the one on the reading line is marked
     items.forEach((it) => M.progress(it, (_, r) => {
       if (wide.matches) return;
-      const vh = innerHeight;
+      const vh = M.vh(); // not innerHeight: it changes as a phone's toolbars slide away, and the photo jumped
       it.style.setProperty('--in', M.clamp((vh - r.top) / (vh * 0.6)).toFixed(3));
       const on = r.top < vh * 0.5 && r.bottom > vh * 0.5;
       if (on !== it.classList.contains('is-active')) it.classList.toggle('is-active', on);
