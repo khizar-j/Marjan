@@ -64,10 +64,13 @@ const html = (body, status = 200) =>
 
 const prefixPath = (v) => (v && v.startsWith('/') && !v.startsWith('//') ? PREFIX + v : v);
 
-const rewriteAttr = (attr) => ({
+// srcset-style lists ("/a.webp 640w, /b.webp 1024w"): prefix every candidate URL that is root-relative.
+const prefixSrcset = (v) => (v ? v.replace(/(^|,)(\s*)\/(?!\/)/g, `$1$2${PREFIX}/`) : v);
+
+const rewriteAttr = (attr, prefix = prefixPath) => ({
   element(el) {
     const v = el.getAttribute(attr);
-    const nv = prefixPath(v);
+    const nv = prefix(v);
     if (nv !== v) el.setAttribute(attr, nv);
   },
 });
@@ -124,6 +127,13 @@ export default {
         .on('[src]', rewriteAttr('src'))
         .on('[data-src]', rewriteAttr('data-src'))
         .on('[action]', rewriteAttr('action'))
+        .on('[poster]', rewriteAttr('poster'))
+        // v2 hero: js/v2/10-hero.js builds the clip URLs from data-video (`${data-video}-m.mp4`)
+        .on('[data-video]', rewriteAttr('data-video'))
+        // the phone posters in the hero <picture> (<source srcset> / data-srcset until needed), preload imagesrcset
+        .on('[srcset]', rewriteAttr('srcset', prefixSrcset))
+        .on('[data-srcset]', rewriteAttr('data-srcset', prefixSrcset))
+        .on('[imagesrcset]', rewriteAttr('imagesrcset', prefixSrcset))
         .transform(res);
     }
     return res;

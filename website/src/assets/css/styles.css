@@ -62,7 +62,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 90px; }
-html.no-scroll { overflow: hidden; }
+html.no-scroll { overflow: hidden; overscroll-behavior: none; } /* phone menu open; main.js also cancels touch drags (iOS) */
 html.has-smooth-scroll { scroll-behavior: auto; } /* main.js glides the page itself (wheel + same-page links) */
 body {
   font-family: var(--font-body);
@@ -171,6 +171,11 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
      is heavy work for a phone; a near-solid bar looks the same */
   .site-header { background: rgba(247, 249, 253, .97); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+/* Touch screens and anything under 1024px: main.js slides the bar fully away or back in one go (.is-snap) instead of
+   moving it with every scrolled pixel, and this transition does the slide (on the phone's compositor, in step with
+   the page). Under 1024px only the slide is eased: the colours still switch at once (see above). */
+.site-header.is-snap { transition: background-color .35s, color .35s, box-shadow .35s, transform .3s var(--ease); }
+@media (max-width: 1023.98px) { .site-header.is-snap { transition: transform .3s var(--ease); } }
 .site-header__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 
 .nav { display: none; }
@@ -182,39 +187,60 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 .nav__link .i { transition: transform .3s var(--ease); }
 .nav__item--menu:hover .nav__link .i, .nav__item--menu.is-open .nav__link .i { transform: rotate(180deg); }
 
-/* Services mega menu: one-line service list + featured Umrah card, centred under the header */
-.site-header__inner { position: relative; }
+/* Services mega menu: one-line service list + featured Umrah card, centred under the header.
+   It is placed against the fixed .site-header (left edge 0), not the centred bar, and its left edge is rounded to a
+   whole pixel: a panel on a half pixel draws its text soft and shimmers as hover effects redraw it (no -50% translate).
+   Closing waits .1 s (--mega-wait), so a pointer that slips off the panel for a moment changes nothing; a second
+   click on Services or Escape closes it at once. */
 .nav__item--menu { position: static; }
 .mega {
-  position: absolute; top: calc(100% - 6px); left: 50%; width: min(800px, 100vw - 2 * var(--gutter));
-  translate: -50% 10px; opacity: 0; visibility: hidden;
+  --mega-wait: .1s;
+  position: absolute; top: calc(100% - 6px); width: 800px; /* the menu only shows from 1024px wide */
+  left: calc(50% - 400px); left: round(down, 50% - 400px, 1px); /* no var() in round(): the first line stays the fallback */
+  translate: 0 10px; opacity: 0; visibility: hidden;
   padding: 10px; border-radius: 28px; background: #fff; color: var(--ink);
   box-shadow: var(--shadow-pop);
-  transition: opacity .25s, translate .35s var(--ease), visibility .25s;
+  transition: opacity .2s var(--mega-wait), translate .3s var(--ease) var(--mega-wait), visibility .2s var(--mega-wait);
 }
 .mega::before { content: ""; position: absolute; inset: -26px 0 auto; height: 26px; } /* hover bridge from the button */
-.nav__item--menu:hover .mega, .nav__item--menu.is-open .mega { opacity: 1; visibility: visible; translate: -50% 0; }
+.nav__item--menu:hover .mega, .nav__item--menu.is-open .mega { --mega-wait: 0s; opacity: 1; visibility: visible; translate: 0 0; }
 /* keyboard focus inside opens it too; a mouse click leaves focus on the button, which must not hold it open
    (its own rule: a browser without :has() would otherwise drop the whole list above) */
-.nav__item--menu:has(:focus-visible) .mega { opacity: 1; visibility: visible; translate: -50% 0; }
+.nav__item--menu:has(:focus-visible) .mega { --mega-wait: 0s; opacity: 1; visibility: visible; translate: 0 0; }
 /* closed on purpose (a second click on Services, or Escape): stays shut while the pointer is still over it */
-.nav__item--menu.is-shut .mega { opacity: 0; visibility: hidden; translate: -50% 10px; }
+.nav__item--menu.is-shut .mega { --mega-wait: 0s; opacity: 0; visibility: hidden; translate: 0 10px; }
 .nav__item--menu.is-shut .nav__link .i { transform: none; }
 .mega__inner { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 10px; }
-.mega__list { display: grid; gap: 2px; padding: 4px; }
-.mega__link { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: 18px; transition: background-color .25s; }
-.mega__link:hover, .mega__link:focus-visible { background: var(--mist-100); }
-.mega__icon { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--blue-50); color: var(--blue-600); transition: background-color .3s, color .3s, transform .4s var(--ease); }
+.mega__list { position: relative; display: grid; gap: 2px; padding: 4px; }
+/* One soft highlight glides from row to row (main.js moves it and marks the row .is-active; it stays put over the
+   gaps between rows), so a quick sweep shows one calm block instead of five rows fading in and out at once.
+   Everything here only fades or moves (opacity, translate, rotate), which the browser does without redrawing the
+   rows. Without JavaScript each row lights up on its own. */
+.mega__list::before {
+  content: ""; position: absolute; top: 0; left: 4px; right: 4px; height: var(--hl-h, 70px);
+  border-radius: 18px; background: var(--mist-100); pointer-events: none;
+  opacity: 0; translate: 0 var(--hl-y, 0px); transition: opacity .2s, translate .3s var(--ease);
+}
+.mega__list.has-hl::before { opacity: 1; }
+.mega__list.hl-snap::before { transition: opacity .2s; } /* shows up on its row, rather than gliding in from the last one */
+.mega__link { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: 18px; transition: background-color .2s; }
+html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-100); }
+/* Icon tile: the blue fill fades in on a layer of its own and tilts; the glyph stays upright and turns white in one
+   step when the fill is half in (so it reads on both). Fading tile and glyph colours together made them meet in the
+   same blue halfway, so the icon blanked out on every row passed. */
+.mega__icon { position: relative; isolation: isolate; flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--blue-50); color: var(--blue-600); transition: color 0s .1s; }
+.mega__icon::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--blue-600); opacity: 0; transition: opacity .2s linear, rotate .3s var(--ease); }
 .mega__icon .i { width: 22px; height: 22px; }
-.mega__link:hover .mega__icon, .mega__link:focus-visible .mega__icon { background: var(--blue-600); color: #fff; transform: rotate(-6deg); }
+.mega__link:is(:hover, :focus-visible, .is-active) .mega__icon { color: #fff; }
+.mega__link:is(:hover, :focus-visible, .is-active) .mega__icon::before { opacity: 1; rotate: -6deg; }
 .mega__text { flex: 1; min-width: 0; }
 .mega__text strong { display: block; font-size: .98rem; font-weight: 700; line-height: 1.3; letter-spacing: -.005em; white-space: nowrap; }
 .mega__text span { display: block; margin-top: 2px; font-size: .85rem; line-height: 1.4; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mega__arrow { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--blue-600); opacity: 0; translate: -8px 0; transition: opacity .25s, translate .35s var(--ease); }
+.mega__arrow { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--blue-600); opacity: 0; translate: -8px 0; transition: opacity .2s, translate .3s var(--ease); }
 .mega__arrow .i { width: 18px; height: 18px; }
-.mega__link:hover .mega__arrow, .mega__link:focus-visible .mega__arrow { opacity: 1; translate: 0 0; }
+.mega__link:is(:hover, :focus-visible, .is-active) .mega__arrow { opacity: 1; translate: 0 0; }
 .mega__feature { position: relative; isolation: isolate; display: flex; align-items: flex-end; min-height: 100%; overflow: hidden; border-radius: 20px; color: #fff; background: var(--navy-900); }
-.mega__feature img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+.mega__feature img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); will-change: transform; } /* kept on its own layer: no sharpening snap when the zoom ends */
 .mega__feature::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(1, 18, 73, .05) 25%, rgba(1, 18, 73, .9) 100%); }
 .mega__feature:hover img { transform: scale(1.06); }
 .mega__feature-body { display: grid; gap: 6px; padding: 22px; }
@@ -240,26 +266,47 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 }
 @media (min-width: 1240px) { .header-phone { display: inline-flex; } }
 
-/* ---------- Mobile menu ---------- */
+/* ---------- Mobile menu ----------
+   The open menu fits the screen with no scrolling on every phone. --mm-s is how much taller than the most compact
+   layout (440px) the menu is: 0 on a short screen, up to 300px from 740px tall, where it has the full-size design.
+   Each spacing, row and type size below runs from its compact value to its full one as --mm-s grows (value +
+   --mm-s × step), and the foot stays pinned to the bottom. The height used is the smaller of 100dvh and the menu's
+   real height, which main.js measures into --mm-h when it opens and on resize; main.js also adds .is-tall, which
+   lets the menu scroll, only if it still can't fit (a very short landscape screen, very large text). */
 .mobile-menu {
+  --mm-vh: 100vh;
+  --mm-h: var(--mm-vh);
+  --mm-s: clamp(0px, min(var(--mm-h), var(--mm-vh)) - env(safe-area-inset-bottom) - 440px, 300px);
   position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
-  padding: 14px var(--gutter) calc(20px + env(safe-area-inset-bottom));
-  background: var(--navy-900); color: #fff; overflow-y: auto;
+  padding: calc(6px + var(--mm-s) * .0267) max(var(--gutter), env(safe-area-inset-right)) calc(8px + var(--mm-s) * .04 + env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
+  background: var(--navy-900); color: #fff;
+  overflow: hidden; overscroll-behavior: none;
   clip-path: circle(0 at calc(100% - 40px) 38px);
   transition: clip-path .6s var(--ease-io);
 }
+@supports (height: 100dvh) { .mobile-menu { --mm-vh: 100dvh; } }
 .mobile-menu.is-open { clip-path: circle(150% at calc(100% - 40px) 38px); }
-.mobile-menu__top { display: flex; align-items: center; justify-content: space-between; height: 48px; }
+.mobile-menu.is-tall { overflow-y: auto; } /* last resort only, see above */
+.mobile-menu__top { flex: none; display: flex; align-items: center; justify-content: space-between; height: calc(44px + var(--mm-s) * .0133); }
+.mobile-menu .menu-btn { width: calc(42px + var(--mm-s) * .0133); height: calc(42px + var(--mm-s) * .0133); }
 .menu-btn--light { background: rgba(255, 255, 255, .1); color: #fff; }
-.mobile-menu__nav { padding-block: 28px 20px; }
-.mobile-menu__label { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; color: var(--blue-300); font-weight: 700; margin-bottom: 8px; }
-.mobile-menu__services a { display: flex; align-items: center; gap: 14px; padding: 12px 0; font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; border-bottom: 1px solid rgba(255, 255, 255, .08); }
-.mobile-menu__services .i { width: 22px; height: 22px; color: var(--blue-300); }
-.mobile-menu__links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
-.mobile-menu__links a { display: inline-block; padding: 9px 16px; border-radius: 999px; background: rgba(255, 255, 255, .08); font-weight: 500; font-size: .95rem; }
-.mobile-menu__foot { margin-top: auto; display: grid; gap: 10px; }
+.mobile-menu__nav { padding-block: calc(10px + var(--mm-s) * .06) calc(8px + var(--mm-s) * .04); }
+.mobile-menu__label { font-size: .75rem; line-height: calc(14px + var(--mm-s) * .02); letter-spacing: .16em; text-transform: uppercase; color: var(--blue-300); font-weight: 700; margin-bottom: calc(4px + var(--mm-s) * .0133); }
+.mobile-menu__services a { display: flex; align-items: center; gap: 14px; padding: calc(5px + var(--mm-s) * .0389) 0; font-family: var(--font-display); font-size: calc(1.05rem + var(--mm-s) * .0133); line-height: 1.2; font-weight: 600; border-bottom: 1px solid rgba(255, 255, 255, .08); }
+.mobile-menu__services .i { width: calc(20px + var(--mm-s) * .0067); height: calc(20px + var(--mm-s) * .0067); color: var(--blue-300); }
+.mobile-menu__links { display: flex; flex-wrap: wrap; gap: calc(6px + var(--mm-s) * .0067); margin-top: calc(8px + var(--mm-s) * .0467); }
+.mobile-menu__links a { display: inline-block; padding: calc(5px + var(--mm-s) * .0235) calc(14px + var(--mm-s) * .0067); border-radius: 999px; background: rgba(255, 255, 255, .08); font-weight: 500; font-size: calc(.9rem + var(--mm-s) * .0027); line-height: 1.25; }
+.mobile-menu__foot { flex: none; margin-top: auto; display: grid; gap: calc(6px + var(--mm-s) * .0133); }
+.mobile-menu__foot .btn { --h: calc(40px + var(--mm-s) * .0333); }
 .mobile-menu__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.mobile-menu__tag { text-align: center; font-family: var(--font-display); font-style: italic; color: rgba(255, 255, 255, .55); margin-top: 8px; }
+.mobile-menu__row .btn { padding-inline: 12px; } /* both buttons fit side by side at 320px wide (they fill their half anyway) */
+.mobile-menu__tag { text-align: center; font-family: var(--font-display); font-style: italic; color: rgba(255, 255, 255, .55); font-size: calc(.9rem + var(--mm-s) * .0053); line-height: calc(18px + var(--mm-s) * .028); margin-top: calc(var(--mm-s) * .0267); }
+/* Landscape phones: two columns, the links on the left and the foot bottom right */
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-menu { display: grid; grid-template: auto 1fr / minmax(0, 1.4fr) minmax(0, 1fr); column-gap: clamp(24px, 5vw, 56px); }
+  .mobile-menu__top { grid-column: 1 / -1; }
+  .mobile-menu__foot { align-self: end; }
+}
 .mobile-menu .mobile-menu__nav > *, .mobile-menu .mobile-menu__foot { opacity: 0; translate: 0 14px; transition: opacity .4s, translate .5s var(--ease); }
 .mobile-menu.is-open .mobile-menu__nav > *, .mobile-menu.is-open .mobile-menu__foot { opacity: 1; translate: 0 0; transition-delay: .18s; }
 
@@ -286,6 +333,8 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 
 .hero__inner { position: relative; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr); align-content: end; gap: 28px; padding-top: calc(var(--header-h) + 22vh); padding-bottom: 24px; }
 .hero__title { font-size: var(--fs-h1); font-weight: 750; line-height: 1.05; letter-spacing: -.04em; max-width: 16ch; }
+/* the H1's small first line (version 2): "Travel Agency in [CITY]" over the big "Umrah, Visas & Tours" */
+.hero__kicker { display: block; margin-bottom: 14px; font-family: var(--font-body); font-size: clamp(.8rem, .72rem + .3vw, 1rem); font-weight: 700; line-height: 1.3; letter-spacing: .14em; text-transform: uppercase; color: var(--blue-300); }
 .hero__tagline { display: flex; flex-wrap: wrap; gap: .1em .45em; margin-top: 16px; font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: clamp(1.15rem, 1rem + .7vw, 1.5rem); color: var(--blue-300); }
 .hero__tagline span { display: inline-block; }
 .js .hero__tagline span { opacity: 0; translate: 0 .5em; animation: rise .8s var(--ease) forwards; }
@@ -296,7 +345,6 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 .hero__lead { margin-top: 16px; max-width: 54ch; color: rgba(255, 255, 255, .86); font-size: clamp(1rem, .95rem + .25vw, 1.12rem); }
 .hero__ctas { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 10px; margin-top: 26px; }
 .hero__ctas .btn { padding: 0 12px; gap: 8px; font-size: .93rem; }
-@media (max-width: 359.98px) { .hero__ctas .btn .i:last-child:not(:first-child) { display: none; } }
 
 /* Planner */
 .planner {
@@ -422,22 +470,29 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 @media (max-width: 1023.98px) {
   .hero { min-height: calc(100svh - var(--trust-h, 100px)); }
 }
+/* Phones: a compact hero, sized by the screen's WIDTH only. Nothing here may depend on the screen's current height
+   (no max-height queries, no vh/dvh): when a phone browser hides its toolbars as you start scrolling, the screen
+   gets taller, and height rules made the title jump to a bigger size and the lead line pop in mid-scroll. The
+   hero's own height uses svh (above), which stays put. Version 2's title is two lines from 320 to 430 px wide (the
+   small .hero__kicker over one big line); the lead line is left out on phones (the journey tabs below say the same). */
 @media (max-width: 639.98px) {
   :root { --header-h: 66px; }
-  .hero__inner { gap: 16px; padding-top: calc(var(--header-h) + 12px); padding-bottom: 16px; }
-  .hero__title { max-width: none; font-size: clamp(1.7rem, 4.1svh, 2.2rem); line-height: 1.05; }
-  .hero__tagline { margin-top: 8px; font-size: 1.12rem; }
-  .hero__lead { margin-top: 10px; font-size: .92rem; line-height: 1.5; }
-  .hero__ctas { margin-top: 16px; }
-  .hero__ctas .btn { --h: 48px; }
+  .hero__inner { gap: 14px; padding-top: calc(var(--header-h) + 12px); padding-bottom: 14px; }
+  .hero__title { max-width: none; font-size: clamp(1.5rem, .65rem + 4.55vw, 1.9rem); line-height: 1.08; letter-spacing: -.035em; }
+  .hero__kicker { margin-bottom: 8px; font-size: .78rem; letter-spacing: .12em; }
+  .hero__tagline { margin-top: 6px; font-size: 1rem; }
+  .hero__title, .hero__tagline { text-shadow: 0 1px 2px rgba(1, 10, 43, .3), 0 4px 20px rgba(1, 10, 43, .45); } /* the compact copy sits higher on the picture, over brighter sky and marble */
+  .hero__lead { display: none; }
+  .hero__ctas { margin-top: 14px; }
+  .hero__ctas .btn { --h: 44px; font-size: .9rem; }
   .planner { padding: 6px; border-radius: 22px; }
   .planner__tabs { margin-bottom: 6px; }
   .planner__tab { height: 40px; padding: 0 14px; }
   .planner__pause { width: 40px; height: 40px; }
   .planner__form { --pf-r: 16px; }
-  .planner__field { padding: 8px 14px; }
+  .planner__field { padding: 7px 14px; }
   .planner__control { min-height: 26px; }
-  .planner__submit { --h: 50px; }
+  .planner__submit { --h: 48px; }
   /* trust strip: every credential on screen at once, no sideways scrolling */
   .trust { padding-block: 14px; }
   .trust__list {
@@ -450,21 +505,12 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
   .trust__list li:nth-child(n+3) .i { display: none; }
   .trust__list .i { flex: none; width: 17px; height: 17px; }
 }
-/* Shorter phones (browser toolbars showing, iPhone SE): tighten, then drop the photo caption,
-   the lead line and finally the two hero buttons. The quote planner always stays on screen. */
-@media (max-width: 639.98px) and (max-height: 780px) {
-  .hero__inner { gap: 12px; padding-top: calc(var(--header-h) + 6px); padding-bottom: 12px; }
-  .hero__title { font-size: clamp(1.55rem, 4.1svh, 2.2rem); }
-  .hero__lead { margin-top: 8px; font-size: .88rem; }
-  .hero__ctas { margin-top: 12px; }
-  .hero__ctas .btn { --h: 44px; }
-  .planner__tab { height: 38px; }
-  .planner__field { padding: 6px 14px; }
-  .planner__submit { --h: 46px; }
-  .trust { padding-block: 12px; }
+/* Narrow phones (under 360 px): drop the quote button's arrow and share the row evenly, so "WhatsApp Us" keeps room */
+@media (max-width: 359.98px) {
+  .hero__ctas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .hero__ctas .btn { padding: 0 10px; font-size: .86rem; }
+  .hero__ctas .btn--primary .i { display: none; }
 }
-@media (max-width: 639.98px) and (max-height: 730px) { .hero__lead { display: none; } }
-@media (max-width: 639.98px) and (max-height: 620px) { .hero__ctas { display: none; } }
 
 /* ==========================================================================
    INTRO
@@ -511,6 +557,7 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 .svx__item.is-active .svx__bar { transform: scaleX(var(--p, 0)); }
 .svx__media { display: none; margin: 0; overflow: hidden; border-radius: var(--r); background: transparent; } /* no backdrop: while a photo loads or two photos change over, the section's own background shows, so it stays seamless */
 .svx__media img { width: 100%; height: 100%; object-fit: cover; }
+.svx__media picture, .cta__media picture { display: contents; } /* the <picture> (phone, tablet and desktop crops) adds no box: the photo still fills its frame */
 .svx__pause { display: grid; place-items: center; width: 44px; height: 44px; margin: 18px 0 0 auto; border-radius: 50%; border: 1.5px solid var(--mist-300); color: var(--ink); transition: background-color .25s, border-color .25s; }
 .svx__pause:hover { border-color: var(--ink); }
 .svx__pause .i { width: 16px; height: 16px; }
@@ -730,7 +777,7 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 }
 
 /* ==========================================================================
-   HOW IT WORKS — travel route; the plane follows your scroll (--p from main.js)
+   HOW IT WORKS — travel route; the plane glides along as you scroll (--p and --run on the line, from main.js)
    ========================================================================== */
 .route h2 em { display: block; color: var(--blue-600); }
 .route__wrap { --stop: 64px; position: relative; }
@@ -748,9 +795,10 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 .route__chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 8px 14px; border-radius: 999px; background: #fff; box-shadow: var(--shadow-1); font-size: .85rem; font-weight: 600; }
 .route__chip .i { width: 16px; height: 16px; color: var(--blue-600); }
 .route__line { position: absolute; left: calc(var(--stop) / 2 - 1px); top: calc(var(--stop) / 2); bottom: calc(var(--tail, var(--stop)) - var(--stop) / 2); width: 2px; /* ends at the last stop (--tail from main.js) */ background: repeating-linear-gradient(180deg, var(--mist-300) 0 8px, transparent 8px 16px); }
-.route__fill { position: absolute; left: 0; top: 0; width: 2px; height: calc(var(--p, 0) * 100%); background: var(--blue-600); }
+/* moved with transforms only: the fill scales from the first stop, the plane slides --p of the line's length (--run) */
+.route__fill { position: absolute; inset: 0; background: var(--blue-600); transform-origin: 0 0; scale: 1 var(--p, 0); }
 .route__plane {
-  position: absolute; left: 1px; top: calc(var(--p, 0) * 100%); z-index: 2; translate: -50% -50%;
+  position: absolute; left: 1px; top: 0; z-index: 2; translate: -50% calc(var(--p, 0) * var(--run, 0px) - 50%);
   display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--blue-600); color: #fff;
   box-shadow: 0 0 0 6px var(--mist-50), var(--shadow-blue);
   opacity: clamp(0, min(var(--p, 0) * 14, (1 - var(--p, 0)) * 14), 1); /* fades out as it lands on the first / last stop */
@@ -762,8 +810,8 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
   .route__step { display: flex; flex-direction: column; align-items: center; padding: calc(var(--stop) + 26px) 0 0; text-align: center; }
   .route__stop { left: 50%; translate: -50% 0; }
   .route__line { left: calc((100% - 56px) / 6); right: calc((100% - 56px) / 6); top: calc(var(--stop) / 2 - 1px); bottom: auto; width: auto; height: 2px; background: repeating-linear-gradient(90deg, var(--mist-300) 0 10px, transparent 10px 20px); }
-  .route__fill { height: 2px; width: calc(var(--p, 0) * 100%); }
-  .route__plane { top: 1px; left: calc(var(--p, 0) * 100%); }
+  .route__fill { scale: var(--p, 0) 1; }
+  .route__plane { top: 1px; left: 0; translate: calc(var(--p, 0) * var(--run, 0px) - 50%) -50%; }
   .route__plane .i { rotate: 45deg; }
 }
 
@@ -914,16 +962,18 @@ html.sample .sample-tag { display: none; }
   .quote__submit { margin-top: 2px; }
   .quote__submit p { display: none; } /* the button already shows the WhatsApp icon; this keeps the form on one screen */
 }
-@media (max-width: 639.98px) and (max-height: 760px) {
-  /* short phones (iPhone SE and similar): tighter still, so the form still fits on one screen */
-  .quote__intro { padding: 20px 22px 18px; }
-  .quote__intro h2 { font-size: 1.45rem; }
-  .quote__intro > p { display: none; }
-  .quote__form { gap: 8px 10px; padding: 14px 16px 16px; }
-  .field { gap: 4px; }
-  .field input, .field .cselect { min-height: 42px; }
-  .field textarea { height: 74px; padding-block: 10px; } /* still fits the two-line hint */
-  .quote__submit .btn { --h: 48px; }
+@media (max-width: 639.98px) {
+  /* short phones (iPhone SE and similar): tighter still, so the form still fits on one screen. html.short-screen
+     (main.js: 760px or less, with the browser's toolbars away) stays put while you scroll; a max-height media query
+     could follow the toolbars as they slid away and back, and the form changed its layout mid-scroll. */
+  .short-screen .quote__intro { padding: 20px 22px 18px; }
+  .short-screen .quote__intro h2 { font-size: 1.45rem; }
+  .short-screen .quote__intro > p { display: none; }
+  .short-screen .quote__form { gap: 8px 10px; padding: 14px 16px 16px; }
+  .short-screen .field { gap: 4px; }
+  .short-screen .field input, .short-screen .field .cselect { min-height: 42px; }
+  .short-screen .field textarea { height: 74px; padding-block: 10px; } /* still fits the two-line hint */
+  .short-screen .quote__submit .btn { --h: 48px; }
 }
 @media (min-width: 640px) {
   .quote__form { grid-template-columns: 1fr 1fr; gap: 18px 16px; }
@@ -1038,14 +1088,14 @@ html.sample .sample-tag { display: none; }
 @media (min-width: 1024px) { .wa-fab { right: 24px; bottom: 24px; height: 58px; padding: 0 17px; } }
 
 /* ---------- Design preview pill (remove before launch) ----------
-   "Sample data" toggle plus the V1 | V2 tabs. Desktop: always there, bottom right; on the hero it sits in the 40px
+   "Sample data" toggle. Desktop: always there, bottom right; on the hero it sits in the 40px
    strip under the planner, past the hero (.is-visible) it moves up above the WhatsApp button. Phones and tablets:
    the first screen has no free corner (the licence strip fills the bottom), so it shows from the second screen on,
    above the action bar. */
 .devpill {
   position: fixed; left: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 45;
   opacity: 0; visibility: hidden; translate: 0 12px; transition: opacity .3s, translate .4s var(--ease), visibility .3s, bottom .5s var(--ease);
-  display: flex; align-items: center; gap: 10px; padding: 3px 3px 3px 10px; border-radius: 999px;
+  display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 10px; border-radius: 999px; /* 30px tall */
   background: #fff; color: var(--ink); font-size: .78rem; font-weight: 600;
   box-shadow: var(--shadow-pop);
 }
@@ -1059,17 +1109,6 @@ html.sample .sample-tag { display: none; }
 .devpill__hint { display: none; color: var(--ink-3); font-weight: 500; padding-left: 10px; border-left: 1px solid var(--mist-200); }
 html.sample .devpill__hint { display: none !important; }
 .devpill.is-visible { opacity: 1; visibility: visible; translate: 0 0; }
-/* V1 | V2: two tabs on a soft track; the blue thumb sits on this page's version and slides across on a click
-   (.go-1 / .go-2, main.js) before the other version opens */
-.devpill__ver { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 2px; border-radius: 999px; background: var(--mist-100); }
-.devpill__ver a { position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 20px; border-radius: 999px; font-size: .74rem; font-weight: 700; letter-spacing: .02em; color: var(--ink-3); transition: color .25s; }
-.devpill__ver a:hover { color: var(--ink); }
-.devpill__ver a:focus-visible { outline: 2px solid var(--blue-500); outline-offset: 2px; }
-.devpill__thumb { position: absolute; top: 2px; left: 2px; width: 34px; height: 20px; border-radius: 999px; background: var(--blue-600); box-shadow: 0 1px 3px rgba(1, 18, 73, .25); transition: translate .3s var(--ease); }
-.v2 .devpill__thumb, .devpill__ver.go-2 .devpill__thumb { translate: 100% 0; }
-.devpill__ver.go-1 .devpill__thumb { translate: 0 0; }
-body:not(.v2) .devpill__ver:not(.go-2) [data-v="1"], .v2 .devpill__ver:not(.go-1) [data-v="2"],
-.devpill__ver.go-1 [data-v="1"], .devpill__ver.go-2 [data-v="2"] { color: #fff; }
 @media (min-width: 1024px) {
   .devpill { left: auto; right: 24px; bottom: 5px; opacity: 1; visibility: visible; translate: none; } /* 30px tall: fits under the planner */
   .devpill.is-visible { bottom: 96px; }
