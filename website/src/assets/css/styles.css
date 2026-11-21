@@ -41,7 +41,7 @@
   --fs-h1: clamp(2.2rem, 1.4rem + 3vw, 3.8rem);
   --fs-h2: clamp(1.85rem, 1.3rem + 2.1vw, 3rem);
   --fs-h3: clamp(1.25rem, 1.1rem + .6vw, 1.6rem);
-  --fs-lead: clamp(1.05rem, 1rem + .3vw, 1.2rem);
+  --fs-lead: clamp(1rem, .95rem + .25vw, 1.125rem); /* 16px on phones to 18px on desktop */
 
   --r-sm: 10px;
   --r: 18px;
@@ -62,7 +62,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 90px; }
-html.no-scroll { overflow: hidden; overscroll-behavior: none; } /* phone menu open; main.js also cancels touch drags (iOS) */
+html.no-scroll { overflow: hidden; overscroll-behavior: none; scrollbar-gutter: stable; } /* phone menu or a country sheet open (the gutter stops the page shifting sideways); main.js also cancels touch drags (iOS) */
 html.has-smooth-scroll { scroll-behavior: auto; } /* main.js glides the page itself (wheel + same-page links) */
 body {
   font-family: var(--font-body);
@@ -112,6 +112,7 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 .section-head--center { margin-inline: auto; text-align: center; }
 .section-head__lead { color: var(--ink-2); font-size: var(--fs-lead); max-width: 52ch; }
 @media (min-width: 900px) { .section-head--split { grid-template-columns: 1.15fr 1fr; } }
+@media (max-width: 899.98px) { .section-head--split { row-gap: 12px; } } /* title above its description: keep them close */
 
 .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--blue-600); }
 .link-arrow .i { transition: transform .3s var(--ease); }
@@ -784,8 +785,8 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 .dsh__item.is-active .dsh__meta strong { color: var(--blue-600); }
 @media (max-width: 639.98px) { .dsh__desc { display: none; } }
 @media (min-width: 1024px) {
-  /* thumbnail height comes from the block width (cqw), so six rows always match the photo's height */
-  .dsh { --row: calc(((100cqw - 20px) * .3478 - 30px) / 6); grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr); gap: 20px; }
+  /* thumbnail height comes from the block width (cqw), so the rows (--n of them, 6px apart) always match the photo's height */
+  .dsh { --row: calc(((100cqw - 20px) * .3478 - (var(--n, 6) - 1) * 6px) / var(--n, 6)); grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr); gap: 20px; }
   .dsh__list { flex-direction: column; justify-content: space-between; gap: 6px; overflow: visible; margin: 0; padding: 0; }
   .dsh__list > li { display: block; }
   .dsh__item { width: 100%; height: var(--row); grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; padding: 7px 18px 7px 7px; border-radius: 16px; background: transparent; }
@@ -797,6 +798,276 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
   /* Fit the whole section in one screen: on shorter laptops the block narrows (310px = padding + heading) */
   .dest--fit { padding-block: 92px 64px; }
   .dest--fit > .container { max-width: calc((var(--vh-s, 100svh) - 310px) * 2.875 + 20px); }
+}
+
+/* ==========================================================================
+   COUNTRIES — client priorities 1 and 2 (Nov 2026): tour packages & visit visas (flag tiles) and
+   visa file processing (navy panel). Each tile opens a sheet with the full details (<dialog class="cs">,
+   main.js "Country sheets"): a bottom sheet on phones, a centred card on wider screens.
+   ========================================================================== */
+.flag { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Tour packages & visit visas: compact tiles, 2 across on phones, 4 from tablets up ---------- */
+.cx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 720px) { .cx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+.cx-grid > li { display: flex; }
+.cx {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  width: 100%; padding: 12px; border-radius: var(--r); background: #fff; color: var(--ink); text-align: left;
+  box-shadow: var(--shadow-1); transition: transform .35s var(--ease), box-shadow .35s;
+}
+.cx:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
+.cx__flag { display: block; width: 46px; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px rgba(11, 21, 51, .08); transition: transform .45s var(--ease); }
+.cx:hover .cx__flag { transform: scale(1.06) rotate(-3deg); }
+.cx__flag--more { display: grid; place-items: center; background: linear-gradient(135deg, var(--blue-500), var(--blue-700)); color: #fff; box-shadow: none; }
+.cx__flag--more .i { width: 20px; height: 20px; }
+.cx__meta { display: grid; gap: 1px; min-width: 0; }
+.cx__meta strong { font-size: 1rem; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
+.cx__meta small { font-size: .8rem; line-height: 1.35; color: var(--ink-3); }
+.cx__go { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--blue-50); color: var(--blue-600); transition: background-color .3s, color .3s, transform .45s var(--ease); }
+.cx__go .i { width: 16px; height: 16px; }
+.cx:hover .cx__go { background: var(--blue-600); color: #fff; transform: rotate(90deg); }
+.cx--more:hover .cx__go { transform: translate(2px, -2px); }
+@media (min-width: 720px) and (max-width: 1199.98px) { .cx { grid-template-columns: auto minmax(0, 1fr); } .cx__go { display: none; } } /* 4 narrow tiles: room for the name */
+@media (max-width: 479.98px) {
+  .cx { grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 10px 12px 10px 10px; }
+  .cx__flag { width: 36px; border-radius: 6px; }
+  .cx__go { display: none; }
+  .cx__meta strong { font-size: .95rem; white-space: nowrap; }
+  .cx__meta small { font-size: .74rem; }
+}
+
+/* ---------- Visa file processing: a navy panel with four tiles (flags the same size as the tour package tiles above) ---------- */
+.vf-sec { padding-top: 0; }
+.vf-panel {
+  position: relative; isolation: isolate; overflow: hidden;
+  padding: clamp(26px, 5vw, 64px) clamp(18px, 5vw, 64px); border-radius: var(--r-lg); color: #fff;
+  background: radial-gradient(110% 90% at 100% 0%, var(--navy-700) 0%, var(--navy-900) 58%);
+}
+.vf-panel::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, .16) 1px, transparent 1.6px) 0 0 / 22px 22px;
+  -webkit-mask-image: linear-gradient(200deg, #000, transparent 55%); mask-image: linear-gradient(200deg, #000, transparent 55%);
+}
+/* the title (two lines: the service, then the four destinations) and its description: one above the other on phones
+   and tablets, side by side on desktop like the other section headings (the title column is as wide as the title, so it
+   never wraps to a third line) */
+.vf-panel__head { display: grid; gap: 12px; margin-bottom: clamp(24px, 4vw, 40px); }
+@media (min-width: 1024px) { .vf-panel__head { grid-template-columns: auto minmax(0, 1fr); gap: 20px 64px; align-items: end; } .vf-panel__head p { max-width: 52ch; } }
+.vf-panel__head h2 { color: #fff; }
+.vf-panel__head h2 em { display: block; margin-top: .2em; font-size: .6em; letter-spacing: -.02em; color: var(--blue-300); }
+.vf-panel__head p { max-width: 62ch; font-size: var(--fs-lead); color: rgba(255, 255, 255, .78); }
+@media (max-width: 599.98px) { .vf-panel__head h2 { font-size: 1.6rem; } .vf-panel__head p { font-size: 1rem; } }
+.vf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 900px) { .vf-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+.vf-grid > li { display: flex; }
+.vf {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  width: 100%; padding: 18px; border-radius: var(--r); text-align: left; color: #fff;
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14);
+  transition: background-color .3s, border-color .3s, transform .35s var(--ease);
+}
+.vf:hover { background: rgba(255, 255, 255, .11); border-color: rgba(255, 255, 255, .3); transform: translateY(-3px); }
+.vf__flag { display: block; width: 46px; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255, 255, 255, .2), 0 6px 14px -6px rgba(0, 0, 0, .5); transition: transform .45s var(--ease); }
+.vf:hover .vf__flag { transform: scale(1.06) rotate(-3deg); }
+.vf__meta { display: grid; gap: 2px; }
+.vf__meta strong { font-size: 1.25rem; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; }
+.vf__meta small { font-size: .85rem; line-height: 1.4; color: rgba(255, 255, 255, .72); }
+.vf__mini { display: flex; align-items: center; padding-left: 6px; } /* a few of the 29 flags, under the name */
+.vf__mini .flag { width: 22px; height: 16.5px; margin-left: -6px; border-radius: 4px; box-shadow: 0 0 0 1.5px var(--navy-800); }
+.vf__mini em { margin-left: 6px; font-size: .75rem; font-style: normal; font-weight: 700; color: var(--blue-300); }
+.vf__go { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; font-size: .88rem; font-weight: 600; color: var(--blue-300); }
+.vf__go .i { width: 16px; height: 16px; transition: transform .45s var(--ease); }
+.vf:hover .vf__go .i { transform: rotate(90deg); }
+@media (max-width: 599.98px) { .vf { padding: 14px; gap: 10px; } .vf__flag { width: 36px; border-radius: 6px; } .vf__meta strong { font-size: 1.1rem; } .vf__meta small { font-size: .78rem; } .vf__mini { display: none; } }
+
+/* ---------- The sheet: the dialog fills the screen; the scrim fades in and the card slides up ----------
+   The dialog can't scroll (overflow: clip), so nothing can shift the card while it slides. No blur behind it:
+   animating a full-screen backdrop blur made phones drop frames. The card is a column on every screen: the photo
+   at the top and the two buttons at the bottom stay put, and only the details between them (.cs__body) scroll, passing under the photo with soft fades at both edges. On
+   desktop every sheet in a section has the same height (--cs-h: tours, visa files), never taller than the screen;
+   on phones the card is as tall as its content, up to the screen less 40px. On phones the card rises on the
+   curve iOS uses for its own sheets, leaves a little faster, has a grab handle and no scrollbar, and follows a
+   finger that drags it down (.is-dragging turns the transitions off; main.js "Country sheets"). */
+.cs { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: hidden; overflow: clip; }
+.cs::backdrop { background: transparent; }
+.cs[open] { display: grid; place-items: end center; }
+.cs__scrim { position: absolute; inset: 0; touch-action: none; background: rgba(1, 10, 43, .6); opacity: 0; transition: opacity .3s ease; }
+.cs__box {
+  position: relative; display: flex; flex-direction: column; width: 100%; max-height: calc(var(--vh-s, 100svh) - 40px); overflow: hidden;
+  border-radius: 24px 24px 0 0; background: #fff; box-shadow: 0 -12px 40px -12px rgba(1, 18, 73, .35);
+  will-change: translate;
+  translate: 0 100%; transition: translate .34s cubic-bezier(.4, 0, .9, .6);
+}
+.cs__box::before { content: ""; position: absolute; z-index: 4; top: 8px; left: 50%; width: 40px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .75); box-shadow: 0 1px 3px rgba(1, 18, 73, .25); translate: -50% 0; pointer-events: none; } /* grab handle */
+.cs.is-open .cs__scrim { opacity: 1; transition-duration: .4s; }
+.cs.is-open .cs__box { translate: 0 0; transition: translate .5s cubic-bezier(.32, .72, 0, 1); }
+.cs.is-dragging .cs__box, .cs.is-dragging .cs__scrim { transition: none; }
+@media (min-width: 760px) {
+  .cs[open] { place-items: center; padding: 24px; }
+  .cs__box { width: min(720px, 100%); height: min(var(--cs-h, 640px), calc(var(--vh-s, 100svh) - 48px)); max-height: none; border-radius: var(--r-lg); box-shadow: var(--shadow-pop); translate: 0 24px; scale: .98; opacity: 0; transition: translate .25s ease-in, scale .25s ease-in, opacity .2s ease-in; will-change: translate, opacity; }
+  .cs--tour .cs__box { --cs-h: 753px; } /* fits the tour sheets (one-line points); all seven the same height */
+  .cs--file .cs__box { --cs-h: 721px; } /* fits USA, UK and Canada with the photo head; the Schengen list scrolls */
+  .cs__box::before { display: none; }
+  .cs.is-open .cs__box { translate: 0 0; scale: 1; opacity: 1; transition: translate .45s var(--ease), scale .45s var(--ease), opacity .3s ease; }
+}
+.cs__close { position: absolute; top: 12px; right: 12px; z-index: 3; display: grid; place-items: center; width: 42px; height: 42px; margin: 0; border-radius: 50%; background: rgba(255, 255, 255, .94); color: var(--ink); box-shadow: var(--shadow-1); transition: background-color .25s, color .25s; }
+.cs__close:hover { background: var(--ink); color: #fff; }
+.cs__close .i { width: 20px; height: 20px; }
+.cs__head { position: relative; flex: none; color: #fff; }
+.cs__head--photo { aspect-ratio: 2 / 1; overflow: hidden; background: var(--navy-800); }
+.cs__head--photo img { width: 100%; height: 100%; object-fit: cover; }
+.cs__head--photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(1, 18, 73, 0) 35%, rgba(1, 18, 73, .85) 100%); }
+.cs__head--navy { padding: 30px 24px 26px; background: radial-gradient(110% 120% at 100% 0%, var(--navy-700), var(--navy-900) 60%); }
+.cs__title { display: flex; align-items: center; gap: 14px; padding-right: 48px; }
+.cs__head--photo .cs__title { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; padding: 20px 24px; }
+.cs__flag { display: block; flex: none; width: 52px; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 2px rgba(255, 255, 255, .9), 0 6px 16px -6px rgba(0, 0, 0, .5); }
+.cs__title h3 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); color: #fff; }
+.cs__title p { margin-top: 2px; font-size: .9rem; color: rgba(255, 255, 255, .82); }
+.cs__body { display: grid; flex: 1 1 auto; align-content: start; gap: 22px; min-height: 0; padding: 24px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.cs__lead { font-size: 1.02rem; color: var(--ink-2); }
+.cs__cols { display: grid; gap: 22px; }
+@media (min-width: 640px) { .cs__cols { grid-template-columns: 1fr 1fr; gap: 28px; } }
+.cs__col h4 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
+.cs__col h4 .i { width: 20px; height: 20px; color: var(--blue-600); }
+.cs__col > p { font-size: .95rem; color: var(--ink-2); }
+.cs__list { display: grid; gap: 8px; }
+@media (min-width: 640px) { .cs__list--2 { grid-template-columns: 1fr 1fr; gap: 8px 24px; } }
+.cs__list li { display: flex; align-items: flex-start; gap: 10px; font-size: .95rem; line-height: 1.5; color: var(--ink-2); }
+.cs__list .i { width: 22px; height: 22px; padding: 5px; border-radius: 50%; background: var(--blue-50); color: var(--blue-600); stroke-width: 3.4; } /* a bold blue tick on a light blue dot */
+.cs__col > .cs__note { margin-top: 10px; font-size: .85rem; color: var(--ink-3); }
+.cs__inc { padding: 16px; border-radius: var(--r); background: var(--mist-100); }
+.cs__inc p { margin-bottom: 10px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.cs__inc ul { display: flex; flex-wrap: wrap; gap: 8px; }
+.cs__inc li { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 999px; background: #fff; font-size: .85rem; font-weight: 600; }
+.cs__inc .i { width: 16px; height: 16px; color: var(--blue-600); }
+.cs__flags { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 14px; }
+@media (min-width: 560px) { .cs__flags { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cs__flags li { display: flex; align-items: center; gap: 9px; font-size: .9rem; color: var(--ink-2); }
+.cs__flags .flag { flex: none; width: 24px; height: 18px; border-radius: 3px; box-shadow: 0 0 0 1px rgba(11, 21, 51, .1); }
+.cs__honest { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border-radius: var(--r-sm); background: var(--blue-50); font-size: .88rem; color: var(--ink-2); }
+.cs__honest .i { width: 20px; height: 20px; margin-top: 1px; color: var(--blue-600); }
+.cs__cta { position: relative; z-index: 2; flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 24px calc(12px + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -1px 0 var(--mist-200); } /* the two buttons stay in reach while the details scroll; quote on the left */
+.cs__cta .btn { padding: 0 14px; }
+@media (max-width: 479.98px) { .cs__cta .btn { font-size: .9rem; gap: 8px; } }
+.cs__links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: .93rem; }
+/* the fades at the top and bottom of the scrolling details: registered so they can animate in and out */
+@property --cs-fade-t { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --cs-fade-b { syntax: "<length>"; inherits: false; initial-value: 0px; }
+/* the details fade out under the photo once scrolled, and above the buttons while there is more below (main.js "Country sheets") */
+.cs__body { --cs-fade-t: 0px; --cs-fade-b: 0px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--cs-fade-t), #000 calc(100% - var(--cs-fade-b)), transparent); mask-image: linear-gradient(to bottom, transparent, #000 var(--cs-fade-t), #000 calc(100% - var(--cs-fade-b)), transparent); transition: --cs-fade-t .35s ease, --cs-fade-b .35s ease; }
+.cs__body.is-scrolled { --cs-fade-t: 36px; }
+.cs__body.has-more { --cs-fade-b: 56px; }
+@media (max-width: 759.98px) { .cs__body::-webkit-scrollbar { display: none; } }
+@media (min-width: 760px) {
+  .cs__head--photo { aspect-ratio: 25 / 9; } /* 2:1 on phones; on desktop 20% shorter, then 10% shorter again */
+  .cs__body { scrollbar-width: thin; scrollbar-color: var(--mist-300) transparent; }
+  .cs__body::-webkit-scrollbar { width: 8px; }
+  .cs__body::-webkit-scrollbar-thumb { border-radius: 4px; background: var(--mist-300); }
+  /* "Every package can include": the five chips on one line */
+  .cs__inc ul { gap: 6px; }
+  .cs__inc li { gap: 6px; padding: 6px 10px; font-size: .82rem; }
+}
+
+/* ==========================================================================
+   CORPORATE & DOMESTIC TOURS — client priorities 3 and 4: two cards with where each tour goes
+   ========================================================================== */
+/* Each card shares the grid's five rows (photo, title, description, places, buttons) through subgrid, so the two
+   cards line up row by row even when one description runs a line longer than the other. Browsers without subgrid
+   get plain cards with the buttons pushed to the bottom. Row gaps live inside the card (.tcard__body), so the grid
+   itself only has a column gap. */
+.tours__grid { display: grid; column-gap: 20px; }
+@media (min-width: 900px) { .tours__grid { grid-template-columns: 1fr 1fr; column-gap: 28px; } }
+.tcard { position: relative; display: flex; flex-direction: column; overflow: hidden; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-1); transition: box-shadow .35s, transform .35s var(--ease); }
+.tcard:hover { box-shadow: var(--shadow-2); }
+/* the title's link covers the whole card (it opens the service page); the buttons sit above it */
+.tcard__link::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.tcard__link { transition: color .25s; }
+.tcard:hover .tcard__link { color: var(--blue-600); }
+.tcard__link:focus-visible { outline: none; }
+.tcard:has(.tcard__link:focus-visible) { outline: 2.5px solid var(--blue-500); outline-offset: 3px; }
+.tcard__media { position: relative; margin: 0; aspect-ratio: 2 / 1; overflow: hidden; background: var(--navy-800); }
+.tcard__media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; transition: transform 1.2s var(--ease); }
+.tcard:hover .tcard__media img { transform: scale(1.04); }
+/* The body has three blocks, evenly spaced: title and description (8px apart), the places panel, and the buttons,
+   with 20px between blocks (16px on phones). Spacing is margins/padding, not gap, so the subgrid rows stay simple. */
+.tcard__body { display: flex; flex: 1; flex-direction: column; padding: clamp(20px, 2.4vw, 30px); }
+.tcard__body > p { margin-top: 8px; color: var(--ink-2); }
+/* where it goes / who it is for: a soft panel holding both groups (small label + one row of white chips) */
+.tcard__places { display: grid; align-content: start; gap: 8px; margin-top: 20px; padding: 14px 16px; border-radius: 18px; background: var(--mist-50); box-shadow: inset 0 0 0 1px var(--mist-200); }
+.tcard__places .chips li:not(.chips__more) { background: #fff; box-shadow: 0 0 0 1px var(--mist-200); }
+.tcard__label { font-size: .72rem; font-weight: 700; line-height: 1.3; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+/* a thin line between the two groups (In Pakistan / Abroad, Where we go / Who it is for) */
+.tcard__label:not(:first-child) { margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--mist-200); }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chips li { padding: 3px 10px; border-radius: 999px; background: var(--mist-100); font-size: .82rem; font-weight: 600; line-height: 1.5; }
+/* .chips--more shows the first three chips and a "+N" chip. The rest are hidden the screen-reader way (still read out)
+   and counted with a css counter, so the +N always matches what is hidden. Needs at least four chips in the list. */
+.chips--more { position: relative; counter-reset: more; }
+.chips--more > li:nth-child(n+4):not(.chips__more) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; counter-increment: more; }
+.chips .chips__more { background: var(--blue-50); color: var(--blue-600); }
+.chips__more::before { content: "+" counter(more); }
+/* phones: two chips and the count, so each group stays on one line */
+@media (max-width: 459.98px) { .chips--more > li:nth-child(3):not(.chips__more) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; counter-increment: more; } }
+/* the two buttons are always the same width: two equal columns when both labels fit, otherwise one above the other */
+.tcard__cta { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 10px; margin-top: auto; padding-top: 20px; }
+.tcard__cta .btn { padding: 0 12px; }
+.tcard__cta .btn--outline .i { color: var(--ink); } /* black WhatsApp icon */
+.tcard__cta .btn--outline:hover .i { color: #fff; }
+@supports (grid-template-rows: subgrid) {
+  .tours__grid { grid-template-rows: repeat(5, auto); }
+  .tcard { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 0; }
+  .tcard__body { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 0; }
+  .tcard__cta { align-self: end; margin-top: 0; }
+}
+/* phones and small tablets: the two cards sit side by side and swipe, with the next one peeking in */
+@media (max-width: 899.98px) {
+  .tours__grid { grid-auto-flow: column; grid-auto-columns: min(86%, 440px); column-gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 16px; scroll-padding-inline: var(--gutter); }
+  .tours__grid::-webkit-scrollbar { display: none; }
+  .tcard { scroll-snap-align: start; }
+  .tcard__media { aspect-ratio: 2 / 1; } /* 20% taller than before; desktop is 2:1 too (was 3:1) */
+  .tcard__body { padding: 18px; }
+  .tcard__places { margin-top: 16px; padding: 12px 14px; border-radius: 14px; }
+  .tcard__cta { padding-top: 16px; }
+  .chips { gap: 4px; }
+  .chips li { padding: 3px 8px; font-size: .78rem; }
+  .tcard__body > p { font-size: .93rem; }
+  .tcard__cta .btn { font-size: .9rem; }
+}
+
+/* ==========================================================================
+   AIR TICKETS, HOTELS, INSURANCE & MORE — client priority 5: four compact tiles
+   ========================================================================== */
+/* Four cards: two columns on phones and tablets, four on desktop. Each card stacks icon, title, description and
+   link, and shares the grid rows (subgrid), so in a row of cards the titles, descriptions and links line up even
+   if one title wraps. The four descriptions are about the same length. */
+.extras__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 640px) { .extras__grid { gap: 16px; } }
+@media (min-width: 1024px) { .extras__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; } }
+.extra { display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: var(--r); background: #fff; box-shadow: var(--shadow-1); transition: transform .35s var(--ease), box-shadow .35s; }
+.extra:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
+@media (min-width: 1024px) { .extra { padding: 26px; } }
+.extra__icon { display: grid; place-items: center; flex: none; justify-self: start; width: 48px; height: 48px; margin-bottom: 6px; border-radius: 14px; background: var(--blue-50); color: var(--blue-600); transition: background-color .3s, color .3s; }
+.extra:hover .extra__icon { background: var(--blue-600); color: #fff; }
+.extra__icon .i { width: 24px; height: 24px; }
+.extra__text { display: contents; } /* its title, text and link are rows of the card */
+.extra h3 { font-size: 1.15rem; letter-spacing: -.02em; }
+.extra p { font-size: .93rem; color: var(--ink-2); }
+.extra__link { display: inline-flex; align-items: center; justify-self: start; gap: 6px; margin-top: auto; padding-top: 4px; font-size: .92rem; font-weight: 600; color: var(--blue-600); }
+.extra__link .i { width: 16px; height: 16px; transition: transform .3s var(--ease); }
+.extra__link:hover .i { transform: translateX(4px); }
+@supports (grid-template-rows: subgrid) {
+  .extra { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 6px; }
+  .extra__link { align-self: end; margin-top: 0; }
+}
+@media (max-width: 639.98px) { .extra { padding: 14px; } .extra__icon { width: 40px; height: 40px; margin-bottom: 4px; border-radius: 12px; } .extra__icon .i { width: 20px; height: 20px; } .extra h3 { font-size: 1rem; } .extra p { font-size: .84rem; line-height: 1.5; } .extra__link { font-size: .86rem; } }
+/* very small phones (under 360px): one card per row, the icon beside the title, text and link */
+@media (max-width: 359.98px) {
+  .extras__grid { grid-template-columns: minmax(0, 1fr); }
+  .extra { display: grid; grid-row: auto; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: none; align-content: start; gap: 4px 14px; }
+  .extra__icon { grid-row: 1 / span 3; margin-bottom: 0; }
+  .extra h3, .extra p, .extra__link { grid-column: 2; }
+  .extra__link { align-self: start; }
 }
 
 /* ==========================================================================
@@ -916,9 +1187,7 @@ html.sample .sample-tag { display: none; }
 .quote__contacts a:hover { color: var(--blue-300); }
 .quote__icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: rgba(255, 255, 255, .08); color: var(--blue-300); }
 .quote__icon .i { width: 20px; height: 20px; }
-.quote__promise { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .12); font-size: .9rem; color: rgba(255, 255, 255, .78); }
-.quote__promise .i { width: 18px; height: 18px; color: #6FE0A6; }
-.quote__form { display: grid; gap: 16px; padding: clamp(24px, 4vw, 48px); }
+.quote__form { display: grid; gap: 16px; min-width: 0; padding: clamp(24px, 4vw, 48px); } /* min-width: 0 so the paired fields on phones can't widen the card */
 .field { display: grid; gap: 7px; min-width: 0; }
 .field__label { font-size: .85rem; font-weight: 600; color: var(--ink-2); }
 .field__label em { font-style: normal; font-weight: 500; color: var(--ink-3); }
@@ -963,19 +1232,28 @@ html.sample .sample-tag { display: none; }
 @keyframes cselectIn { from { opacity: 0; translate: 0 -6px; } }
 @keyframes cselectInUp { from { opacity: 0; translate: 0 6px; } }
 .quote__submit { display: grid; gap: 10px; margin-top: 4px; }
+.quote__btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } /* send on the left, WhatsApp on the right */
+.quote__btns .btn { padding: 0 14px; }
+@media (max-width: 479.98px) { .quote__btns .btn { gap: 6px; padding: 0 10px; font-size: .88rem; } } /* both labels fit side by side on a 360px phone */
 .quote__submit p { font-size: .85rem; color: var(--ink-3); text-align: center; }
+/* the line under the buttons reports the email: sending, sent (green), or failed (red, with WhatsApp as the way out) */
+.quote__status[data-state="sent"] { color: #1E7B4C; font-weight: 600; }
+.quote__status[data-state="error"] { color: #C62828; font-weight: 600; }
+.quote__form[aria-busy="true"] [data-quote-send] { cursor: progress; opacity: .8; }
 @media (max-width: 639.98px) {
   /* phones: the whole form fits on one screen. A short intro (call and WhatsApp are in the bar at the
      bottom of the screen), compact fields, and name + phone and when + travellers share a row. */
   .quote__intro { gap: 8px; padding: 26px 22px 24px; }
   .quote__intro h2 { font-size: 1.6rem; }
   .quote__intro > p { font-size: .9rem; line-height: 1.5; }
-  .quote__contacts, .quote__promise { display: none; }
+  .quote__contacts { display: none; }
   .quote__form { display: flex; flex-wrap: wrap; gap: 12px 10px; padding: 18px 16px 20px; }
   .quote__form > * { flex: 1 1 100%; }
-  .quote__form > :nth-child(1), .quote__form > :nth-child(2) { flex: 1 1 calc(50% - 5px); }
-  .quote__form > :nth-child(4) { flex: 1.5 1 0; }
-  .quote__form > :nth-child(5) { flex: 1 1 0; }
+  /* by class, not position: the hidden form-service inputs at the top of the form shifted nth-child, so name and
+     phone got the when/travellers split (1.5 : 1) and when and travellers each took a full row */
+  .quote__form > .field--name, .quote__form > .field--phone { flex: 1 1 calc(50% - 5px); min-width: 0; } /* the same width */
+  .quote__form > .field--when { flex: 1.5 1 0; min-width: 0; }
+  .quote__form > .field--count { flex: 1 1 0; min-width: 0; }
   .field { gap: 5px; }
   .field__label { font-size: .78rem; }
   .field input, .field textarea, .field .cselect { min-height: 46px; padding-inline: 12px; border-radius: 12px; } /* text stays 16px so phones don't zoom in */
@@ -983,7 +1261,8 @@ html.sample .sample-tag { display: none; }
   .field__select .i { right: 12px; }
   .field textarea { min-height: 0; height: 98px; padding-block: 12px; line-height: 1.5; } /* three lines: the two-line hint fits with no scroll bar */
   .quote__submit { margin-top: 2px; }
-  .quote__submit p { display: none; } /* the button already shows the WhatsApp icon; this keeps the form on one screen */
+  /* the idle note is left out to keep the form on one screen; once sent (or failed) the line shows */
+  .quote__status:not([data-state="sent"]):not([data-state="error"]) { display: none; }
 }
 @media (max-width: 639.98px) {
   /* short phones (iPhone SE and similar): tighter still, so the form still fits on one screen. html.short-screen
@@ -996,7 +1275,7 @@ html.sample .sample-tag { display: none; }
   .short-screen .field { gap: 4px; }
   .short-screen .field input, .short-screen .field .cselect { min-height: 42px; }
   .short-screen .field textarea { height: 74px; padding-block: 10px; } /* still fits the two-line hint */
-  .short-screen .quote__submit .btn { --h: 48px; }
+  .short-screen .quote__submit .btn { --h: 46px; }
 }
 @media (min-width: 640px) {
   .quote__form { grid-template-columns: 1fr 1fr; gap: 18px 16px; }
