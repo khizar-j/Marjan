@@ -18,23 +18,38 @@
     else addEventListener('resize', setTrust);
   }
 
-  /* ---------- A steady screen height (px), for the route below and html.short-screen ----------
+  /* ---------- A steady screen height (px), for the route below, html.short-screen and the CSS ----------
      innerHeight grows and shrinks as a phone browser's toolbars slide away and back (by up to ~150px), and
      max-height media queries can follow it, so anything worked out from them jumped or changed layout mid-scroll.
-     This is the height of an empty fixed box 100vh tall (phone browsers keep vh at the size with the toolbars away);
-     on touch screens it is measured again only when the width changes (turning the phone). Version 2's MFX.vh()
-     works the same way. html.short-screen (760px or less) gives the quote form its tighter phone layout (CSS). */
-  const vhBox = d.createElement('div');
-  vhBox.setAttribute('aria-hidden', 'true');
-  vhBox.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
-  d.body.appendChild(vhBox);
+     Chrome on the iPhone goes further: it resizes the whole page in steps as its bars slide away, and even CSS
+     100svh and 100vh follow those steps, so the hero (one screen tall) grew 20–35px at a time under your finger and
+     the page jolted down. So no layout uses viewport units directly: the CSS reads these two px values instead,
+     set here and, on touch screens, measured again only when the width changes (turning the phone):
+       --vh-l  the screen with the toolbars away (an empty fixed box 100vh tall), in place of 100vh
+       --vh-s  the screen with the toolbars showing (100svh, at most innerHeight at load), in place of 100svh
+     Desktop windows have no sliding toolbars, so there both follow every resize. Version 2's MFX.vh() / svh() work
+     the same way. html.short-screen (760px or less) gives the quote form its tighter phone layout (CSS). */
+  const probe = (h) => {
+    const el = d.createElement('div');
+    el.setAttribute('aria-hidden', 'true');
+    el.style.cssText = `position:fixed;top:0;left:0;width:0;height:100vh;height:${h};visibility:hidden;pointer-events:none`;
+    return d.body.appendChild(el);
+  };
+  const vhBox = probe('100vh');
+  const svhBox = probe('100svh');
   let screenH = innerHeight;
   let screenW = -1;
   const readScreen = () => {
     if (!finePointer && innerWidth === screenW) return;
     screenW = innerWidth;
     screenH = vhBox.offsetHeight || innerHeight;
+    const small = Math.min(screenH, svhBox.offsetHeight || screenH, innerHeight || screenH);
+    root.style.setProperty('--vh-l', `${screenH}px`);
+    root.style.setProperty('--vh-s', `${small}px`);
     root.classList.toggle('short-screen', screenH <= 760);
+    // phones with a short screen get a tighter hero, so the quote button and some video fit (css: "Short phone screens")
+    root.classList.toggle('screen-compact', small < 640);
+    root.classList.toggle('screen-tiny', small < 520);
   };
   readScreen();
   addEventListener('resize', readScreen);
