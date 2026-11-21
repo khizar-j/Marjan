@@ -1,23 +1,27 @@
-<!-- ============ 10 · GET A QUOTE (enquiry form; sends the details on WhatsApp). v2: the card rises in once and its fields follow in a short stagger (data-quote-card, js/v2/40-closing.js) ============ -->
+<!-- ============ 10 · GET A QUOTE (enquiry form; emails the details to the team, or sends them on WhatsApp). v2: the card rises in once and its fields follow in a short stagger (data-quote-card, js/v2/40-closing.js) ============ -->
 <section class="quote section section--tint" id="get-a-quote" aria-labelledby="quote-title">
   <div class="container">
     <div class="quote__card" data-quote-card>
       <div class="quote__intro">
         <h2 id="quote-title">Get a Free Quote</h2>
-        <p>Tell us about your trip and we will send you a written, itemised quotation, usually within {{ph RESPONSE TIME}}.</p>
+        <p>Tell us about your trip and we will send you a written, itemised quotation, usually the same day.</p>
         <ul class="quote__contacts">
-          <li><span class="quote__icon">{{icon phone}}</span><span><small>Call us</small><a href="tel:[PHONE]">{{ph PHONE}}</a></span></li>
+          <li><span class="quote__icon">{{icon phone}}</span><span><small>Call us</small><a href="tel:+923038244423">+92 303 8244423</a></span></li>
           <li><span class="quote__icon">{{icon whatsapp}}</span><span><small>WhatsApp</small><a href="#" data-wa>Chat with our team</a></span></li>
-          <li><span class="quote__icon">{{icon clock}}</span><span><small>Office hours</small><span>{{ph OFFICE HOURS}}</span></span></li>
+          <li><span class="quote__icon">{{icon clock}}</span><span><small>Office hours</small><span>7 days a week, 9am–9pm</span></span></li>
         </ul>
-        <p class="quote__promise">{{icon check}}No obligation and no hidden charges</p>
       </div>
-      <form class="quote__form" data-quote-form>
-        <label class="field">
+      <!-- Emails the request to the address in action= (FormSubmit, main.js "Get a quote form"). To change the address,
+           edit it here; FormSubmit then emails the new address once to activate the form. -->
+      <form class="quote__form" data-quote-form action="https://formsubmit.co/abdullah@justkanvas.com" method="POST">
+        <input type="hidden" name="_subject" value="New quote request from the Marjan Travel &amp; Tours website">
+        <input type="hidden" name="_template" value="table">
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
+        <label class="field field--name">
           <span class="field__label">Full name</span>
           <input type="text" name="name" autocomplete="name" required placeholder="Your name">
         </label>
-        <label class="field">
+        <label class="field field--phone">
           <span class="field__label">Phone or WhatsApp</span>
           <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required placeholder="03XX XXXXXXX">
         </label>
@@ -27,18 +31,23 @@
             <select name="service" required data-error="Please choose a service.">
               <option value="" selected disabled>Choose a service</option>
               <option>Umrah package</option>
-              <option>Visa consultancy</option>
-              <option>Pakistan tour</option>
-              <option>International holiday</option>
-              <option>Corporate trip</option>
+              <option>International tour package</option>
+              <option>Visit visa</option>
+              <option value="Visa file processing">Visa file processing (USA, UK, Canada, Schengen)</option>
+              <option>Corporate tour</option>
+              <option>Domestic tour</option>
+              <option>Air tickets</option>
+              <option>Hotel booking</option>
+              <option>Travel insurance</option>
+              <option>Something else</option>
             </select>{{icon chevron-down}}
           </span>
         </label>
-        <label class="field">
+        <label class="field field--when">
           <span class="field__label">When</span>
           <span class="field__select"><select name="month" data-month-select><option>Flexible</option></select>{{icon chevron-down}}</span>
         </label>
-        <label class="field">
+        <label class="field field--count">
           <span class="field__label">Travellers</span>
           <input type="number" name="travellers" min="1" max="500" value="2" inputmode="numeric">
         </label>
@@ -51,8 +60,11 @@
           <textarea name="notes" rows="3" placeholder="Hotel preference, budget, dates, special requests"></textarea>
         </label>
         <div class="quote__submit field--wide">
-          <button class="btn btn--primary btn--lg btn--block" type="submit">{{icon whatsapp}}Send my quote request</button>
-          <p>Opens WhatsApp with your details filled in, ready to send.</p>
+          <div class="quote__btns">
+            <button class="btn btn--primary" type="submit" data-quote-send>{{icon mail}}<span>Send request</span></button>
+            <button class="btn btn--outline" type="button" data-quote-wa>{{icon whatsapp}}<span>Via WhatsApp</span></button>
+          </div>
+          <p class="quote__status" data-quote-status role="status" aria-live="polite">Our team replies by phone or WhatsApp, usually the same day.</p>
         </div>
       </form>
     </div>

@@ -64,6 +64,166 @@
     a.rel = 'noopener';
   });
 
+  /* ---------- Country sheets (tour packages & visas, visa file processing) ----------
+     A tile ([data-cs-open]) opens its <dialog class="cs"> with the full details. The page behind is locked
+     (html.no-scroll, as for the phone menu), then .is-open fades the scrim in and slides the card up (css:
+     "The sheet"). Escape, the scrim and the close button slide it away, then close the dialog; the browser
+     puts focus back on the tile. Only the details (.cs__body) scroll, between the photo and the two buttons, on
+     phones too. On phones the card can also be swiped down to close: from the photo or the buttons, or from the
+     details once they are scrolled back to the top.
+     No autofocus: focusing the close button while the card was still below the screen made the browser scroll
+     the dialog to reach it, so the card jumped mid-slide. The dialog can't scroll now (overflow: clip in css),
+     and the close button is focused with preventScroll.
+     "Get a quote" ([data-quote-pick]) closes it at once, fills in the quote form's service and notes, and the
+     same-page link code below glides down to the form. */
+  {
+    const CLOSE_MS = 380; // matches the card's slide out in css
+    let closeTimer = 0;
+    const closeCs = (dlg, now) => {
+      if (!dlg.open) return;
+      clearTimeout(closeTimer);
+      dlg.classList.remove('is-open');
+      if (now) dlg.close();
+      else closeTimer = setTimeout(() => dlg.close(), CLOSE_MS);
+    };
+    const openCs = (dlg) => {
+      if (!dlg || typeof dlg.showModal !== 'function') return;
+      clearTimeout(closeTimer);
+      $$('.cs[open]').forEach((o) => { if (o !== dlg) closeCs(o, true); });
+      root.classList.add('no-scroll');
+      if (!dlg.open) dlg.showModal();
+      dlg.scrollTop = 0;
+      // only the details scroll (css "The sheet"): start them at the top, with the fades to match
+      const body = $('.cs__body', dlg);
+      if (body) { body.scrollTop = 0; edges(body); }
+      const close = $('.cs__close', dlg);
+      if (close) close.focus({ preventScroll: true });
+      requestAnimationFrame(() => requestAnimationFrame(() => dlg.classList.add('is-open')));
+    };
+    // phones: drag the card down to close it. It follows the finger (no transition while dragging); let go
+    // past a quarter of its height, or with a quick flick, and it slides away, otherwise it springs back.
+    const swipeToClose = (dlg) => {
+      const box = $('.cs__box', dlg);
+      const scrim = $('.cs__scrim', dlg);
+      const body = $('.cs__body', dlg);
+      if (!box) return;
+      let inBody = false; // the touch began on the scrolling details (not the photo or the buttons)
+      let y0 = 0;
+      let t0 = 0;
+      let dy = 0;
+      let drag = null; // null = not decided yet, true = moving the card, false = scrolling the details
+      const settle = () => { box.style.translate = ''; if (scrim) scrim.style.opacity = ''; };
+      box.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1 || !dlg.classList.contains('is-open') || innerWidth >= 760) { drag = false; return; }
+        inBody = !!body && body.contains(e.target);
+        y0 = e.touches[0].clientY;
+        t0 = e.timeStamp;
+        dy = 0;
+        drag = null;
+      }, { passive: true });
+      box.addEventListener('touchmove', (e) => {
+        if (drag === false) return;
+        dy = e.touches[0].clientY - y0;
+        if (drag === null) {
+          if (Math.abs(dy) < 6) return;
+          drag = dy > 0 && (!inBody || body.scrollTop <= 0); // only a pull down from the top moves the card
+          if (!drag) return;
+          dlg.classList.add('is-dragging');
+        }
+        e.preventDefault();
+        const pull = Math.max(0, dy);
+        box.style.translate = `0 ${pull}px`;
+        if (scrim) scrim.style.opacity = String(Math.max(0, 1 - pull / box.offsetHeight));
+      }, { passive: false });
+      const end = (e) => {
+        const was = drag;
+        drag = null;
+        if (!was) return;
+        const fast = dy > 40 && dy / Math.max(1, e.timeStamp - t0) > 0.6; // a flick: px per ms
+        dlg.classList.remove('is-dragging'); // the transition comes back, so the card glides on from where the finger left it
+        settle();
+        if (dy > box.offsetHeight / 4 || fast) closeCs(dlg);
+      };
+      box.addEventListener('touchend', end);
+      box.addEventListener('touchcancel', end);
+    };
+    // only the details scroll. Their top and bottom edges fade out while there is more to scroll that way
+    // (.is-scrolled / .has-more, css "The sheet"; phones too, updated on every scroll). On a computer the mouse
+    // wheel glides them like the page: the same 1.5 s ease-out-expo glide as "Smooth scrolling" below, restarted
+    // on every wheel turn. On phones a finger scrolls them natively, with the phone's own momentum, like the page.
+    const edges = (body) => {
+      body.classList.toggle('is-scrolled', body.scrollTop > 2);
+      body.classList.toggle('has-more', body.scrollTop + body.clientHeight < body.scrollHeight - 2);
+    };
+    const glide = (box) => {
+      const DURATION = 1.5;
+      const ease = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
+      let from = 0;
+      let target = 0;
+      let current = 0;
+      let lastSet = 0;
+      let elapsed = 0;
+      let raf = 0;
+      let last = 0;
+      const clamp = (y) => Math.min(box.scrollHeight - box.clientHeight, Math.max(0, y));
+      const frame = (now) => {
+        elapsed += last ? Math.min(0.1, Math.max(0, (now - last) / 1000)) : 1 / 60;
+        last = now;
+        const p = Math.min(1, elapsed / DURATION);
+        current = p === 1 ? target : from + (target - from) * ease(p);
+        box.scrollTop = current;
+        lastSet = box.scrollTop;
+        raf = p === 1 ? 0 : requestAnimationFrame(frame);
+      };
+      box.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || box.scrollHeight - box.clientHeight < 2) return; // nothing to scroll: let it be
+        const k = e.deltaMode === 1 ? 100 / 6 : e.deltaMode === 2 ? box.clientHeight : 1;
+        const dy = e.deltaY * k;
+        if (!dy || Math.abs(e.deltaX * k) > Math.abs(dy)) return;
+        e.preventDefault();
+        from = raf ? current : box.scrollTop;
+        target = clamp((raf ? target : box.scrollTop) + dy);
+        elapsed = 0;
+        if (!raf) { last = 0; raf = requestAnimationFrame(frame); }
+      }, { passive: false });
+      // the scrollbar, keys or a trackpad's own momentum moved it: stop gliding and follow
+      box.addEventListener('scroll', () => {
+        if (raf && Math.abs(box.scrollTop - lastSet) > 1.5) { cancelAnimationFrame(raf); raf = 0; }
+        edges(box);
+      }, { passive: true });
+    };
+    // the sheet's photo starts loading as soon as a finger or the mouse reaches the tile, so it is there when the card arrives
+    const warm = (btn) => { const dlg = d.getElementById(btn.dataset.csOpen); const img = dlg && $('.cs__head img[loading="lazy"]', dlg); if (img) img.loading = 'eager'; };
+    $$('[data-cs-open]').forEach((btn) => {
+      btn.addEventListener('pointerenter', () => warm(btn), { once: true });
+      btn.addEventListener('pointerdown', () => warm(btn), { once: true });
+      btn.addEventListener('click', () => openCs(d.getElementById(btn.dataset.csOpen)));
+    });
+    $$('.cs').forEach((dlg) => {
+      dlg.addEventListener('cancel', (e) => { e.preventDefault(); closeCs(dlg); }); // Escape: slide away first
+      dlg.addEventListener('close', () => { // however it closed (a second Escape can't be held back)
+        dlg.classList.remove('is-open', 'is-dragging');
+        if (!$('.cs[open]')) root.classList.remove('no-scroll');
+      });
+      $$('[data-cs-close]', dlg).forEach((el) => el.addEventListener('click', () => closeCs(dlg)));
+      swipeToClose(dlg);
+      const body = $('.cs__body', dlg);
+      if (body) glide(body);
+    });
+    $$('[data-quote-pick]').forEach((a) => a.addEventListener('click', () => {
+      const dlg = a.closest('.cs');
+      if (dlg) closeCs(dlg, true);
+      const form = $('[data-quote-form]');
+      if (!form) return;
+      const sel = form.elements.service;
+      const opt = sel && [...sel.options].find((o) => o.value === a.dataset.quotePick);
+      if (opt) { sel.value = opt.value; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      const notes = form.elements.notes;
+      const note = a.dataset.quoteNote;
+      if (notes && note && !notes.value.includes(note)) notes.value = notes.value ? `${note}. ${notes.value}` : note;
+    }));
+  }
+
   /* ---------- Current page in nav ---------- */
   const here = location.pathname.replace(/index\.html$/, '');
   $$('.nav__link[href], .mobile-menu a[href]').forEach((a) => {
@@ -174,6 +334,7 @@
   const actionbar = $('[data-actionbar]');
   const fab = $('[data-fab]');
   const devpill = $('[data-devpill]');
+  if (devpill && !$('.ph')) devpill.remove(); // the "Sample data" switch only shows on pages with placeholders left
   let menuOpen = false;
   /* Desktop (mouse, 1024px and wider): the top bar moves with the page, like Twitter's: scrolling down pushes it up
      out of view pixel for pixel, scrolling up pulls it back down. It never flips between two states, so fast changes
@@ -427,19 +588,19 @@
       },
       north: {
         name: 'Pakistan tour', label: 'Destination', caption: 'Hunza Valley, Gilgit-Baltistan', travellers: 2,
-        options: ['Hunza Valley', 'Skardu', 'Swat', 'Naran Kaghan', 'Murree & Galiyat', 'Neelum Valley', 'Fairy Meadows', 'Help me choose'],
+        options: ['Skardu', 'Naran Kaghan', 'Murree', 'Kashmir', 'Swat', 'Gilgit', 'Help me choose'],
       },
       abroad: {
-        name: 'International holiday', label: 'Destination', caption: 'Cappadocia, Turkey', travellers: 2,
-        options: ['Dubai', 'Turkey', 'Baku, Azerbaijan', 'Thailand', 'Malaysia', 'Maldives', 'Bali', 'Europe', 'Help me choose'],
+        name: 'International holiday', label: 'Destination', caption: 'Dubai skyline, United Arab Emirates', travellers: 2,
+        options: ['Azerbaijan', 'Thailand', 'Indonesia (Bali)', 'Malaysia', 'Dubai', 'Sri Lanka', 'Singapore', 'Somewhere else'],
       },
       visa: {
         name: 'Visa', label: 'Visa for', caption: 'Visit, tourist, family & business visas', travellers: 1,
-        options: ['Dubai & UAE', 'United Kingdom', 'Schengen countries', 'Turkey', 'Thailand', 'Malaysia', 'Saudi Arabia', 'Another country'],
+        options: ['Dubai & UAE', 'Azerbaijan', 'Thailand', 'Indonesia', 'Malaysia', 'Sri Lanka', 'Singapore', 'USA (visa file)', 'UK (visa file)', 'Canada (visa file)', 'Schengen (visa file)', 'Another country'],
       },
       corporate: {
         name: 'Corporate trip', label: 'Trip type', caption: 'Team retreats & incentive tours', travellers: 20,
-        options: ['Team-building retreat', 'Incentive tour', 'Conference', 'Group Umrah for employees', 'Company trip'],
+        options: ['Company trip in Pakistan', 'Company trip abroad', 'Team-building retreat', 'Incentive tour', 'Conference', 'Group Umrah for employees'],
       },
     };
 
@@ -761,7 +922,12 @@
     });
   });
 
-  /* ---------- Get a quote form sends the details to the team on WhatsApp ---------- */
+  /* ---------- Get a quote form: emails the request to the team, or sends it on WhatsApp ----------
+     "Send request" posts the details to FormSubmit (formsubmit.co), a free form-to-email service with no
+     account or server code: it emails them to the address in the form's action (partials/v2/quote.html), as a table.
+     FormSubmit emails a new address once to activate the form; until that link is clicked nothing is delivered, and
+     the visitor sees the error line and can use the WhatsApp button instead. "Send it on WhatsApp instead" opens
+     WhatsApp with the same details filled in. Without JavaScript the form posts to FormSubmit's own page. */
   const quoteForm = $('[data-quote-form]');
   if (quoteForm) {
     const month = $('[data-month-select]', quoteForm);
@@ -769,11 +935,59 @@
     const today = new Date();
     month.innerHTML = '<option>Flexible</option>' + Array.from({ length: 12 }, (_, i) =>
       `<option>${fmtMonth.format(new Date(today.getFullYear(), today.getMonth() + i, 1))}</option>`).join('');
-    quoteForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!quoteForm.reportValidity()) return;
+    const sendBtn = $('[data-quote-send]', quoteForm);
+    const sendLabel = sendBtn && $('span', sendBtn);
+    const sendText = sendLabel ? sendLabel.textContent : '';
+    const status = $('[data-quote-status]', quoteForm);
+    const say = (text, state = '') => { if (status) { status.textContent = text; status.dataset.state = state; } };
+    const details = () => {
       const f = Object.fromEntries(new FormData(quoteForm));
-      const n = Math.max(1, Number(f.travellers) || 1);
+      return { f, n: Math.max(1, Number(f.travellers) || 1) };
+    };
+    quoteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!quoteForm.reportValidity() || (sendBtn && sendBtn.disabled)) return;
+      const { f, n } = details();
+      const payload = {
+        _subject: f._subject,
+        _template: 'table',
+        _honey: f._honey || '',
+        Name: f.name.trim(),
+        'Phone / WhatsApp': f.phone.trim(),
+        Service: f.service,
+        When: f.month,
+        Travellers: `${n} ${n === 1 ? 'person' : 'people'}`,
+        'Departing from': f.city.trim() || '-',
+        Notes: f.notes.trim() || '-',
+      };
+      if (sendBtn) sendBtn.disabled = true;
+      if (sendLabel) sendLabel.textContent = 'Sending…';
+      quoteForm.setAttribute('aria-busy', 'true');
+      say('Sending your request…', 'busy');
+      try {
+        const res = await fetch(quoteForm.action.replace('formsubmit.co/', 'formsubmit.co/ajax/'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || `HTTP ${res.status}`);
+        const first = payload.Name.split(/\s+/)[0];
+        quoteForm.reset();
+        $$('select', quoteForm).forEach((s) => s.dispatchEvent(new Event('change'))); // the custom dropdowns show the reset value
+        say(`Thank you${first ? `, ${first}` : ''}! Your request has reached our team. We will call or WhatsApp you soon.`, 'sent');
+      } catch (err) {
+        say("Sorry, your request didn't go through. Please try again, or send it on WhatsApp instead.", 'error');
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        if (sendLabel) sendLabel.textContent = sendText;
+        quoteForm.removeAttribute('aria-busy');
+      }
+    });
+    const waBtn = $('[data-quote-wa]', quoteForm);
+    if (waBtn) waBtn.addEventListener('click', () => {
+      if (!quoteForm.reportValidity()) return;
+      const { f, n } = details();
       const lines = [
         "Assalam o Alaikum Marjan Travel & Tours! I'd like a free quote.",
         '',
