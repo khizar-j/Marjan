@@ -1,0 +1,236 @@
+/* Umrah packages page (/services/umrah-packages/). Loaded after site.css and service.css (the inner pages' hero, text beside
+   a photo, tiles, pinned route and blue bar), so this file only adds what is new on this page: the planner, the package
+   types and the cost section. No prices anywhere (client request). */
+
+/* ---------- At a glance ---------- */
+.uglance__media { --ph-pos: 50% 70%; } /* the Kaaba and the pilgrims, less sky */
+.ucost__photo { --ph-t: 4 / 3; --ph-pos: 50% 8%; } /* the user's photo of the Makkah clock tower (23 Nov): its own 4:3 cut on
+   phones and tablets (the tower between the two lamps), the 3:4 one beside the text from 960px, held near the top so the
+   lamps and the tower stay whole and the pilgrims show below */
+@media (max-width: 959.98px) { .ucost__photo { --ph-pos: 50% 50%; } }
+
+/* ---------- Choose how many days: the Umrah planner (umrah.js "Umrah planner") ----------
+   A white card: three steps on the left, the plan they build on a navy card on the right (stacked on phones).
+   Patterns from Mobbin: Stripe's and Kit's snapping slider with a value bubble, the Cofounder / ElevenLabs calculator
+   layout, Joby's journey line (here the nights, one bar each). */
+@keyframes ufade { from { opacity: 0; translate: 0 10px; } }
+.udur__card { display: grid; gap: 8px; padding: 8px; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-1); }
+@media (min-width: 960px) { .udur__card { grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); } }
+.udur__controls { display: grid; grid-template-rows: auto auto auto 1fr; gap: 34px; min-width: 0; padding: clamp(20px, 3vw, 40px); }
+.udur__step { min-width: 0; margin: 0; padding: 0; border: 0; }
+.udur__q { display: flex; align-items: center; gap: 10px; padding: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -.015em; line-height: 1.3; color: var(--ink); }
+.udur__n { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--blue-50); color: var(--blue-600); font-size: .88rem; font-weight: 800; }
+
+/* Step 1 · the slider: a native range input (keyboard and screen readers) over a drawn track. --p (0–1) is where the
+   handle is; umrah.js moves it smoothly while you drag and snaps it to the nearest length when you let go. */
+.udur__range { --t: 30px; position: relative; margin-top: 14px; padding-top: 46px; }
+.udur__bubble {
+  position: absolute; top: 0; left: calc(var(--t) / 2 + var(--p) * (100% - var(--t))); translate: -50% 0;
+  padding: 6px 12px; border-radius: 10px; background: var(--navy-900); color: #fff;
+  font-size: .86rem; font-weight: 700; white-space: nowrap; pointer-events: none; box-shadow: 0 8px 18px -10px rgba(1, 18, 73, .6);
+}
+.udur__bubble::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 2px; background: inherit; rotate: 45deg; z-index: -1; }
+.udur__track {
+  position: absolute; left: calc(var(--t) / 2); right: calc(var(--t) / 2); top: calc(46px + var(--t) / 2 - 4px);
+  height: 8px; border-radius: 99px; background: var(--mist-200);
+}
+.udur__track::before { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--p) * 100%); border-radius: inherit; background: linear-gradient(90deg, var(--blue-500), var(--blue-600)); }
+.udur__track i { position: absolute; top: 50%; left: calc(var(--k) / var(--max) * 100%); width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(1, 18, 73, .14); }
+.udur__input {
+  position: relative; z-index: 1; display: block; width: 100%; height: var(--t); margin: 0; padding: 0;
+  background: transparent; -webkit-appearance: none; appearance: none; cursor: grab; touch-action: pan-y;
+}
+.udur__input:active { cursor: grabbing; }
+.udur__input:focus { outline: none; }
+.udur__input::-webkit-slider-runnable-track { height: var(--t); background: transparent; border: 0; }
+.udur__input::-moz-range-track { height: var(--t); background: transparent; border: 0; }
+.udur__input::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: var(--t); height: var(--t); border-radius: 50%;
+  background: #fff; border: 3px solid var(--blue-600); box-shadow: 0 6px 16px -6px rgba(2, 84, 192, .7);
+  transition: transform .2s var(--ease), box-shadow .2s;
+}
+.udur__input::-moz-range-thumb {
+  box-sizing: border-box; width: var(--t); height: var(--t); border-radius: 50%;
+  background: #fff; border: 3px solid var(--blue-600); box-shadow: 0 6px 16px -6px rgba(2, 84, 192, .7);
+  transition: transform .2s var(--ease), box-shadow .2s;
+}
+.udur__input:active::-webkit-slider-thumb { transform: scale(1.14); }
+.udur__input:active::-moz-range-thumb { transform: scale(1.14); }
+.udur__input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(2, 84, 192, .2), 0 6px 16px -6px rgba(2, 84, 192, .7); }
+.udur__input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 6px rgba(2, 84, 192, .2), 0 6px 16px -6px rgba(2, 84, 192, .7); }
+.udur__stops { position: relative; height: 42px; margin: 10px calc(var(--t) / 2) 0; }
+.udur__stop {
+  position: absolute; top: 0; left: calc(var(--k) / var(--max) * 100%); translate: -50% 0;
+  display: grid; justify-items: center; padding: 2px 6px; border-radius: 10px;
+  font-size: 1.02rem; font-weight: 700; line-height: 1.15; color: var(--ink-3);
+  transition: color .25s, scale .35s var(--ease);
+}
+.udur__stop small { font-size: .75rem; font-weight: 600; letter-spacing: .02em; }
+/* a bigger invisible touch area (24 Nov site check: the phone stops were 20-31 x 21 px, under the 24 px minimum);
+   it grows sideways and down, not up, so it never covers the slider above */
+.udur__stop::before { content: ""; position: absolute; inset: -2px -5px -12px; }
+.udur__stop:hover { color: var(--ink); }
+.udur__stop.is-on { color: var(--blue-600); scale: 1.14; }
+
+/* Step 2 · hotel level: three radio buttons as one segmented control; the white pill glides to the chosen one */
+.useg { --h: 1; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 14px; padding: 4px; border-radius: 18px; background: var(--mist-100); }
+.useg:has(.useg__opt:nth-child(1) input:checked) { --h: 0; }
+.useg:has(.useg__opt:nth-child(2) input:checked) { --h: 1; }
+.useg:has(.useg__opt:nth-child(3) input:checked) { --h: 2; }
+.useg__glide {
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 16px) / 3); border-radius: 14px;
+  background: #fff; box-shadow: 0 1px 2px rgba(1, 18, 73, .06), 0 6px 16px -8px rgba(1, 18, 73, .25);
+  translate: calc(var(--h) * (100% + 4px)) 0; transition: translate .45s var(--ease);
+}
+.useg__opt { position: relative; z-index: 1; display: grid; justify-items: center; gap: 2px; padding: 12px 6px; border-radius: 14px; text-align: center; cursor: pointer; }
+.useg__opt input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.useg__opt strong { font-size: .98rem; color: var(--ink-2); transition: color .3s; }
+.useg__opt small { font-size: .75rem; line-height: 1.25; color: var(--ink-3); }
+.useg__opt:hover strong, .useg__opt:has(input:checked) strong { color: var(--blue-600); }
+.useg__opt:has(input:focus-visible) { outline: 2px solid var(--blue-500); outline-offset: 2px; }
+
+/* Step 3 · pilgrims: − 2 + */
+.ustep { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.ustep__btn { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--mist-100); color: var(--ink); transition: background-color .25s, color .25s, scale .2s var(--ease); }
+.ustep__btn:hover { background: var(--blue-600); color: #fff; }
+.ustep__btn:active { scale: .9; }
+.ustep__btn:disabled { opacity: .35; pointer-events: none; }
+.ustep__btn .i { width: 18px; height: 18px; stroke-width: 2.4; }
+.ustep__val { min-width: 2.2ch; font-size: 1.9rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; text-align: center; font-variant-numeric: tabular-nums; }
+.ustep__val.is-bump { animation: ubump .35s var(--ease); }
+@keyframes ubump { 40% { scale: 1.22; color: var(--blue-600); } }
+.ustep__unit { font-size: .92rem; font-weight: 600; color: var(--ink-2); }
+
+/* The plan (navy) */
+.udur__plan {
+  position: relative; isolation: isolate; display: flex; flex-direction: column; gap: 22px; min-width: 0; overflow: hidden;
+  padding: clamp(22px, 3vw, 36px); border-radius: calc(var(--r-lg) - 6px); color: #fff;
+  background: radial-gradient(120% 110% at 100% 0%, var(--navy-700), var(--navy-900) 62%);
+}
+.udur__plan::before { content: ""; position: absolute; z-index: -1; left: -20%; bottom: -40%; width: 70%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(3, 166, 247, .22), rgba(3, 166, 247, 0)); pointer-events: none; }
+/* the chips (hotel level, pilgrims) on the left; the "Your Umrah plan" label above them was removed (23 Nov, user request) */
+.udur__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 10px; }
+.udur__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.udur__chips span { padding: 5px 11px; border-radius: 99px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .14); font-size: .78rem; font-weight: 600; }
+.udur__chips .is-bump { animation: uchip .5s var(--ease); }
+@keyframes uchip { 40% { background: rgba(124, 196, 250, .32); scale: 1.06; } }
+.udur__panel { min-width: 0; outline: none; scroll-margin-top: calc(var(--header-h) + 24px); }
+.js .udur__panels { display: grid; flex: 1; }
+.js .udur__panel { grid-area: 1 / 1; }
+.js .udur__panel:not(.is-on) { visibility: hidden; opacity: 0; pointer-events: none; }
+.udur__panel + .udur__panel { margin-top: 36px; } /* without JS every length shows, one under the other */
+.js .udur__panel + .udur__panel { margin-top: 0; }
+.udur__panel.is-on .udur__title, .udur__panel.is-on .udur__best { animation: ufade .45s var(--ease) both; }
+.udur__panel.is-on .udur__best { animation-delay: .05s; }
+.udur__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; color: #fff; }
+.udur__title strong { font-size: clamp(2.4rem, 1.7rem + 2.4vw, 3.5rem); line-height: 1; letter-spacing: -.045em; }
+.udur__title span { font-size: clamp(1.05rem, .98rem + .35vw, 1.3rem); font-weight: 600; color: rgba(255, 255, 255, .82); }
+/* Nothing in the plan may change height between lengths, or everything under it jumps when you pick one: the
+   description is one line (two lines' room on phones), the nights legend and the hotel lines have a fixed shape. */
+.udur__best { margin-top: 10px; font-size: 1rem; line-height: 1.5; color: rgba(255, 255, 255, .74); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* the nights: one bar per night, Makkah then Madinah; hover a bar for its night, a city to light up its nights */
+.unights { margin-top: 24px; }
+.unights__legend { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-size: .88rem; color: rgba(255, 255, 255, .78); }
+.unights__legend > span { display: inline-flex; align-items: center; gap: 8px; cursor: default; }
+.unights__legend strong { color: #fff; }
+.unights__legend .i { flex: none; width: 18px; height: 18px; }
+.unights__mk .i { color: #fff; }
+.unights__md .i { color: var(--blue-300); }
+.unights__row { display: flex; gap: 3px; height: 48px; margin-top: 12px; }
+.unights__row > span { position: relative; flex: 1 1 0; min-width: 0; border-radius: 5px; transform-origin: 50% 100%; transition: opacity .3s, filter .3s; }
+.unights__row .is-mk { background: linear-gradient(180deg, #fff, #CFE2FF); }
+.unights__row .is-md { background: linear-gradient(180deg, #5CC8FF, var(--sky)); }
+.unights__row .is-mk + .is-md { margin-left: 6px; }
+.unights__row > span:hover { filter: brightness(1.12); }
+.unights__row > span::after {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); translate: -50% 4px;
+  padding: 4px 8px; border-radius: 7px; background: #fff; color: var(--navy-900); font-size: .75rem; font-weight: 700; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity .2s, translate .2s var(--ease); z-index: 2;
+}
+.unights__row > span:hover::after { opacity: 1; translate: -50% 0; }
+.unights:has(.unights__mk:hover) .is-md, .unights:has(.unights__md:hover) .is-mk { opacity: .22; }
+.unights__ends { display: flex; justify-content: space-between; margin-top: 8px; font-size: .75rem; font-weight: 600; color: rgba(255, 255, 255, .55); }
+.unights__ends span { display: inline-flex; align-items: center; gap: 6px; }
+.unights__ends .i { width: 14px; height: 14px; }
+.unights__ends span:last-child .i { scale: -1 1; }
+/* the bars rise one after another when a length is picked (and the first time the card comes into view) */
+.js .udur__panel:not(.is-anim) .unights__row > span { transform: scaleY(.18); opacity: .3; }
+.udur__panel.is-anim .unights__row > span { animation: unight .6s var(--ease) both; animation-delay: calc(var(--k) * 20ms); }
+@keyframes unight { from { transform: scaleY(.18); opacity: .3; } }
+
+.udur__inc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; margin-top: 26px; font-size: .9rem; }
+.udur__inc li { display: flex; align-items: center; gap: 10px; min-width: 0; color: rgba(255, 255, 255, .9); }
+.udur__inc .i { flex: none; width: 32px; height: 32px; padding: 7px; border-radius: 10px; background: rgba(255, 255, 255, .08); color: var(--blue-300); }
+.udur__inc li > span { min-width: 0; }
+.udur__inc small { display: block; margin-top: 1px; font-size: .78rem; font-weight: 600; color: var(--blue-300); white-space: nowrap; }
+.udur__inc small b { font-weight: inherit; }
+.udur__inc small i { font-style: normal; }
+.udur__cta { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 10px; } /* side by side when both labels fit */
+.udur__cta .btn { padding: 0 14px; }
+.udur__note { align-self: end; display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--r); background: var(--mist-50); border: 1px solid var(--mist-200); font-size: .9rem; line-height: 1.55; color: var(--ink-2); }
+.udur__note .i { flex: none; width: 20px; height: 20px; margin-top: 1px; color: var(--blue-600); }
+
+/* Phones: tighter all round (user request, 22 Nov). The stops under the slider show the number only (the bubble says
+   "15 days"), the hotel lines stay on one line, the note is smaller, and the plan keeps its parts closer together */
+@media (max-width: 639.98px) {
+  .udur__card { padding: 6px; }
+  .udur__controls { gap: 22px; padding: 16px 14px 14px; }
+  .udur__q { gap: 9px; font-size: 1.1rem; }
+  .udur__n { width: 26px; height: 26px; font-size: .8rem; }
+  .udur__range { --t: 28px; margin-top: 8px; padding-top: 42px; }
+  .udur__stops { height: 22px; margin-top: 8px; }
+  .udur__stop { font-size: .92rem; }
+  .udur__stop small { display: none; }
+  .useg { margin-top: 12px; }
+  .useg__opt { padding: 9px 4px; }
+  .useg__opt strong { font-size: .9rem; }
+  .useg__opt small { font-size: .75rem; white-space: nowrap; }
+  .ustep { margin-top: 10px; }
+  .ustep__btn { width: 42px; height: 42px; }
+  .udur__note { gap: 10px; padding: 12px 14px; font-size: .84rem; line-height: 1.5; }
+  .udur__note .i { width: 18px; height: 18px; }
+  .udur__plan { gap: 16px; padding: 20px 16px; }
+  .udur__best { margin-top: 8px; font-size: .92rem; line-height: 1.45; }
+  .unights { margin-top: 16px; }
+  .udur__inc { margin-top: 18px; }
+  .udur__chips span { padding: 4px 9px; font-size: .75rem; }
+  .unights__row { height: 40px; gap: 2px; }
+  .unights__row > span { border-radius: 3px; }
+  .unights__row .is-mk + .is-md { margin-left: 4px; }
+  .udur__inc { gap: 10px 12px; font-size: .84rem; }
+  .udur__inc .i { width: 28px; height: 28px; padding: 6px; }
+  .udur__inc small b { display: none; } /* the chip at the top of the plan already names the hotel level */
+  .udur__best { min-height: var(--best, 0); white-space: normal; /* --best: the longest description here (umrah.js) */ display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+  .udur__title { flex-wrap: nowrap; column-gap: 10px; } /* "Umrah package" beside the days, on one line (user request) */
+  .udur__title span { white-space: nowrap; }
+  /* Makkah and Madinah side by side (user request), "20 nights in Makkah · 8 nights in Madinah" fits from 360px */
+  .unights__legend { flex-wrap: nowrap; gap: 8px; font-size: .78rem; white-space: nowrap; }
+  .unights__legend > span { gap: 6px; }
+  .unights__legend .i { width: 16px; height: 16px; }
+}
+@media (max-width: 359.98px) { /* the narrowest phones: "28 days Umrah package" still on one line */
+  .unights__legend { flex-direction: column; gap: 6px; } /* too narrow for the pair: one under the other */
+  .udur__title { column-gap: 8px; }
+  .udur__title strong { font-size: 2.1rem; }
+  .udur__title span { font-size: .95rem; }
+  .useg__opt small { white-space: normal; text-wrap: balance; } /* "Next to Haram" is wider than a third of the row here: two lines */
+}
+
+/* ---------- Package types: the home page's tiles and pop-ups, with an icon where a flag would be ---------- */
+.cs__flag--icon { display: grid; place-items: center; background: linear-gradient(135deg, var(--blue-500), var(--blue-700)); color: #fff; }
+.cs__flag--icon .i { width: 24px; height: 24px; }
+.cs--umrah .cs__lead { font-size: 1rem; }
+@media (min-width: 760px) {
+  .cs--umrah .cs__box { --cs-h: 790px; } /* the tallest of the seven (Ramadan) fits without scrolling (measured at 1440px) */
+}
+
+/* ---------- Cost and best time ---------- */
+.ucost__intro { margin-top: 18px; max-width: 62ch; font-size: var(--fs-lead); color: var(--ink-2); }
+.ucost__factors { display: grid; gap: 12px; margin-top: 24px; }
+.ucost__factors li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; font-size: 1rem; color: var(--ink-2); }
+@media (min-width: 640px) { .ucost__factors p { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } } /* one line each (user request); phones may wrap */
+.ucost__factors strong { font-weight: 700; color: var(--ink); }
+.ucost__check { display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; background: var(--blue-50); color: var(--blue-600); }
+.ucost__check .i { width: 13px; height: 13px; stroke-width: 3; }
+

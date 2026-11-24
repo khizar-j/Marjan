@@ -1,22 +1,23 @@
 # Marjan Travel & Tours
 
-> Marjan Travel & Tours is a licensed travel agency in [CITY], Pakistan, offering visa consultancy and processing, Umrah packages, domestic tour packages across Pakistan, international tour packages and corporate tours. Tagline: "Dream it. Book it. Live it."
+> Marjan Travel & Tours is a licensed travel company in Bahria Town, Lahore, Pakistan, offering Umrah packages, international tour packages, visa consultancy and processing, corporate tours and domestic tour packages across Pakistan. Tagline: "Dream it. Book it. Live it."
 
 Key facts:
-- Founded: [YEAR FOUNDED] by [FOUNDER NAME]
-- Address: [FULL ADDRESS], [CITY], Pakistan
-- Phone: [PHONE] | WhatsApp: [WHATSAPP] | Email: [EMAIL]
-- Office hours: [OFFICE HOURS]
-- Licences: [LICENSING BODY] licence [LICENCE NO.]; Ministry of Religious Affairs verified Umrah operator, registration [MORA REG. NO.]
+- In business: more than 6 years; 5,500+ travellers, 2,200+ pilgrims, 1,500+ visa applications
+- Address: Shop No. 25, First Floor, Metro Heights, Talwar Chowk, Bahria Town, Lahore, Pakistan
+- Phone and WhatsApp: +92 303 8244423 | Email: info@marjantravels.com
+- Office hours: 7 days a week, 9am to 9pm
+- Status: licensed travel company
 - Languages: Urdu, English
 
 ## Services
-- [Visa Consultancy & Processing](https://[DOMAIN]/services/visa-consultancy/): visit, family, business and Umrah visas for Pakistani passport holders, including UAE (Dubai), Saudi Arabia, UK, Schengen, USA, Canada, Turkey, Azerbaijan, Thailand and Malaysia.
-- [Umrah Packages](https://[DOMAIN]/services/umrah-packages/): 7, 10, 14, 15, 21 and 28-day Umrah packages from Pakistan with Umrah visa, return flights, hotels in Makkah and Madinah, and transport. Prices from PKR [PRICE] per person.
-- [Domestic Tour Packages](https://[DOMAIN]/services/pakistan-tour-packages/): guided tours to Hunza, Skardu, Swat, Naran Kaghan, Fairy Meadows, Murree, Neelum Valley and Kashmir.
-- [International Tour Packages](https://[DOMAIN]/services/international-tour-packages/): Dubai, Turkey, Baku, Georgia, Thailand, Malaysia, Singapore, Bali, Maldives and Europe, with visa, flights and hotels.
-- [Corporate Tour Packages](https://[DOMAIN]/services/corporate-tour-packages/): company trips, team building, incentive travel, conferences, group Umrah for employees and business travel management.
+- [All services](https://marjantravels.com/services/): the five services, air tickets, hotel booking and travel insurance, and which service fits which trip.
+- [Umrah Packages](https://marjantravels.com/services/umrah-packages/): 7, 10, 14, 15, 21 and 28-day Umrah packages from Pakistan with Umrah visa, return flights, hotels in Makkah and Madinah, and transport; economy to 5-star, family, group and Ramadan packages.
+- [International Tour Packages](https://marjantravels.com/services/international-tour-packages/): Dubai, Baku (Azerbaijan), Thailand, Malaysia, Singapore, Bali (Indonesia), Sri Lanka, Turkey, the Maldives, Georgia and Europe, with visa, flights, hotels, transfers and tours.
+- [Visa Consultancy & Processing](https://marjantravels.com/services/visa-consultancy/): visit, family, business and Umrah visas for Pakistani passport holders, including UAE (Dubai), Saudi Arabia, Turkey, Azerbaijan, Thailand and Malaysia, and UK, Schengen, USA and Canada visa files.
+- [Corporate Tour Packages](https://marjantravels.com/services/corporate-tour-packages/): company trips, team building, incentive travel, conferences, dealer trips, group Umrah for employees and business travel.
+- [Domestic Tour Packages](https://marjantravels.com/services/pakistan-tour-packages/): guided tours to Hunza, Skardu, Swat, Naran Kaghan, Fairy Meadows, Murree, Neelum Valley and Kashmir, by road or by air.
 
 ## Company
-- [About Us](https://[DOMAIN]/about-us/): story, team, values and licences.
-- [Contact Us](https://[DOMAIN]/contact-us/): phone, WhatsApp, email, address and enquiry form.
+- [About Us](https://marjantravels.com/about-us/): our story, the meaning of the name, mission, vision and values.
+- [Contact Us](https://marjantravels.com/contact-us/): phone, WhatsApp, email, office address, hours and the enquiry form.

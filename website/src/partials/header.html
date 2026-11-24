@@ -22,13 +22,53 @@
                   <li><a class="mega__link" href="/services/corporate-tour-packages/"><span class="mega__icon">{{icon briefcase}}</span><span class="mega__text"><strong>Corporate Tour Packages</strong><span>In Pakistan and abroad</span></span><span class="mega__arrow">{{icon arrow-right}}</span></a></li>
                 </ul>
               </div>
-              <a class="mega__feature" href="/services/umrah-packages/">
-                {{img id="1627728734379-a5f8c099763e" ratio="3/4" widths="300,540" sizes="270px" w="540" q="70" alt="Pilgrims at Masjid al-Haram, Makkah"}}
-                <span class="mega__feature-body">
-                  <span class="mega__feature-tag">Umrah 2026–27</span>
-                  <strong>Umrah packages from Pakistan</strong>
-                  <small>Visa, flights, hotels and transport included</small>
-                  <span class="mega__feature-cta">View packages {{icon arrow-right}}</span>
+              <!-- The feature card follows the service row last pointed at or focused (23 Nov, user request): one slide per
+                   service, in the list's order, each with its own photo, a one-line title and a one-line description, so
+                   the photo shows. main.js ("Services mega menu") switches the slide and the link, and loads the other
+                   photos the first time the menu opens. Photos: the Umrah and Visa slides are images made with ChatGPT's
+                   image model in the Codex app (23 Nov, user request: more attractive, and a Pakistani passport so it looks
+                   real; the Visa one, a passport held out over a visa form, is the user's own Codex image, cut to 3:4
+                   around the passport); the other three are Magnific, real photos (not AI). -->
+              <a class="mega__feature" href="/services/umrah-packages/" data-mega-feature>
+                <span class="mega__slide is-on">
+                  <img src="/assets/img/menu/umrah-makkah-540.webp" srcset="/assets/img/menu/umrah-makkah-540.webp 540w" sizes="270px" width="540" height="720" loading="lazy" decoding="async" alt="">
+                  <span class="mega__feature-body">
+                    <strong>Umrah {{season season}}</strong>
+                    <small>Visa, flights and hotels included</small>
+                    <span class="mega__feature-cta">View packages {{icon arrow-right}}</span>
+                  </span>
+                </span>
+                <span class="mega__slide">
+                  <img data-src="/assets/img/menu/visa-passport-540.webp" data-srcset="/assets/img/menu/visa-passport-540.webp 540w" sizes="270px" width="540" height="720" decoding="async" alt="">
+                  <span class="mega__feature-body">
+                    <strong>Visa consultancy</strong>
+                    <small>Document checks and filing</small>
+                    <span class="mega__feature-cta">View visa services {{icon arrow-right}}</span>
+                  </span>
+                </span>
+                <span class="mega__slide">
+                  <img data-src="/assets/img/menu/domestic-540.webp" data-srcset="/assets/img/menu/domestic-540.webp 540w" sizes="270px" width="540" height="720" decoding="async" alt="">
+                  <span class="mega__feature-body">
+                    <strong>Tours across Pakistan</strong>
+                    <small>Hunza, Skardu, Swat and more</small>
+                    <span class="mega__feature-cta">View tours {{icon arrow-right}}</span>
+                  </span>
+                </span>
+                <span class="mega__slide">
+                  <img data-src="/assets/img/menu/dubai-540.webp" data-srcset="/assets/img/menu/dubai-540.webp 540w" sizes="270px" width="540" height="720" decoding="async" alt="">
+                  <span class="mega__feature-body">
+                    <strong>Holidays abroad</strong>
+                    <small>Visa, flights, hotels and tours</small>
+                    <span class="mega__feature-cta">View tours {{icon arrow-right}}</span>
+                  </span>
+                </span>
+                <span class="mega__slide">
+                  <img data-src="/assets/img/menu/corporate-540.webp" data-srcset="/assets/img/menu/corporate-540.webp 540w" sizes="270px" width="540" height="720" decoding="async" alt="">
+                  <span class="mega__feature-body">
+                    <strong>Company trips</strong>
+                    <small>Team retreats and business travel</small>
+                    <span class="mega__feature-cta">Plan a company trip {{icon arrow-right}}</span>
+                  </span>
                 </span>
               </a>
             </div>
@@ -40,7 +80,7 @@
     </nav>
 
     <div class="site-header__actions">
-      <a class="header-phone" href="tel:+923038244423">{{icon phone}}<span>+92 303 8244423</span></a>
+      <a class="btn btn--sm header-phone" href="tel:+923038244423" aria-label="Call us on +92 303 8244423">Call us</a><!-- 23 Nov, user request: "Call us" (not the number), no icon, a button the size of "Get a Free Quote" -->
       <a class="btn btn--primary btn--sm header-cta" href="/contact-us/">Get a Free Quote</a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
         <span class="sr-only">Open menu</span>{{icon menu}}

@@ -1,0 +1,166 @@
+<!-- ============ UMRAH · CHOOSE HOW MANY DAYS: the Umrah planner (umrah.js "Umrah planner", umrah.css "Choose how many
+     days"). Three steps on the left (a slider for the length, the hotel level, the number of pilgrims) build the plan on
+     the right night by night; its buttons carry the whole plan to the quote form or WhatsApp. The note under the steps says the plan can change. One panel per length
+     (#7-days … #28-days, the anchors the Service schema points to). Patterns from Mobbin: Stripe's and Kit's snapping
+     slider, the Cofounder / ElevenLabs calculator layout, Joby's journey line.
+     Written by tools/umrah.mjs: edit the data there, not here. No prices (client request). ============ -->
+<section class="udur section section--tint" id="umrah-durations" aria-labelledby="udur-title">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <h2 id="udur-title" data-reveal>Choose How Many Days</h2>
+      <p class="section-head__lead" data-reveal style="--d:1">Slide to pick a length, choose your hotels and tell us how many are travelling. Your plan builds itself as you go, night by night.</p>
+    </div>
+    <div class="udur__card" data-reveal data-udur>
+      <div class="udur__controls">
+        <div class="udur__step">
+          <p class="udur__q" id="udur-q1"><span class="udur__n">1</span>How many days?</p>
+          <div class="udur__range" style="--p:0.6000;--max:5">
+            <span class="udur__bubble" aria-hidden="true" data-udur-bubble>15 days</span>
+            <span class="udur__track" aria-hidden="true"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i><i style="--k:4"></i><i style="--k:5"></i></span>
+            <input class="udur__input" type="range" min="0" max="5" step="1" value="3" aria-labelledby="udur-q1" aria-valuetext="15 days: 10 nights in Makkah, 5 in Madinah" data-udur-range>
+            <div class="udur__stops" aria-hidden="true">
+              <button class="udur__stop" type="button" tabindex="-1" style="--k:0" data-udur-stop="0">7<small>days</small></button>
+              <button class="udur__stop" type="button" tabindex="-1" style="--k:1" data-udur-stop="1">10<small>days</small></button>
+              <button class="udur__stop" type="button" tabindex="-1" style="--k:2" data-udur-stop="2">14<small>days</small></button>
+              <button class="udur__stop is-on" type="button" tabindex="-1" style="--k:3" data-udur-stop="3">15<small>days</small></button>
+              <button class="udur__stop" type="button" tabindex="-1" style="--k:4" data-udur-stop="4">21<small>days</small></button>
+              <button class="udur__stop" type="button" tabindex="-1" style="--k:5" data-udur-stop="5">28<small>days</small></button>
+            </div>
+          </div>
+        </div>
+        <fieldset class="udur__step">
+          <legend class="udur__q"><span class="udur__n">2</span>Hotel level</legend>
+          <div class="useg">
+            <label class="useg__opt"><input type="radio" name="udur-hotel" value="economy" data-name="Economy"><strong>Economy</strong><small>Shuttle bus</small></label>
+            <label class="useg__opt"><input type="radio" name="udur-hotel" value="4-star" data-name="4-Star" checked><strong>4-Star</strong><small>Short walk</small></label>
+            <label class="useg__opt"><input type="radio" name="udur-hotel" value="5-star" data-name="5-Star"><strong>5-Star</strong><small>Next to Haram</small></label>
+            <span class="useg__glide" aria-hidden="true"></span>
+          </div>
+        </fieldset>
+        <div class="udur__step">
+          <p class="udur__q" id="udur-q3"><span class="udur__n">3</span>How many pilgrims?</p>
+          <div class="ustep">
+            <button class="ustep__btn" type="button" data-udur-pax="-1" aria-label="One pilgrim fewer">{{icon minus}}</button>
+            <output class="ustep__val" aria-labelledby="udur-q3" aria-live="polite" data-udur-pax-out>2</output>
+            <button class="ustep__btn" type="button" data-udur-pax="1" aria-label="One pilgrim more">{{icon plus}}</button>
+            <span class="ustep__unit" data-udur-pax-unit>pilgrims</span>
+          </div>
+        </div>
+        <p class="udur__note">{{icon receipt}}<span>Flexible nights, with a written quote before you pay.</span></p><!-- shortened 23 Nov, user request -->
+      </div>
+      <div class="udur__plan">
+        <div class="udur__head">
+          <p class="udur__chips"><span data-udur-hotel-chip>4-Star hotels</span><span data-udur-pax-chip>2 pilgrims</span></p>
+        </div>
+        <div class="udur__panels">
+          <div class="udur__panel" id="7-days" data-d="7" data-mk="4" data-md="3">
+            <h3 class="udur__title"><strong>7 days</strong> <span>Umrah package</span></h3>
+            <p class="udur__best">Short leave? Umrah and prayers in both cities.</p>
+            <div class="unights">
+              <p class="unights__legend"><span class="unights__mk">{{icon kaaba}}<span><strong>4 nights</strong> in Makkah</span></span><span class="unights__md">{{icon dome}}<span><strong>3 nights</strong> in Madinah</span></span></p>
+              <div class="unights__row" aria-hidden="true"><span class="is-mk" style="--k:0" data-tip="Night 1 · Makkah"></span><span class="is-mk" style="--k:1" data-tip="Night 2 · Makkah"></span><span class="is-mk" style="--k:2" data-tip="Night 3 · Makkah"></span><span class="is-mk" style="--k:3" data-tip="Night 4 · Makkah"></span><span class="is-md" style="--k:4" data-tip="Night 5 · Madinah"></span><span class="is-md" style="--k:5" data-tip="Night 6 · Madinah"></span><span class="is-md" style="--k:6" data-tip="Night 7 · Madinah"></span></div>
+              <p class="unights__ends" aria-hidden="true"><span>{{icon plane}}Fly out</span><span>Fly home{{icon plane}}</span></p>
+            </div>
+            <ul class="udur__inc">
+              <li>{{icon passport}}<span>Umrah visa</span></li>
+              <li>{{icon plane}}<span>Return flights</span></li>
+              <li>{{icon kaaba}}<span>Makkah hotel<small>4 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon hotel}}<span>Madinah hotel<small>3 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon bus}}<span>Transport</span></li>
+              <li>{{icon compass}}<span>Ziyarat</span></li>
+            </ul>
+          </div>
+          <div class="udur__panel" id="10-days" data-d="10" data-mk="6" data-md="4">
+            <h3 class="udur__title"><strong>10 days</strong> <span>Umrah package</span></h3>
+            <p class="udur__best">A little more time in Makkah and Madinah.</p>
+            <div class="unights">
+              <p class="unights__legend"><span class="unights__mk">{{icon kaaba}}<span><strong>6 nights</strong> in Makkah</span></span><span class="unights__md">{{icon dome}}<span><strong>4 nights</strong> in Madinah</span></span></p>
+              <div class="unights__row" aria-hidden="true"><span class="is-mk" style="--k:0" data-tip="Night 1 · Makkah"></span><span class="is-mk" style="--k:1" data-tip="Night 2 · Makkah"></span><span class="is-mk" style="--k:2" data-tip="Night 3 · Makkah"></span><span class="is-mk" style="--k:3" data-tip="Night 4 · Makkah"></span><span class="is-mk" style="--k:4" data-tip="Night 5 · Makkah"></span><span class="is-mk" style="--k:5" data-tip="Night 6 · Makkah"></span><span class="is-md" style="--k:6" data-tip="Night 7 · Madinah"></span><span class="is-md" style="--k:7" data-tip="Night 8 · Madinah"></span><span class="is-md" style="--k:8" data-tip="Night 9 · Madinah"></span><span class="is-md" style="--k:9" data-tip="Night 10 · Madinah"></span></div>
+              <p class="unights__ends" aria-hidden="true"><span>{{icon plane}}Fly out</span><span>Fly home{{icon plane}}</span></p>
+            </div>
+            <ul class="udur__inc">
+              <li>{{icon passport}}<span>Umrah visa</span></li>
+              <li>{{icon plane}}<span>Return flights</span></li>
+              <li>{{icon kaaba}}<span>Makkah hotel<small>6 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon hotel}}<span>Madinah hotel<small>4 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon bus}}<span>Transport</span></li>
+              <li>{{icon compass}}<span>Ziyarat</span></li>
+            </ul>
+          </div>
+          <div class="udur__panel" id="14-days" data-d="14" data-mk="8" data-md="6">
+            <h3 class="udur__title"><strong>14 days</strong> <span>Umrah package</span></h3>
+            <p class="udur__best">Two unhurried weeks, with time for Ziyarat.</p>
+            <div class="unights">
+              <p class="unights__legend"><span class="unights__mk">{{icon kaaba}}<span><strong>8 nights</strong> in Makkah</span></span><span class="unights__md">{{icon dome}}<span><strong>6 nights</strong> in Madinah</span></span></p>
+              <div class="unights__row" aria-hidden="true"><span class="is-mk" style="--k:0" data-tip="Night 1 · Makkah"></span><span class="is-mk" style="--k:1" data-tip="Night 2 · Makkah"></span><span class="is-mk" style="--k:2" data-tip="Night 3 · Makkah"></span><span class="is-mk" style="--k:3" data-tip="Night 4 · Makkah"></span><span class="is-mk" style="--k:4" data-tip="Night 5 · Makkah"></span><span class="is-mk" style="--k:5" data-tip="Night 6 · Makkah"></span><span class="is-mk" style="--k:6" data-tip="Night 7 · Makkah"></span><span class="is-mk" style="--k:7" data-tip="Night 8 · Makkah"></span><span class="is-md" style="--k:8" data-tip="Night 9 · Madinah"></span><span class="is-md" style="--k:9" data-tip="Night 10 · Madinah"></span><span class="is-md" style="--k:10" data-tip="Night 11 · Madinah"></span><span class="is-md" style="--k:11" data-tip="Night 12 · Madinah"></span><span class="is-md" style="--k:12" data-tip="Night 13 · Madinah"></span><span class="is-md" style="--k:13" data-tip="Night 14 · Madinah"></span></div>
+              <p class="unights__ends" aria-hidden="true"><span>{{icon plane}}Fly out</span><span>Fly home{{icon plane}}</span></p>
+            </div>
+            <ul class="udur__inc">
+              <li>{{icon passport}}<span>Umrah visa</span></li>
+              <li>{{icon plane}}<span>Return flights</span></li>
+              <li>{{icon kaaba}}<span>Makkah hotel<small>8 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon hotel}}<span>Madinah hotel<small>6 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon bus}}<span>Transport</span></li>
+              <li>{{icon compass}}<span>Ziyarat</span></li>
+            </ul>
+          </div>
+          <div class="udur__panel is-on" id="15-days" data-d="15" data-mk="10" data-md="5">
+            <h3 class="udur__title"><strong>15 days</strong> <span>Umrah package</span></h3>
+            <p class="udur__best">A popular choice, with more nights in Makkah.</p>
+            <div class="unights">
+              <p class="unights__legend"><span class="unights__mk">{{icon kaaba}}<span><strong>10 nights</strong> in Makkah</span></span><span class="unights__md">{{icon dome}}<span><strong>5 nights</strong> in Madinah</span></span></p>
+              <div class="unights__row" aria-hidden="true"><span class="is-mk" style="--k:0" data-tip="Night 1 · Makkah"></span><span class="is-mk" style="--k:1" data-tip="Night 2 · Makkah"></span><span class="is-mk" style="--k:2" data-tip="Night 3 · Makkah"></span><span class="is-mk" style="--k:3" data-tip="Night 4 · Makkah"></span><span class="is-mk" style="--k:4" data-tip="Night 5 · Makkah"></span><span class="is-mk" style="--k:5" data-tip="Night 6 · Makkah"></span><span class="is-mk" style="--k:6" data-tip="Night 7 · Makkah"></span><span class="is-mk" style="--k:7" data-tip="Night 8 · Makkah"></span><span class="is-mk" style="--k:8" data-tip="Night 9 · Makkah"></span><span class="is-mk" style="--k:9" data-tip="Night 10 · Makkah"></span><span class="is-md" style="--k:10" data-tip="Night 11 · Madinah"></span><span class="is-md" style="--k:11" data-tip="Night 12 · Madinah"></span><span class="is-md" style="--k:12" data-tip="Night 13 · Madinah"></span><span class="is-md" style="--k:13" data-tip="Night 14 · Madinah"></span><span class="is-md" style="--k:14" data-tip="Night 15 · Madinah"></span></div>
+              <p class="unights__ends" aria-hidden="true"><span>{{icon plane}}Fly out</span><span>Fly home{{icon plane}}</span></p>
+            </div>
+            <ul class="udur__inc">
+              <li>{{icon passport}}<span>Umrah visa</span></li>
+              <li>{{icon plane}}<span>Return flights</span></li>
+              <li>{{icon kaaba}}<span>Makkah hotel<small>10 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon hotel}}<span>Madinah hotel<small>5 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon bus}}<span>Transport</span></li>
+              <li>{{icon compass}}<span>Ziyarat</span></li>
+            </ul>
+          </div>
+          <div class="udur__panel" id="21-days" data-d="21" data-mk="14" data-md="7">
+            <h3 class="udur__title"><strong>21 days</strong> <span>Umrah package</span></h3>
+            <p class="udur__best">Three weeks for families and first-timers.</p>
+            <div class="unights">
+              <p class="unights__legend"><span class="unights__mk">{{icon kaaba}}<span><strong>14 nights</strong> in Makkah</span></span><span class="unights__md">{{icon dome}}<span><strong>7 nights</strong> in Madinah</span></span></p>
+              <div class="unights__row" aria-hidden="true"><span class="is-mk" style="--k:0" data-tip="Night 1 · Makkah"></span><span class="is-mk" style="--k:1" data-tip="Night 2 · Makkah"></span><span class="is-mk" style="--k:2" data-tip="Night 3 · Makkah"></span><span class="is-mk" style="--k:3" data-tip="Night 4 · Makkah"></span><span class="is-mk" style="--k:4" data-tip="Night 5 · Makkah"></span><span class="is-mk" style="--k:5" data-tip="Night 6 · Makkah"></span><span class="is-mk" style="--k:6" data-tip="Night 7 · Makkah"></span><span class="is-mk" style="--k:7" data-tip="Night 8 · Makkah"></span><span class="is-mk" style="--k:8" data-tip="Night 9 · Makkah"></span><span class="is-mk" style="--k:9" data-tip="Night 10 · Makkah"></span><span class="is-mk" style="--k:10" data-tip="Night 11 · Makkah"></span><span class="is-mk" style="--k:11" data-tip="Night 12 · Makkah"></span><span class="is-mk" style="--k:12" data-tip="Night 13 · Makkah"></span><span class="is-mk" style="--k:13" data-tip="Night 14 · Makkah"></span><span class="is-md" style="--k:14" data-tip="Night 15 · Madinah"></span><span class="is-md" style="--k:15" data-tip="Night 16 · Madinah"></span><span class="is-md" style="--k:16" data-tip="Night 17 · Madinah"></span><span class="is-md" style="--k:17" data-tip="Night 18 · Madinah"></span><span class="is-md" style="--k:18" data-tip="Night 19 · Madinah"></span><span class="is-md" style="--k:19" data-tip="Night 20 · Madinah"></span><span class="is-md" style="--k:20" data-tip="Night 21 · Madinah"></span></div>
+              <p class="unights__ends" aria-hidden="true"><span>{{icon plane}}Fly out</span><span>Fly home{{icon plane}}</span></p>
+            </div>
+            <ul class="udur__inc">
+              <li>{{icon passport}}<span>Umrah visa</span></li>
+              <li>{{icon plane}}<span>Return flights</span></li>
+              <li>{{icon kaaba}}<span>Makkah hotel<small>14 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon hotel}}<span>Madinah hotel<small>7 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon bus}}<span>Transport</span></li>
+              <li>{{icon compass}}<span>Ziyarat</span></li>
+            </ul>
+          </div>
+          <div class="udur__panel" id="28-days" data-d="28" data-mk="20" data-md="8">
+            <h3 class="udur__title"><strong>28 days</strong> <span>Umrah package</span></h3>
+            <p class="udur__best">An extended stay, often chosen by retirees.</p>
+            <div class="unights">
+              <p class="unights__legend"><span class="unights__mk">{{icon kaaba}}<span><strong>20 nights</strong> in Makkah</span></span><span class="unights__md">{{icon dome}}<span><strong>8 nights</strong> in Madinah</span></span></p>
+              <div class="unights__row" aria-hidden="true"><span class="is-mk" style="--k:0" data-tip="Night 1 · Makkah"></span><span class="is-mk" style="--k:1" data-tip="Night 2 · Makkah"></span><span class="is-mk" style="--k:2" data-tip="Night 3 · Makkah"></span><span class="is-mk" style="--k:3" data-tip="Night 4 · Makkah"></span><span class="is-mk" style="--k:4" data-tip="Night 5 · Makkah"></span><span class="is-mk" style="--k:5" data-tip="Night 6 · Makkah"></span><span class="is-mk" style="--k:6" data-tip="Night 7 · Makkah"></span><span class="is-mk" style="--k:7" data-tip="Night 8 · Makkah"></span><span class="is-mk" style="--k:8" data-tip="Night 9 · Makkah"></span><span class="is-mk" style="--k:9" data-tip="Night 10 · Makkah"></span><span class="is-mk" style="--k:10" data-tip="Night 11 · Makkah"></span><span class="is-mk" style="--k:11" data-tip="Night 12 · Makkah"></span><span class="is-mk" style="--k:12" data-tip="Night 13 · Makkah"></span><span class="is-mk" style="--k:13" data-tip="Night 14 · Makkah"></span><span class="is-mk" style="--k:14" data-tip="Night 15 · Makkah"></span><span class="is-mk" style="--k:15" data-tip="Night 16 · Makkah"></span><span class="is-mk" style="--k:16" data-tip="Night 17 · Makkah"></span><span class="is-mk" style="--k:17" data-tip="Night 18 · Makkah"></span><span class="is-mk" style="--k:18" data-tip="Night 19 · Makkah"></span><span class="is-mk" style="--k:19" data-tip="Night 20 · Makkah"></span><span class="is-md" style="--k:20" data-tip="Night 21 · Madinah"></span><span class="is-md" style="--k:21" data-tip="Night 22 · Madinah"></span><span class="is-md" style="--k:22" data-tip="Night 23 · Madinah"></span><span class="is-md" style="--k:23" data-tip="Night 24 · Madinah"></span><span class="is-md" style="--k:24" data-tip="Night 25 · Madinah"></span><span class="is-md" style="--k:25" data-tip="Night 26 · Madinah"></span><span class="is-md" style="--k:26" data-tip="Night 27 · Madinah"></span><span class="is-md" style="--k:27" data-tip="Night 28 · Madinah"></span></div>
+              <p class="unights__ends" aria-hidden="true"><span>{{icon plane}}Fly out</span><span>Fly home{{icon plane}}</span></p>
+            </div>
+            <ul class="udur__inc">
+              <li>{{icon passport}}<span>Umrah visa</span></li>
+              <li>{{icon plane}}<span>Return flights</span></li>
+              <li>{{icon kaaba}}<span>Makkah hotel<small>20 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon hotel}}<span>Madinah hotel<small>8 nights<b> · <i data-udur-hotel>4-Star</i></b></small></span></li>
+              <li>{{icon bus}}<span>Transport</span></li>
+              <li>{{icon compass}}<span>Ziyarat</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="udur__cta">
+          <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="15 days Umrah package, 4-Star hotels (10 nights Makkah, 5 nights Madinah), 2 pilgrims" data-quote-travellers="2" data-udur-quote>Get a quote for this plan</a>
+          <a class="btn btn--glass" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like a quote for a 15 days Umrah package with 4-Star hotels (10 nights Makkah, 5 nights Madinah) for 2 pilgrims." data-udur-wa>{{icon whatsapp}}Ask on WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

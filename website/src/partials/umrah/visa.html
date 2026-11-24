@@ -1,0 +1,75 @@
+<!-- ============ UMRAH · VISA RULES 2026–27. Laid out like the home page's "How it works" (home/route, user request
+     22 Nov): the five rules are stops on a route, in the order a pilgrim meets them, and the plane glides from the first
+     to the last (main.js "How it works", styles.css "HOW IT WORKS" and ".route--five"). On wide screens the section
+     stays on screen while you scroll (.rpin / .rpin__stick in service.css): three rules show, the plane flies across them, then
+     the route slides to bring in the last two, and the page moves on once the plane lands on the fifth. Phones, tablets
+     held upright and short windows show the five stacked, with the plane running down them. Each stop has the stage of
+     the journey above its title and the key fact in a chip under it; titles and texts line up across the five. The rule
+     texts are kept about the same length (user request): keep them that way when the rules change. Keep the "last
+     checked" date, which AI tools look for on fast-changing rules, and update it whenever the rules are checked again.
+     ============ -->
+<section class="uvisa route section" id="umrah-visa" aria-labelledby="uvisa-title">
+  <div class="rpin" data-pin>
+    <div class="rpin__stick">
+      <div class="container">
+        <div class="section-head section-head--center" data-reveal>
+          <h2 id="uvisa-title">Umrah Visa from Pakistan: <em>2026–27 Rules</em></h2>
+          <p class="section-head__lead">Umrah rules changed in 2025 and 2026. Here is what Pakistani pilgrims need to know before they book.</p>
+        </div>
+
+        <div class="route__wrap route--five" data-steps>
+          <div class="route__view">
+            <div class="route__track">
+              <div class="route__line" aria-hidden="true"><span class="route__fill"></span><span class="route__plane">{{icon plane}}</span></div>
+              <ol class="route__list">
+                <li class="step route__step" data-reveal>
+                  <span class="route__stop" aria-hidden="true">{{icon shield}}</span>
+                  <span class="route__when">Before you book</span>
+                  <h3>Book with a verified operator</h3>
+                  <p>Pakistani pilgrims must book through an Umrah company verified by the Ministry of Religious Affairs.</p>
+                  <span class="route__chip">{{icon search-line}}Check the official list</span>
+                </li>
+                <li class="step route__step" data-reveal style="--d:1">
+                  <span class="route__stop" aria-hidden="true">{{icon hotel}}</span>
+                  <span class="route__when">Before the visa</span>
+                  <h3>Hotels and transport come first</h3>
+                  <p>Saudi Arabia issues the Umrah visa only after your hotel and transport are confirmed on Nusuk.</p>
+                  <span class="route__chip">{{icon check-line}}Confirmed on Nusuk</span>
+                </li>
+                <li class="step route__step" data-reveal style="--d:2">
+                  <span class="route__stop" aria-hidden="true">{{icon calendar}}</span>
+                  <span class="route__when">After the visa is issued</span>
+                  <h3>Enter within 30 days</h3>
+                  <p>Under the current rules, you must enter Saudi Arabia within 30 days of the visa being issued.</p>
+                  <span class="route__chip">{{icon clock-line}}30 days from issue</span>
+                </li>
+                <li class="step route__step" data-reveal style="--d:3">
+                  <span class="route__stop" aria-hidden="true">{{icon passport}}</span>
+                  <span class="route__when">During your stay</span>
+                  <h3>Leave by the date on your visa</h3>
+                  <p>Your permitted stay is printed on the visa, and Saudi Arabia enforces the exit date strictly.</p>
+                  <span class="route__chip">{{icon passport-line}}Exit date enforced</span>
+                </li>
+                <li class="step route__step" data-reveal style="--d:4">
+                  <span class="route__stop" aria-hidden="true">{{icon dome}}</span>
+                  <span class="route__when">In Madinah</span>
+                  <h3>Book your Rawdah slot</h3>
+                  <p>Praying in the Rawdah at Masjid an-Nabawi needs a slot on the Nusuk app. We help you book it.</p>
+                  <span class="route__chip">{{icon phone-line}}Slot on the Nusuk app</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="ubar" data-reveal>
+      <span class="ubar__icon">{{icon passport}}</span>
+      <div><h3>Need only the visa?</h3><p>We arrange the Umrah visa with the required Nusuk hotel booking. It is already included in every package.</p></div>
+      <a class="btn btn--sm" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like to apply for an Umrah visa.">{{icon whatsapp}}Ask about the visa</a>
+    </div>
+  </div>
+</section>

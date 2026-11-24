@@ -111,12 +111,19 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 .section-head--split { max-width: none; display: grid; gap: 20px 64px; align-items: end; }
 .section-head--center { margin-inline: auto; text-align: center; }
 .section-head__lead { color: var(--ink-2); font-size: var(--fs-lead); max-width: 52ch; }
+.section-head--center .section-head__lead { margin: 14px auto 0; }
 @media (min-width: 900px) { .section-head--split { grid-template-columns: 1.15fr 1fr; } }
 @media (max-width: 899.98px) { .section-head--split { row-gap: 12px; } } /* title above its description: keep them close */
 
 .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--blue-600); }
 .link-arrow .i { transition: transform .3s var(--ease); }
 .link-arrow:hover .i { transform: translateX(4px); }
+/* Small text links get a bigger, invisible tap area (about 40px tall), drawn by ::after so nothing on the page moves.
+   A fingertip needs ~44px; these links stand on their own, with room around them. The footer lists are only 10–12px
+   apart, so theirs grow less: neighbouring areas meet without overlapping. */
+.link-arrow, .extra__link, .crumbs a, .quote__contacts a, .uchecked a, .site-footer__col a, .site-footer__contact a { position: relative; }
+.link-arrow::after, .extra__link::after, .crumbs a::after, .quote__contacts a::after, .uchecked a::after { content: ""; position: absolute; inset: -9px -6px; }
+.site-footer__col a::after, .site-footer__contact a::after { content: ""; position: absolute; inset: -5px -4px; }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -211,6 +218,8 @@ html.sample .ph[data-sample] { background: none; box-shadow: none; padding: 0; }
 /* closed on purpose (a second click on Services, or Escape): stays shut while the pointer is still over it */
 .nav__item--menu.is-shut .mega { --mega-wait: 0s; opacity: 0; visibility: hidden; translate: 0 10px; }
 .nav__item--menu.is-shut .nav__link .i { transform: none; }
+/* never without its bar: once main.js has slid the header fully away (.is-hidden), the menu hides too, whatever holds it */
+.site-header.is-hidden .nav__item--menu .mega { --mega-wait: 0s; opacity: 0; visibility: hidden; }
 .mega__inner { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 10px; }
 .mega__list { position: relative; display: grid; gap: 2px; padding: 4px; }
 /* One soft highlight glides from row to row (main.js moves it and marks the row .is-active; it stays put over the
@@ -240,21 +249,33 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 .mega__arrow { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--blue-600); opacity: 0; translate: -8px 0; transition: opacity .2s, translate .3s var(--ease); }
 .mega__arrow .i { width: 18px; height: 18px; }
 .mega__link:is(:hover, :focus-visible, .is-active) .mega__arrow { opacity: 1; translate: 0 0; }
-.mega__feature { position: relative; isolation: isolate; display: flex; align-items: flex-end; min-height: 100%; overflow: hidden; border-radius: 20px; color: #fff; background: var(--navy-900); }
+/* The feature card follows the service row last pointed at or focused (23 Nov, user request; main.js): one slide per
+   service, stacked, and only the active one shows (fades in; the hidden ones are out of the link's name). Title and
+   description stay on one line each, so most of the photo shows; the shade only darkens the lower part, under them. */
+.mega__feature { position: relative; isolation: isolate; display: block; min-height: 100%; overflow: hidden; border-radius: 20px; color: #fff; background: var(--navy-900); }
+.mega__slide { position: absolute; inset: 0; isolation: isolate; display: flex; align-items: flex-end; opacity: 0; visibility: hidden; transition: opacity .35s var(--ease), visibility 0s .35s; }
+/* inherit, never visible: a child set to visible shows and takes the pointer even inside a hidden parent, so the closed
+   menu's invisible photo card caught the mouse under the header and opened the menu by itself (fixed 23 Nov, user report);
+   nothing inside .mega may set visibility: visible, so only the Services button opens it */
+.mega__slide.is-on { opacity: 1; visibility: inherit; transition: opacity .35s var(--ease); }
+.mega__slide::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(1, 18, 73, 0) 48%, rgba(1, 18, 73, .55) 70%, rgba(1, 18, 73, .92) 100%); }
 .mega__feature img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); will-change: transform; } /* kept on its own layer: no sharpening snap when the zoom ends */
-.mega__feature::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(1, 18, 73, .05) 25%, rgba(1, 18, 73, .9) 100%); }
 .mega__feature:hover img { transform: scale(1.06); }
-.mega__feature-body { display: grid; gap: 6px; padding: 22px; }
-.mega__feature-tag { justify-self: start; padding: 5px 10px; border-radius: 999px; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; background: var(--blue-600); }
-.mega__feature strong { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
-.mega__feature small { font-size: .82rem; line-height: 1.4; color: rgba(255, 255, 255, .8); }
+.mega__feature-body { display: grid; gap: 4px; width: 100%; min-width: 0; padding: 20px; }
+.mega__feature strong, .mega__feature small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mega__feature strong { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
+.mega__feature small { font-size: .82rem; line-height: 1.4; color: rgba(255, 255, 255, .85); }
 .mega__feature-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: .9rem; font-weight: 600; }
 .mega__feature-cta .i { width: 16px; height: 16px; transition: transform .3s var(--ease); }
 .mega__feature:hover .mega__feature-cta .i { transform: translateX(4px); }
 .mega .ph { background: rgba(255, 196, 40, .4); }
 
 .site-header__actions { display: flex; align-items: center; gap: 10px; }
-.header-phone { display: none; align-items: center; gap: 8px; font-weight: 600; font-size: .92rem; padding: 0 8px; }
+/* "Call us": an outline button with the same height, padding and type as "Get a Free Quote" beside it (.btn--sm) */
+.header-phone { display: none; border: 1.5px solid rgba(11, 21, 51, .18); color: inherit; background: transparent; }
+.header-phone:hover { border-color: rgba(11, 21, 51, .4); background: rgba(11, 21, 51, .04); }
+.has-hero .site-header:not(.is-solid) .header-phone { border-color: rgba(255, 255, 255, .4); }
+.has-hero .site-header:not(.is-solid) .header-phone:hover { border-color: rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .1); }
 .header-cta { display: none; }
 .menu-btn { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: rgba(127, 127, 127, .14); }
 .menu-btn .i { width: 24px; height: 24px; }
@@ -334,7 +355,7 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 
 .hero__inner { position: relative; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr); align-content: end; gap: 28px; padding-top: calc(var(--header-h) + var(--vh-l, 100vh) * .22); padding-bottom: 24px; }
 .hero__title { font-size: var(--fs-h1); font-weight: 750; line-height: 1.05; letter-spacing: -.04em; max-width: 16ch; }
-/* the H1's small first line (version 2): "Travel Agency in [CITY]" over the big "Umrah, Visas & Tours" */
+/* the H1's small first line: "Travel Agency in [CITY]" over the big "Umrah, Visas & Tours" */
 .hero__kicker { display: block; margin-bottom: 14px; font-family: var(--font-body); font-size: clamp(.8rem, .72rem + .3vw, 1rem); font-weight: 700; line-height: 1.3; letter-spacing: .14em; text-transform: uppercase; color: var(--blue-300); }
 .hero__tagline { display: flex; flex-wrap: wrap; gap: .1em .45em; margin-top: 16px; font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: clamp(1.15rem, 1rem + .7vw, 1.5rem); color: var(--blue-300); }
 .hero__tagline span { display: inline-block; }
@@ -389,7 +410,7 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 }
 .planner__field { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 12px 16px; background: #fff; min-width: 0; cursor: pointer; }
 .planner__field--wide { grid-column: 1 / -1; }
-.planner__label { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.planner__label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .planner__control { position: relative; display: flex; align-items: center; min-height: 30px; }
 .planner__control select { appearance: none; -webkit-appearance: none; width: 100%; border: 0; background: transparent; padding: 0 26px 0 0; font-weight: 600; font-size: 1rem; cursor: pointer; text-overflow: ellipsis; }
 .planner__control select:focus { outline: none; }
@@ -405,7 +426,8 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 .planner__control > .i { transition: rotate .25s var(--ease); }
 .planner__field.is-open .planner__control > .i { rotate: 180deg; }
 .stepper { gap: 6px; }
-.stepper button { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--mist-300); transition: border-color .2s, background-color .2s; }
+.stepper button { position: relative; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--mist-300); transition: border-color .2s, background-color .2s; }
+.stepper button::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; } /* a 44px tap area round the 30px circle */
 .stepper button:hover { border-color: var(--ink); }
 .stepper button:disabled { opacity: .35; cursor: default; }
 .stepper button .i { width: 14px; height: 14px; stroke-width: 2.2; }
@@ -475,7 +497,7 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
    (no max-height queries, no vh/dvh): when a phone browser hides its toolbars as you start scrolling, the screen
    gets taller, and height rules made the title jump to a bigger size and the lead line pop in mid-scroll. The
    hero's own height uses --vh-s (above): a px value main.js sets once per screen width, never 100svh itself,
-   which Chrome on the iPhone changes step by step as its bars slide away (the whole page jolted down). Version 2's title is two lines from 320 to 430 px wide (the
+   which Chrome on the iPhone changes step by step as its bars slide away (the whole page jolted down). The title is two lines from 320 to 430 px wide (the
    small .hero__kicker over one big line); the lead line is left out on phones (the journey tabs below say the same). */
 @media (max-width: 639.98px) {
   :root { --header-h: 66px; }
@@ -670,54 +692,6 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 }
 
 /* ==========================================================================
-   UMRAH PACKAGES
-   ========================================================================== */
-.pk-track { display: grid; gap: 18px; }
-.pk {
-  display: flex; flex-direction: column; background: #fff; border-radius: 22px; overflow: hidden;
-  box-shadow: var(--shadow-1); transition: transform .45s var(--ease), box-shadow .45s var(--ease);
-}
-.pk:hover { transform: translateY(-6px); box-shadow: var(--shadow-2); }
-.pk__media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--mist-200); }
-.pk__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
-.pk:hover .pk__media img { transform: scale(1.06); }
-.pk__badge, .pk__flag { position: absolute; top: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
-.pk__badge { left: 14px; background: rgba(255, 255, 255, .94); color: var(--ink); }
-.pk__badge .i { width: 15px; height: 15px; color: var(--blue-600); }
-.pk__flag { right: 14px; background: var(--blue-600); color: #fff; box-shadow: var(--shadow-blue); }
-.pk__flag .i { width: 14px; height: 14px; }
-.pk__body { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 22px; }
-.pk__name { font-size: 1.45rem; }
-.pk__hotels { display: flex; gap: 10px; font-size: .92rem; color: var(--ink-2); line-height: 1.45; }
-.pk__hotels .i { color: var(--blue-600); margin-top: 1px; }
-.pk__incl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: .82rem; color: var(--ink-2); }
-.pk__incl li { display: flex; gap: 6px; line-height: 1.35; }
-.pk__incl .i { width: 15px; height: 15px; color: #1D8F5A; stroke-width: 2.4; margin-top: 1px; }
-.pk__price { display: flex; flex-direction: column; margin-top: auto; padding-top: 14px; border-top: 1px dashed var(--mist-300); font-size: .8rem; color: var(--ink-3); }
-.pk__price strong { font-family: var(--font-display); font-weight: 700; font-size: 1.7rem; line-height: 1.15; color: var(--ink); letter-spacing: -.01em; }
-.pk--featured { background: var(--navy-900); color: #fff; box-shadow: var(--shadow-1); }
-.pk--featured .pk__hotels, .pk--featured .pk__incl { color: rgba(255, 255, 255, .78); }
-.pk--featured .pk__hotels .i { color: var(--blue-300); }
-.pk--featured .pk__incl .i { color: #6FE0A6; }
-.pk--featured .pk__price { color: rgba(255, 255, 255, .6); border-color: rgba(255, 255, 255, .18); }
-.pk--featured .pk__price strong { color: #fff; }
-.pk-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 28px; font-size: .92rem; color: var(--ink-3); }
-.pk-foot > .i { color: var(--blue-600); }
-
-@media (max-width: 767.98px) {
-  .pk-track {
-    grid-auto-flow: column; grid-auto-columns: min(84vw, 340px);
-    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
-    margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 20px; scroll-padding-inline: var(--gutter);
-  }
-  .pk-track::-webkit-scrollbar { display: none; }
-  .pk { scroll-snap-align: start; }
-  .pk:hover { transform: none; }
-}
-@media (min-width: 768px) { .pk-track { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1200px) { .pk-track { grid-template-columns: repeat(4, 1fr); } }
-
-/* ==========================================================================
    DESTINATIONS — segmented tabs + bento
    ========================================================================== */
 .seg {
@@ -768,7 +742,7 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 .dsh__list > li { flex: none; display: flex; scroll-snap-align: start; }
 .dsh__item {
   display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px;
-  width: 210px; padding: 8px 14px 8px 8px; border-radius: 18px; text-align: left; color: var(--ink);
+  width: 226px; padding: 8px 14px 8px 8px; border-radius: 18px; /* 226px: "Khyber Pakhtunkhwa" fits under the name */ text-align: left; color: var(--ink);
   background: rgba(255, 255, 255, .45); transition: background-color .3s, box-shadow .3s;
 }
 .dsh__item img, .dsh__plus { display: block; width: 52px; height: 52px; aspect-ratio: 1; border-radius: 12px; object-fit: cover; transition: transform .4s var(--ease); }
@@ -833,8 +807,10 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
   .cx { grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 10px 12px 10px 10px; }
   .cx__flag { width: 36px; border-radius: 6px; }
   .cx__go { display: none; }
-  .cx__meta strong { font-size: .95rem; white-space: nowrap; }
-  .cx__meta small { font-size: .74rem; }
+  /* a name too long for the tile ("Ramadan 2027", "Custom Umrah" on the Umrah page) goes onto a second line instead of
+     running out of the tile (audit, 22 Nov); the tiles in that row grow with it */
+  .cx__meta strong { font-size: .95rem; text-wrap: balance; }
+  .cx__meta small { font-size: .75rem; } /* 12px: the smallest text on the site */
 }
 
 /* ---------- Visa file processing: a navy panel with four tiles (flags the same size as the tour package tiles above) ---------- */
@@ -996,7 +972,7 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 /* where it goes / who it is for: a soft panel holding both groups (small label + one row of white chips) */
 .tcard__places { display: grid; align-content: start; gap: 8px; margin-top: 20px; padding: 14px 16px; border-radius: 18px; background: var(--mist-50); box-shadow: inset 0 0 0 1px var(--mist-200); }
 .tcard__places .chips li:not(.chips__more) { background: #fff; box-shadow: 0 0 0 1px var(--mist-200); }
-.tcard__label { font-size: .72rem; font-weight: 700; line-height: 1.3; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+.tcard__label { font-size: .75rem; font-weight: 700; line-height: 1.3; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
 /* a thin line between the two groups (In Pakistan / Abroad, Where we go / Who it is for) */
 .tcard__label:not(:first-child) { margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--mist-200); }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -1074,7 +1050,7 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
    HOW IT WORKS — travel route; the plane glides along as you scroll (--p and --run on the line, from main.js)
    ========================================================================== */
 .route h2 em { display: block; color: var(--blue-600); }
-.route__wrap { --stop: 64px; position: relative; }
+.route__wrap { --stop: 64px; --n: 3; --gap: 28px; --mid: calc((100% - (var(--n) - 1) * var(--gap)) / var(--n) / 2); position: relative; }
 .route__list { position: relative; display: grid; gap: 34px; }
 .route__step { position: relative; padding-left: calc(var(--stop) + 22px); }
 .route__stop {
@@ -1099,15 +1075,25 @@ html:not(.js) .mega__link:is(:hover, :focus-visible) { background: var(--mist-10
 }
 .route__plane .i { width: 19px; height: 19px; rotate: 135deg; }
 .route__cta { display: flex; justify-content: center; margin-top: 52px; }
+/* Side by side from 900px: the three home steps. The five Umrah visa rules (.route--five) go side by side only inside
+   their sticky section (umrah.css "Visa rules"), so they are left out here and stay stacked otherwise. The Domestic
+   page's travel tips (.route--down, service.css) stay stacked on every screen. --n columns
+   --gap apart; the line runs from the middle of the first column to the middle of the last (--mid) */
 @media (min-width: 900px) {
-  .route__list { grid-template-columns: repeat(3, 1fr); gap: 28px; }
-  .route__step { display: flex; flex-direction: column; align-items: center; padding: calc(var(--stop) + 26px) 0 0; text-align: center; }
-  .route__stop { left: 50%; translate: -50% 0; }
-  .route__line { left: calc((100% - 56px) / 6); right: calc((100% - 56px) / 6); top: calc(var(--stop) / 2 - 1px); bottom: auto; width: auto; height: 2px; background: repeating-linear-gradient(90deg, var(--mist-300) 0 10px, transparent 10px 20px); }
-  .route__fill { scale: var(--p, 0) 1; }
-  .route__plane { top: 1px; left: 0; translate: calc(var(--p, 0) * var(--run, 0px) - 50%) -50%; }
-  .route__plane .i { rotate: 45deg; }
+  .route__wrap:not(.route--five):not(.route--down) .route__list { grid-template-columns: repeat(var(--n), 1fr); gap: var(--gap); }
+  .route__wrap:not(.route--five):not(.route--down) .route__step { display: flex; flex-direction: column; align-items: center; padding: calc(var(--stop) + 26px) 0 0; text-align: center; }
+  .route__wrap:not(.route--five):not(.route--down) .route__stop { left: 50%; translate: -50% 0; }
+  .route__wrap:not(.route--five):not(.route--down) .route__line { left: var(--mid); right: var(--mid); top: calc(var(--stop) / 2 - 1px); bottom: auto; width: auto; height: 2px; background: repeating-linear-gradient(90deg, var(--mist-300) 0 10px, transparent 10px 20px); }
+  .route__wrap:not(.route--five):not(.route--down) .route__fill { scale: var(--p, 0) 1; }
+  .route__wrap:not(.route--five):not(.route--down) .route__plane { top: 1px; left: 0; translate: calc(var(--p, 0) * var(--run, 0px) - 50%) -50%; }
+  .route__wrap:not(.route--five):not(.route--down) .route__plane .i { rotate: 45deg; }
 }
+/* the line and the steps sit in .route__track when there is one (the five rules slide it sideways) */
+.route__track { position: relative; }
+/* the stage of the journey above a title (the visa rules) */
+.route__when { display: block; margin-top: 12px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-600); }
+.route__when + h3 { margin-top: 4px; }
+.section--tint .route__plane { box-shadow: 0 0 0 6px var(--mist-100), var(--shadow-blue); } /* the ring matches the background */
 
 /* ==========================================================================
    STATS — small title on top, figures underneath, no divider lines
@@ -1138,8 +1124,6 @@ html:not(.sample) .stat dd .ph { font-size: .5em; vertical-align: .35em; letter-
 .stars { display: inline-flex; gap: 2px; color: var(--gold); }
 .stars .i { width: 18px; height: 18px; }
 .rv-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.sample-tag { margin-right: 6px; padding: 6px 10px; border-radius: 8px; font-size: .75rem; font-weight: 600; color: #6B4C00; background: rgba(255, 196, 40, .3); box-shadow: inset 0 -1.5px 0 rgba(196, 140, 0, .65); }
-html.sample .sample-tag { display: none; }
 .rv-btn { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid var(--mist-300); color: var(--ink); transition: background-color .25s, border-color .25s, color .25s, opacity .25s; }
 .rv-btn:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: #fff; }
 .rv-btn:disabled { opacity: .35; cursor: default; }
@@ -1191,6 +1175,8 @@ html.sample .sample-tag { display: none; }
 .field { display: grid; gap: 7px; min-width: 0; }
 .field__label { font-size: .85rem; font-weight: 600; color: var(--ink-2); }
 .field__label em { font-style: normal; font-weight: 500; color: var(--ink-3); }
+/* required fields (Full name, Phone, Service): a red asterisk after the label; the field itself has `required` */
+.field__req { margin-left: 3px; font-weight: 700; color: #C62828; }
 .field input, .field select, .field textarea, .field .cselect {
   width: 100%; min-height: 52px; padding: 0 16px; border: 1.5px solid var(--mist-400); border-radius: 14px; background: var(--mist-50);
   font: inherit; font-size: 1rem; color: var(--ink); transition: border-color .2s, box-shadow .2s, background-color .2s;
@@ -1211,6 +1197,11 @@ html.sample .sample-tag { display: none; }
 .cselect { display: flex; align-items: center; width: 100%; min-width: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
 .cselect__value { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .cselect.is-placeholder .cselect__value { color: #66708B; }
+/* A locked field (main.js data-locked, e.g. "When" for a Ramadan package): one fixed value, no arrow, nothing to open */
+.cselect:disabled { cursor: default; }
+.is-locked > .i { display: none; }
+.planner__control.is-locked .cselect { padding-right: 0; }
+.field .cselect:disabled:hover { border-color: var(--mist-400); }
 .cselect__native { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
 .cselect-pop {
   position: absolute; z-index: 80; top: 0; left: 0; padding: 6px; border-radius: 18px; background: #fff;
@@ -1226,8 +1217,9 @@ html.sample .sample-tag { display: none; }
 .cselect-pop__list li.is-active { background: var(--mist-100); }
 .cselect-pop__list li[aria-selected="true"] { background: var(--blue-50); color: var(--blue-600); font-weight: 700; }
 .cselect-pop__list li[aria-selected="true"].is-active { background: var(--blue-100); }
+.cselect-pop__list li[aria-disabled="true"] { color: #66708B; font-weight: 500; cursor: not-allowed; } /* e.g. "May 2027 · Hajj season" */
 .cselect-pop__list:focus-visible li.is-active { box-shadow: inset 0 0 0 2px var(--blue-500); }
-.cselect-pop__check { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.cselect-pop__check { flex: none; width: 18px; height: 18px; opacity: 0; }
 .cselect-pop__list li[aria-selected="true"] .cselect-pop__check { opacity: 1; }
 @keyframes cselectIn { from { opacity: 0; translate: 0 -6px; } }
 @keyframes cselectInUp { from { opacity: 0; translate: 0 6px; } }
@@ -1333,7 +1325,7 @@ html.sample .sample-tag { display: none; }
 .site-footer { background: var(--navy-950); color: rgba(255, 255, 255, .72); padding: clamp(64px, 8vw, 96px) 0 calc(28px + 140px + env(safe-area-inset-bottom)); /* phones: clear of the bar and the floating WhatsApp button */ font-size: .93rem; }
 .site-footer__top { display: grid; gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(255, 255, 255, .1); }
 .site-footer__brand .brand { color: #fff; margin-bottom: 18px; }
-.site-footer__brand p { max-width: 44ch; }
+.site-footer__brand p { max-width: 44ch; text-wrap: pretty; } /* three lines on most screens (23 Nov, user request) */
 .site-footer__brand em { color: var(--blue-300); font-family: var(--font-display); }
 .socials { display: flex; gap: 8px; margin-top: 22px; }
 .socials a { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16); color: #fff; transition: background-color .25s, border-color .25s; }
@@ -1387,6 +1379,7 @@ html.sample .sample-tag { display: none; }
 .wa-fab span { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width .4s var(--ease); }
 @media (hover: hover) { .wa-fab:hover { gap: 10px; } .wa-fab:hover span { max-width: 140px; } } /* not on touch: a tap would leave the label open */
 .wa-fab.is-visible { translate: 0 0; }
+.wa-fab.is-visible.is-tucked { translate: 0 calc(100% + 140px); } /* phones and tablets, while scrolling down (main.js "Header") */
 @media (min-width: 1024px) { .wa-fab { right: 24px; bottom: 24px; height: 58px; padding: 0 17px; } }
 
 /* ---------- Design preview pill (remove before launch) ----------
@@ -1432,14 +1425,13 @@ html.sample .devpill__hint { display: none !important; }
   .hero__media { transform: none !important; }
   .js [data-reveal], .js .hero__tagline span { translate: none; scale: 1; }
   .js .hero__tagline span { animation-name: fadeIn; }
-  .svx__panel, .svx__media, .dsh__slide, .arch__photo img, .pk, .pk__media img { transition: none; }
+  .svx__panel, .svx__media, .dsh__slide, .arch__photo img { transition: none; }
   .svx__item.is-active .svx__media img { animation: none; }
   .cselect-pop, .cselect-pop.is-up { animation-name: fadeIn; }
   .rv-track { scroll-behavior: auto; }
   .dsh__slide.is-active img, .dsh__slide.is-active .dsh__cap > * { animation: none; }
   .arch__item:hover .arch__icon { transform: none; }
   .brand__logo { transition: none; }
-  .pk:hover { transform: none; }
   .mobile-menu { clip-path: none; opacity: 0; transition: opacity .3s; }
   .mobile-menu.is-open { opacity: 1; clip-path: none; }
 }

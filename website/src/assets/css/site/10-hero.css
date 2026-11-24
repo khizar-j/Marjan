@@ -1,0 +1,118 @@
+/* Hero background videos (js/site/10-hero.js). Each slide holds its poster (<picture>) and, once loaded,
+   its muted 8 s clip on top of it. When a clip ends, the next journey cuts in (.is-cut), like the cuts inside the
+   clips. A click fades the new journey in over the old one, which stays fully visible underneath (.is-prev) until
+   the fade is over, so a switch never dips to dark. */
+
+/* Video moves on its own: no Ken Burns zoom on the poster and no pointer parallax (main.js still sets --mx/--my) */
+.site .hero__media { transform: none; transition: none; }
+.site .hero__slide { transition: opacity .9s cubic-bezier(.4, 0, .2, 1); }
+.site .hero__slide.is-active { z-index: 1; }
+.site .hero__slide.is-prev { opacity: 1; transition: none; }
+.site .hero__slide.is-cut { transition: none; }
+.site .hero__slide.is-active.is-wait { opacity: 0; transition-duration: 0s; } /* new journey whose picture is not in yet */
+.site .hero__slide picture,
+.site .hero__slide img,
+.site .hero__slide video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: var(--pos, 50% 50%);
+}
+.site .hero__slide.is-active img { animation: none; }
+.site .hero__slide video { opacity: 0; transition: opacity .6s ease; }
+.site .hero__slide video.is-on { opacity: 1; }
+
+/* Text separation: a deeper navy scrim where the words sit, plus a soft vignette, so the headline reads on the
+   brightest frames (white marble, sunlit clouds). Phones and tablets: the copy runs down the whole screen. */
+.site .hero__shade {
+  z-index: 2;
+  background:
+    radial-gradient(120% 80% at 50% 45%, rgba(1, 10, 43, 0) 40%, rgba(1, 10, 43, .4) 100%),
+    linear-gradient(180deg, rgba(1, 18, 73, .7) 0%, rgba(1, 18, 73, .5) 18%, rgba(1, 18, 73, .5) 42%, rgba(1, 18, 73, .78) 66%, rgba(1, 10, 43, .94) 100%);
+}
+.site .hero__title { text-shadow: 0 1px 2px rgba(1, 10, 43, .3), 0 6px 28px rgba(1, 10, 43, .35); }
+.site .hero__lead { color: rgba(255, 255, 255, .92); text-shadow: 0 1px 12px rgba(1, 10, 43, .45); }
+/* The glass planner sits on moving footage: a little more navy in the glass keeps the tab labels crisp */
+.site .planner { background: rgba(1, 18, 73, .3); }
+/* WCAG 2.2.2: the video keeps looping after the visitor starts the form, so the pause button stays */
+.site .planner.is-manual .planner__pause { display: grid; }
+/* Phones and tablets: no frosted-glass blur over the video (planner and the WhatsApp button). The blur is redrawn for
+   every video frame and every scrolled pixel, which on a phone is heavy GPU work; a deeper navy glass reads the same */
+@media (max-width: 1023.98px) {
+  .site .planner { background: rgba(1, 18, 73, .58); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .site .hero .btn--glass { background: rgba(255, 255, 255, .16); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* Phones and tablets: the journey tabs scroll sideways, so the pause button is pinned to the right end of the row
+   (the tabs slide under it) instead of sitting off-screen after the last tab */
+@media (max-width: 1023.98px) {
+  .site .planner__pause {
+    position: sticky; right: -2px; z-index: 1; /* -2px: flush over the row's 2px padding */
+    background: rgb(4, 21, 74); box-shadow: -14px 0 14px -2px rgba(4, 21, 74, .9), 4px 0 0 rgb(4, 21, 74);
+  }
+  /* room after the last tab (Corporate): scrolled to the end, the selected white tab stops clear of the pause
+     button's fade instead of sitting under it */
+  .site .planner__tab:nth-last-child(2) { margin-right: 22px; }
+}
+
+/* Scrolling away (js/site/10-hero.js writes --cover, 0 → 1): the hero stays where it is (sticky) and sinks back, a
+   little lower, smaller and darker, while everything after it (.sheet, opaque) rises over it. Once the sheet is
+   halfway up, the introduction on it comes in with the scroll (css/site/20-story.css). */
+.site main { background: var(--navy-950); } /* shows round the hero as it shrinks, and behind the sheet's top corners */
+/* js/site/10-hero.js writes the hero's translate and scale and the darkening's opacity as inline styles. The hero is its
+   own layer and .hero__dim another, so sinking and darkening only move and fade layers: nothing is repainted. */
+.site .hero { position: sticky; top: 0; transform-origin: 50% 0; border-radius: 0; will-change: transform; }
+.js .site .hero.is-lifting { border-radius: var(--r-lg); } /* once, as it starts to sink: no corner redraw per frame */
+.site .hero__dim { position: absolute; inset: 0; z-index: 5; background: rgb(1, 10, 43); opacity: 0; pointer-events: none; will-change: opacity; }
+/* Scrolled well past (js/site/10-hero.js sets body.is-hero-gone once the sheet's top is 40px above the screen): the
+   covered hero turns see-through and the backdrop turns page-coloured, so if a phone falls behind drawing the page
+   on a fast flick, the gaps show the page colour instead of the hero video. opacity, not visibility, so keyboard
+   users can still tab back into the planner (which scrolls the hero back into view). */
+.site.is-hero-gone .hero { opacity: 0; }
+.site.is-hero-gone main { background: var(--mist-50); }
+.site .sheet {
+  position: relative; z-index: 1; background: var(--mist-50);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: 0 -18px 40px -24px rgba(1, 10, 43, .55);
+}
+/* Runs at full strength with reduced motion on too (asked for, like the services push); it only follows the scroll */
+
+@media (min-width: 1024px) {
+  .site .hero__shade {
+    background:
+      radial-gradient(120% 100% at 72% 45%, rgba(1, 10, 43, 0) 55%, rgba(1, 10, 43, .32) 100%),
+      linear-gradient(90deg, rgba(1, 18, 73, .86) 0%, rgba(1, 18, 73, .7) 28%, rgba(1, 18, 73, .38) 52%, rgba(1, 18, 73, .1) 75%, rgba(1, 18, 73, 0) 100%),
+      linear-gradient(0deg, rgba(1, 10, 43, .88) 0%, rgba(1, 18, 73, .3) 22%, rgba(1, 18, 73, 0) 40%),
+      linear-gradient(180deg, rgba(1, 18, 73, .55) 0%, rgba(1, 18, 73, 0) 20%);
+  }
+}
+
+/* Phone trust strip: a ticker. One row, each credential with its blue icon on the left and its text on one
+   line, gliding right to left in an endless loop, like a strip of partner logos. js/site/12-trust.js adds a hidden
+   copy of the five items (so the row joins up seamlessly) and sets --ticker-dur for a steady 36 px a second.
+   Touching or hovering the strip pauses it (WCAG 2.2.2). One short row, so hero + strip fit one screen easily.
+   Bigger screens keep the plain row (the copies are hidden there). */
+.site .trust__list .is-copy { display: none; }
+@media (max-width: 639.98px) {
+  .site .trust { padding-block: 13px; }
+  .site .trust > .container {
+    width: 100%; overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  }
+  .site .trust__list {
+    display: flex; width: max-content; gap: 0; overflow: visible; white-space: nowrap;
+    -webkit-mask-image: none; mask-image: none;
+    animation: trust-ticker var(--ticker-dur, 30s) linear infinite;
+  }
+  .site .trust:hover .trust__list { animation-play-state: paused; }
+  .site .trust__list .is-copy { display: flex; }
+  .site .trust__list li,
+  .site .trust__list li:nth-child(n+3) {
+    flex: none; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px;
+    padding: 0 16px; border: 0; text-align: left;
+    color: var(--ink-2); font-size: .84rem; line-height: 1.3;
+  }
+  .site .trust__list li:nth-child(n+3) .i { display: block; }
+  .site .trust__list .i { flex: none; width: 19px; height: 19px; color: var(--blue-600); }
+  .site .trust__list strong { color: var(--ink); }
+}
+/* the copy is exactly as wide as the original, so moving by half the row brings the start round again */
+@keyframes trust-ticker { to { transform: translateX(-50%); } }

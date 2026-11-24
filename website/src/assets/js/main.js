@@ -27,7 +27,7 @@
      set here and, on touch screens, measured again only when the width changes (turning the phone):
        --vh-l  the screen with the toolbars away (an empty fixed box 100vh tall), in place of 100vh
        --vh-s  the screen with the toolbars showing (100svh, at most innerHeight at load), in place of 100svh
-     Desktop windows have no sliding toolbars, so there both follow every resize. Version 2's MFX.vh() / svh() work
+     Desktop windows have no sliding toolbars, so there both follow every resize. site.js's MFX.vh() / svh() work
      the same way. html.short-screen (760px or less) gives the quote form its tighter phone layout (CSS). */
   const probe = (h) => {
     const el = d.createElement('div');
@@ -215,12 +215,24 @@
       if (dlg) closeCs(dlg, true);
       const form = $('[data-quote-form]');
       if (!form) return;
+      // The note replaces the one the last "Get a quote" put in, so two packages never pile up there (the visitor's own
+      // words stay). It goes in before the service, whose change event rebuilds the "When" list from both.
+      const notes = form.elements.notes;
+      const note = a.dataset.quoteNote;
+      if (notes && note) {
+        const prev = form.dataset.autoNote;
+        let own = notes.value;
+        if (prev) own = own.replace(`${prev}. `, '').replace(prev, '').trim();
+        notes.value = own ? `${note}. ${own}` : note;
+        form.dataset.autoNote = note;
+        notes.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      // a package with a set number of people ("Umrah for 2 Persons", the Umrah planner's pilgrims) sets Travellers
+      const count = form.elements.travellers;
+      if (count && a.dataset.quoteTravellers) count.value = a.dataset.quoteTravellers;
       const sel = form.elements.service;
       const opt = sel && [...sel.options].find((o) => o.value === a.dataset.quotePick);
       if (opt) { sel.value = opt.value; sel.dispatchEvent(new Event('change', { bubbles: true })); }
-      const notes = form.elements.notes;
-      const note = a.dataset.quoteNote;
-      if (notes && note && !notes.value.includes(note)) notes.value = notes.value ? `${note}. ${notes.value}` : note;
     }));
   }
 
@@ -308,7 +320,14 @@
     return { to, jump };
   })();
 
-  /* ---------- Same-page links (#get-a-quote, #main…): glide there, below the fixed header ---------- */
+  /* ---------- Same-page links (#get-a-quote, #main…): glide there, below the fixed header ----------
+     The page stops below the top bar (scroll-padding-top), so the bar stays on screen for the whole glide and after
+     it (holdBar, read by keepBar in "Header"): going down would otherwise hide it, and leave an empty strip where
+     it was above the heading. The same goes for a page opened at a #link. The visitor's own next scroll, tap or key
+     lets the bar move as usual again. */
+  let holdBar = location.hash.length > 1;
+  const releaseBar = () => { holdBar = false; };
+  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((t) => addEventListener(t, releaseBar, { passive: true, capture: true }));
   d.addEventListener('click', (e) => {
     const a = e.target instanceof Element && e.target.closest('a[href*="#"]');
     if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -321,6 +340,7 @@
     const offset = (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0) + (parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
     const y = el.getBoundingClientRect().top + scrollY - offset;
     const keyboard = e.detail === 0; // Enter on a link: jump and move focus, like a normal link
+    holdBar = true;
     if (keyboard || reduceMotion) smooth.jump(y); else smooth.to(y);
     if (keyboard) {
       if (!el.matches('a[href], button, input, select, textarea, [tabindex]')) el.setAttribute('tabindex', '-1');
@@ -352,7 +372,7 @@
      yet stay on screen for the first 600px. A flick covers 600px in a fraction of a second, so a white bar flashed
      up and vanished. Now, on those screens, the bar slides away from the very top (after TURN px), still
      see-through, and only turns white when it comes back (you scroll up) or once the hero is off the screen.
-     Version 2's floating bar is white all the time (--bar: float in css/v2/05-header.css), so it keeps the
+     The floating bar is white all the time (--bar: float in css/site/05-header.css), so it keeps the
      600px rule everywhere. */
   const floatBar = getComputedStyle(header).getPropertyValue('--bar').trim() === 'float';
   const smallQ = matchMedia('(max-width: 1023.98px)');
@@ -412,7 +432,10 @@
     clearTimeout(settleTimer);
     if (snapMode()) snapBar(false); else slideBar(0);
   };
-  const keepBar = () => menuOpen || !!$('.nav__item.is-open') || !!$(':focus-visible', header);
+  // The bar stays while the Services menu is open, however it was opened: a click (.is-open), keyboard focus, or the
+  // pointer resting on it (CSS :hover). The hover case was missing (23 Nov, user report): scrolling with the pointer on
+  // the open menu slid the bar away, and the menu, which hangs from the bar, stayed on screen without it.
+  const keepBar = () => holdBar || menuOpen || !!$('.nav__item.is-open') || !!$('.nav__item--menu:hover:not(.is-shut)', header) || !!$(':focus-visible', header);
   header.addEventListener('focusin', showBar);
   const onScroll = () => {
     // The phone menu locks the page while it is open and puts it back where it was when it closes. Neither is the
@@ -465,6 +488,9 @@
     const pastHero = y > (hero ? heroH - 160 : 240);
     actionbar && actionbar.classList.toggle('is-visible', pastHero);
     fab && fab.classList.toggle('is-visible', pastHero);
+    // Phones and tablets: the WhatsApp bubble sat over the right end of the text while you read. It now goes with the
+    // top bar: away while you scroll down, back as soon as you scroll up (the action bar, with call and quote, stays).
+    fab && fab.classList.toggle('is-tucked', snap && offset >= barH - 0.5);
     devpill && devpill.classList.toggle('is-visible', pastHero);
   };
   scrollFns.push(onScroll);
@@ -478,8 +504,27 @@
     // One highlight glides between the service rows (css: .mega__list::before). Its row is .is-active until the
     // pointer reaches another row, so the gaps between rows change nothing; it fades once the pointer leaves the list.
     const list = $('.mega__list', item);
+    // The feature card shows the service row last pointed at or focused (23 Nov, user request): one slide per row, in
+    // the same order, and the card's link goes to that service. It stays on that row while the pointer crosses over to
+    // the card, and goes back to the first once the menu has closed. Its other photos load the first time it opens.
+    const feat = $('[data-mega-feature]', item);
+    const slides = feat ? $$('.mega__slide', feat) : [];
+    const links = list ? $$('.mega__link', list) : [];
+    let resetT = 0;
+    const show = (link) => {
+      const i = links.indexOf(link);
+      if (i < 0 || !slides[i]) return;
+      slides.forEach((s, n) => s.classList.toggle('is-on', n === i));
+      feat.setAttribute('href', link.getAttribute('href'));
+    };
+    const wake = () => {
+      clearTimeout(resetT);
+      if (feat) $$('img[data-src]', feat).forEach((im) => { im.srcset = im.dataset.srcset; im.src = im.dataset.src; delete im.dataset.src; delete im.dataset.srcset; });
+    };
+    const later = () => { clearTimeout(resetT); resetT = setTimeout(() => show(links[0]), 450); }; // after the .1 s wait and .2 s fade
     let row = null;
     const mark = (link) => {
+      if (link) show(link);
       if (!list || link === row) return;
       if (row) row.classList.remove('is-active');
       if (link) {
@@ -500,15 +545,25 @@
       list.addEventListener('focusin', (e) => { if (e.target.matches('.mega__link:focus-visible')) mark(e.target); });
       list.addEventListener('focusout', (e) => { if (!list.contains(e.relatedTarget) && !list.matches(':hover')) mark(null); });
     }
+    // aria-expanded says whether the menu is showing, however it opened: the CSS also opens it on hover and on keyboard
+    // focus, which used to leave the button saying "collapsed" over an open menu (found in the 24 Nov site check)
+    const showing = () => {
+      if (item.classList.contains('is-shut')) return false;
+      if (item.classList.contains('is-open') || item.matches(':hover')) return true;
+      try { return item.matches(':has(:focus-visible)'); } catch { return false; }
+    };
+    const sync = () => btn.setAttribute('aria-expanded', String(showing()));
     const set = (open, shut = false) => {
       item.classList.toggle('is-open', open);
       item.classList.toggle('is-shut', shut);
-      btn.setAttribute('aria-expanded', String(open));
-      if (!open) mark(null);
+      sync();
+      if (!open) { mark(null); later(); }
     };
     btn.addEventListener('click', () => { const open = !item.classList.contains('is-open'); set(open, !open); });
+    item.addEventListener('pointerenter', () => { wake(); sync(); });
+    item.addEventListener('focusin', () => { wake(); sync(); });
     item.addEventListener('mouseleave', () => set(false));
-    item.addEventListener('focusout', (e) => { if (!item.contains(e.relatedTarget)) item.classList.remove('is-shut'); });
+    item.addEventListener('focusout', (e) => { if (!item.contains(e.relatedTarget)) { item.classList.remove('is-shut'); if (!item.matches(':hover')) later(); setTimeout(sync); } });
     d.addEventListener('click', (e) => { if (!item.contains(e.target)) set(false); });
     item.addEventListener('keydown', (e) => { if (e.key === 'Escape') { set(false, true); btn.focus(); } });
   });
@@ -577,6 +632,50 @@
     addEventListener('resize', () => { if (menuOpen) fitMenu(); }); // turning the phone, toolbars showing or hiding
   }
 
+  /* ---------- Ramadan, Hajj and the Umrah season: today's dates (seasons.js) ----------
+     seasons.js works them out from the Islamic calendar, so they move on by themselves. The pages are built with the
+     dates of the build day ({{season}} in build.mjs); here every [data-season] text and the page title are brought up to
+     the visitor's day, so a page built months ago still names the coming Ramadan and the current Umrah season. A browser
+     without the Islamic calendar keeps the built text. */
+  const SEASON = window.MarjanSeasons || { ok: false, text: () => '', hajjMonth: () => false };
+  if (SEASON.ok) {
+    const built = $('[data-season="season"]');
+    const was = built && built.textContent;
+    $$('[data-season]').forEach((el) => { el.textContent = SEASON.text(el.dataset.season) || el.textContent; });
+    if (was && SEASON.text('season') !== was) d.title = d.title.split(was).join(SEASON.text('season')); // "Umrah Packages 2026–27"
+  }
+  const ramadanYear = SEASON.text('ramadan-year') || ($('[data-season="ramadan-year"]') || {}).textContent || '';
+  const RAMADAN_PKG = `Ramadan Umrah ${ramadanYear}`.trim(); // the hero's package
+  const RAMADAN_WHEN = `Ramadan ${ramadanYear}`.trim(); // "When" for it (short: the phone field is ~140px)
+
+  /* ---------- "When" lists (hero planner and quote form): Flexible plus the next 12 months ----------
+     Umrah follows two dates of the Islamic calendar, so the list follows the package:
+     - Ramadan Umrah: Ramadan is one month (29 or 30 days), so "When" is set to it and locked; there is no month to pick.
+     - Any other Umrah: the months around Hajj, when Saudi Arabia stops Umrah visas, are listed but can't be picked
+       (SEASON.hajjMonth: at least half the month from 1 Dhul Qadah to 14 Dhul Hijjah; see seasons.js).
+     Both are the calendar's expected dates (the moon sighting can move them a day). */
+  const fmtMonth = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
+  const monthKind = (text) => (/ramadan/i.test(text) ? 'ramadan' : /umrah/i.test(text) ? 'umrah' : 'any');
+  const builtMonths = new WeakMap();
+  const travelMonths = (select, kind = 'any') => {
+    select.toggleAttribute('data-locked', kind === 'ramadan'); // the custom dropdown below turns this into a fixed field
+    let html = `<option selected>${RAMADAN_WHEN}</option>`;
+    if (kind !== 'ramadan') {
+      const now = window.MarjanSeasonsToday || new Date(); // the test day, if seasons.js is being tested
+      html = '<option>Flexible</option>' + Array.from({ length: 12 }, (_, i) => {
+        const m = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        return kind === 'umrah' && SEASON.hajjMonth(m.getFullYear(), m.getMonth())
+          ? `<option disabled>${fmtMonth.format(m)} · Hajj season</option>` : `<option>${fmtMonth.format(m)}</option>`;
+      }).join('');
+    }
+    if (builtMonths.get(select) === html) return; // same list: leave the visitor's pick alone
+    builtMonths.set(select, html);
+    const keep = select.value;
+    select.innerHTML = html;
+    const o = [...select.options].find((x) => x.value === keep && !x.disabled); // keep a month that is still there
+    if (o) o.selected = true;
+  };
+
   /* ==========================================================================
      HERO — journey picker (auto-plays until the visitor takes over)
      ========================================================================== */
@@ -584,7 +683,8 @@
     const JOURNEYS = {
       umrah: {
         name: 'Umrah', label: 'Package', caption: 'Masjid al-Haram, Makkah', travellers: 2,
-        options: ['Economy Umrah · 15 days', 'Standard Umrah · 21 days', 'Premium 5-Star Umrah · 14 days', 'Ramadan Umrah 2027', 'Custom Umrah package'], selected: 1,
+        // the package types on the Umrah page (tools/umrah.mjs TYPES), so both pages offer the same packages
+        options: ['Economy Umrah', '4-Star Umrah', '5-Star & VIP Umrah', 'Family Umrah', 'Group Umrah', RAMADAN_PKG, 'Custom Umrah package'], selected: 1,
       },
       north: {
         name: 'Pakistan tour', label: 'Destination', caption: 'Hunza Valley, Gilgit-Baltistan', travellers: 2,
@@ -628,11 +728,12 @@
     let elapsed = 0;
     let last = performance.now();
 
-    // Month options: flexible + the next 12 months
-    const fmt = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
-    const now = new Date();
-    monthSel.innerHTML = '<option>Flexible</option>' + Array.from({ length: 12 }, (_, i) =>
-      `<option>${fmt.format(new Date(now.getFullYear(), now.getMonth() + i, 1))}</option>`).join('');
+    // the package list in the HTML names the Ramadan of the build day: bring it up to today's
+    [...optSel.options].forEach((o) => { if (/^Ramadan Umrah/.test(o.text)) o.text = RAMADAN_PKG; });
+    // "When": follows the package (Ramadan Umrah fixes it; other Umrah can't pick the Hajj months), see above
+    const syncMonths = () => travelMonths(monthSel, monthKind(optSel.value));
+    syncMonths();
+    optSel.addEventListener('change', syncMonths);
 
     const loadSlide = (s) => {
       const img = s && $('img[data-srcset]', s);
@@ -671,6 +772,7 @@
       }
       optLabel.textContent = j.label;
       optSel.innerHTML = j.options.map((o, k) => `<option${k === (j.selected || 0) ? ' selected' : ''}>${o}</option>`).join('');
+      syncMonths();
       journeyInput.value = j.name;
       if (!travTouched) setTrav(j.travellers);
       // keep the active chip visible in the horizontally scrolling tab row
@@ -678,7 +780,7 @@
       if (row.scrollWidth > row.clientWidth) row.scrollTo({ left: tabs[i].offsetLeft - 8, behavior: reduceMotion ? 'auto' : 'smooth' });
       elapsed = 0;
       loadSlide(slides[(i + 1) % slides.length]); // warm the next image
-      hero.dispatchEvent(new CustomEvent('journey', { detail: { key, index: i, auto } })); // version 2 listens (videos)
+      hero.dispatchEvent(new CustomEvent('journey', { detail: { key, index: i, auto } })); // site.js listens (videos)
     };
 
     const engage = () => {
@@ -739,7 +841,7 @@
         const dt = Math.min(t - last, 1000);
         last = t;
         const run = !engaged && inView && !hoverPause && !userPaused && !d.hidden;
-        // Optional hook (version 2): hero.journeyClock(run) lets a background clip set the pace. It returns how far
+        // Optional hook (site.js): hero.journeyClock(run) lets a background clip set the pace. It returns how far
         // the current journey is (0–1), or null to use the timer below.
         const clip = hero.journeyClock ? hero.journeyClock(run) : null;
         if (run) {
@@ -773,7 +875,7 @@
       sx = null;
     }, { passive: true });
 
-    // Pointer parallax on the image and floating cards (a hero with data-no-parallax opts out: version 2's videos)
+    // Pointer parallax on the image and floating cards (a hero with data-no-parallax opts out: the hero videos)
     if (finePointer && !reduceMotion && !hero.hasAttribute('data-no-parallax')) {
       let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
       const move = () => {
@@ -924,17 +1026,27 @@
 
   /* ---------- Get a quote form: emails the request to the team, or sends it on WhatsApp ----------
      "Send request" posts the details to FormSubmit (formsubmit.co), a free form-to-email service with no
-     account or server code: it emails them to the address in the form's action (partials/v2/quote.html), as a table.
+     account or server code: it emails them to the address in the form's action (partials/home/quote.html), as a table.
      FormSubmit emails a new address once to activate the form; until that link is clicked nothing is delivered, and
      the visitor sees the error line and can use the WhatsApp button instead. "Send it on WhatsApp instead" opens
      WhatsApp with the same details filled in. Without JavaScript the form posts to FormSubmit's own page. */
   const quoteForm = $('[data-quote-form]');
   if (quoteForm) {
+    // "When" follows the service: an Umrah package can't pick the Hajj months, and the Ramadan package (its note, put
+    // in by "Get a quote") fixes it to Ramadan until that note is taken out of the notes box (see the "When" lists above)
     const month = $('[data-month-select]', quoteForm);
-    const fmtMonth = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
-    const today = new Date();
-    month.innerHTML = '<option>Flexible</option>' + Array.from({ length: 12 }, (_, i) =>
-      `<option>${fmtMonth.format(new Date(today.getFullYear(), today.getMonth() + i, 1))}</option>`).join('');
+    const syncMonths = () => {
+      const { service, notes } = quoteForm.elements;
+      const auto = quoteForm.dataset.autoNote || '';
+      const kind = service.value !== 'Umrah package' ? 'any'
+        : auto && /ramadan/i.test(auto) && notes.value.includes(auto) ? 'ramadan' : 'umrah';
+      travelMonths(month, kind);
+    };
+    syncMonths();
+    quoteForm.elements.service.addEventListener('change', syncMonths);
+    quoteForm.elements.notes.addEventListener('input', syncMonths);
+    // the browser can put the service back on Back or a refresh, without a change event (see the dropdowns below)
+    addEventListener('pageshow', syncMonths);
     const sendBtn = $('[data-quote-send]', quoteForm);
     const sendLabel = sendBtn && $('span', sendBtn);
     const sendText = sendLabel ? sendLabel.textContent : '';
@@ -974,6 +1086,7 @@
         if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || `HTTP ${res.status}`);
         const first = payload.Name.split(/\s+/)[0];
         quoteForm.reset();
+        delete quoteForm.dataset.autoNote;
         $$('select', quoteForm).forEach((s) => s.dispatchEvent(new Event('change'))); // the custom dropdowns show the reset value
         say(`Thank you${first ? `, ${first}` : ''}! Your request has reached our team. We will call or WhatsApp you soon.`, 'sent');
       } catch (err) {
@@ -1020,12 +1133,17 @@
     list.setAttribute('data-native-scroll', ''); // the smooth-scroll code leaves wheel scrolling in here alone
     pop.append(list);
     d.body.append(pop);
-    const CHECK = '<svg class="cselect-pop__check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    const CHECK = '<svg class="i cselect-pop__check" aria-hidden="true"><use href="#i-check"/></svg>'; // the sprite's check, like every other icon
     let cur = null; // the dropdown that is open: { select, btn, anchor, hit, labelId }
     let active = -1;
     let typed = '';
     let typedAt = 0;
     const items = () => [...list.children];
+    const pickable = (li) => li && li.getAttribute('aria-disabled') !== 'true'; // e.g. not "May 2027 · Hajj season"
+    const move = (from, dir) => { // the next option that can be picked, going down (1) or up (-1)
+      const all = items();
+      for (let i = from + dir; i >= 0 && i < all.length; i += dir) if (pickable(all[i])) { setActive(i); return; }
+    };
     const setActive = (i, reveal = true) => {
       const all = items();
       if (!all.length) return;
@@ -1064,11 +1182,12 @@
       cur = c;
       list.innerHTML = '';
       [...c.select.options].forEach((o, k) => {
-        if (o.disabled || o.hidden) return; // e.g. the "Choose a service" prompt
+        if (o.hidden || (o.disabled && o.value === '')) return; // e.g. the "Choose a service" prompt
         const li = d.createElement('li');
         li.id = `${c.btn.id}-o${k}`;
         li.setAttribute('role', 'option');
         li.setAttribute('aria-selected', String(k === c.select.selectedIndex));
+        if (o.disabled) li.setAttribute('aria-disabled', 'true'); // listed, but can't be picked
         li.dataset.index = k;
         li.innerHTML = `<span></span>${CHECK}`;
         li.firstChild.textContent = o.text;
@@ -1080,7 +1199,7 @@
       c.btn.setAttribute('aria-expanded', 'true');
       c.anchor.classList.add('is-open');
       const sel = items().findIndex((li) => li.getAttribute('aria-selected') === 'true');
-      setActive(sel >= 0 ? sel : 0);
+      if (sel >= 0) setActive(sel); else move(-1, 1);
       list.focus({ preventScroll: true });
     };
     const choose = (li) => {
@@ -1094,19 +1213,19 @@
     };
     list.addEventListener('pointermove', (e) => {
       const li = e.target.closest('[role="option"]');
-      if (li) setActive(items().indexOf(li), false);
+      if (pickable(li)) setActive(items().indexOf(li), false);
     });
     list.addEventListener('click', (e) => {
       const li = e.target.closest('[role="option"]');
-      if (li) choose(li);
+      if (pickable(li)) choose(li);
     });
     list.addEventListener('keydown', (e) => {
       const all = items();
-      if (e.key === 'ArrowDown') setActive(active + 1);
-      else if (e.key === 'ArrowUp') setActive(active - 1);
-      else if (e.key === 'Home' || e.key === 'PageUp') setActive(0);
-      else if (e.key === 'End' || e.key === 'PageDown') setActive(all.length - 1);
-      else if (e.key === 'Enter' || e.key === ' ') { if (all[active]) choose(all[active]); }
+      if (e.key === 'ArrowDown') move(active, 1);
+      else if (e.key === 'ArrowUp') move(active, -1);
+      else if (e.key === 'Home' || e.key === 'PageUp') move(-1, 1);
+      else if (e.key === 'End' || e.key === 'PageDown') move(all.length, -1);
+      else if (e.key === 'Enter' || e.key === ' ') { if (pickable(all[active])) choose(all[active]); }
       else if (e.key === 'Escape') close(true);
       else if (e.key === 'Tab') { close(true); return; } // focus then moves on from the button, as with a normal select
       else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -1116,7 +1235,7 @@
         const from = typed.length === 1 ? active + 1 : active;
         for (let s = 0; s < all.length; s++) {
           const i = (from + s) % all.length;
-          if (all[i].textContent.trim().toLowerCase().startsWith(typed)) { setActive(i); break; }
+          if (pickable(all[i]) && all[i].textContent.trim().toLowerCase().startsWith(typed)) { setActive(i); break; }
         }
       } else return;
       e.preventDefault();
@@ -1158,10 +1277,22 @@
         const empty = !o || o.disabled || o.value === '';
         btn.classList.toggle('is-placeholder', empty);
         if (!empty) { wrap.classList.remove('is-invalid'); btn.removeAttribute('aria-invalid'); error.remove(); }
+        // data-locked (e.g. "When" for a Ramadan package): the field shows its one value and can't be opened. The
+        // hidden native select stays enabled, so the value is still sent with the form.
+        const locked = select.hasAttribute('data-locked');
+        if (locked && cur && cur.btn === btn) close(false);
+        btn.disabled = locked;
+        wrap.classList.toggle('is-locked', locked);
       };
       sync();
       select.addEventListener('change', sync);
-      new MutationObserver(sync).observe(select, { childList: true, subtree: true, characterData: true }); // the hero swaps options
+      // Coming back with Back (Chrome, when it doesn't keep the page whole) or refreshing in Firefox, the browser puts
+      // a typed-in form's choices back without a change event, so the button showed one service over another
+      // (24 Nov site check). Chrome does it just before pageshow. The hero planner opts out (autocomplete="off").
+      addEventListener('pageshow', sync);
+      new MutationObserver(sync).observe(select, { // the hero swaps options; "When" can be locked
+        childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-locked'],
+      });
       btn.addEventListener('click', () => (cur && cur.btn === btn ? close(true) : open(c)));
       btn.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(c); }
@@ -1279,25 +1410,54 @@
      the screen the whole way. It doesn't jump there: it glides after that point (damping with a 0.4 s time
      constant, the same at any frame rate), so a fast flick or a jump still reads as a smooth flight, and
      scrolling back rewinds it the same way. Each stop lights up when the plane on screen reaches it. CSS moves
-     the plane and the blue fill with transforms only (--p and --run on the line). */
-  const steps = $('[data-steps]');
-  const routeLine = steps && $('.route__line', steps);
-  if (routeLine) {
+     the plane and the blue fill with transforms only (--p and --run on the line). Every [data-steps] route on a page
+     gets its own plane: the home page's three steps and the Umrah page's five visa rules.
+     A route inside [data-pin] (the visa rules) whose first child is sticky (umrah.css, wide screens) follows the pin
+     instead: the plane leaves the first stop as the section sticks and lands on the last as it lets go. SHOW steps
+     fit side by side; once the plane passes the last of those, the track slides (--x, px) by the same amount as the
+     plane moves on, so the plane holds its place on the screen while the last steps come in under it. */
+  $$('[data-steps]').forEach((steps) => {
+    const routeLine = $('.route__line', steps);
+    if (!routeLine) return;
     const items = $$('.step', steps);
+    const pin = steps.closest('[data-pin]');
+    const stick = pin && pin.firstElementChild;
+    const track = $('.route__track', steps);
+    const SHOW = 3;
+    let pinned = false;
+    let stickTop = 0; // px from the top of the screen where the pinned panel stays
+    let slide = 0; // how far the track moves to bring in the last steps
     const START = 0.85; // the line this far down the screen: the plane leaves the first stop
     const END = 0.35; // the line's end this far down the screen: the plane lands on the last stop
     const TAU = 0.4; // seconds the plane takes to cover ~63% of the way that is left
+    // Pinned (the visa rules): the page itself already glides (smooth wheel above), so a second 0.4 s glide on top
+    // made the slide trail behind the scroll. It follows the page closely instead, with just enough easing to stay soft.
+    const TAU_PIN = 0.1;
     // Phones (steps stacked): the line runs from the first stop to the last one and no further. --tail is the last
     // step's height, so CSS ends the line at that step's stop; at[k] is where stop k sits along the line (0 → 1),
     // so each stop lights up as the plane reaches it, however long the text under each step is
+    // Stops are measured by their centres, so a route whose stops sit mid-card (.route--down, the Domestic tips) lands
+    // the plane on them too: --head-c / --tail-c are the first stop's centre from the top and the last one's from the bottom.
     let at = items.map((_, k) => k / (items.length - 1));
+    const stopAt = (it) => { const s = $('.route__stop', it); return s ? s.offsetTop + s.offsetHeight / 2 : 0; };
     const measure = () => {
       const last = items[items.length - 1];
       steps.style.setProperty('--tail', `${last.offsetHeight}px`);
-      const span = last.offsetTop - items[0].offsetTop;
-      at = items.map((it, k) => (span > 1 ? (it.offsetTop - items[0].offsetTop) / span : k / (items.length - 1)));
+      steps.style.setProperty('--head-c', `${stopAt(items[0]).toFixed(1)}px`);
+      steps.style.setProperty('--tail-c', `${(last.offsetHeight - stopAt(last)).toFixed(1)}px`);
+      const mid = (it) => it.offsetTop + stopAt(it);
+      const span = mid(last) - mid(items[0]);
+      at = items.map((it, k) => (span > 1 ? (mid(it) - mid(items[0])) / span : k / (items.length - 1)));
       const box = routeLine.getBoundingClientRect();
       routeLine.style.setProperty('--run', `${Math.max(box.width, box.height).toFixed(1)}px`); // length of the line
+      pinned = !!stick && getComputedStyle(stick).position === 'sticky';
+      if (pinned) {
+        // the panel's height lets CSS centre it on the screen (umrah.css "Visa rules"); the plane starts when it sticks
+        pin.style.setProperty('--stick-h', `${stick.offsetHeight}px`);
+        stickTop = parseFloat(getComputedStyle(stick).top) || 0;
+      }
+      slide = pinned && items.length > SHOW ? items[items.length - SHOW].offsetLeft - items[0].offsetLeft : 0;
+      if (track && !slide) track.style.removeProperty('--x');
     };
     let shown = 0;
     let goal = 0;
@@ -1307,19 +1467,25 @@
     const paint = () => {
       routeLine.style.setProperty('--p', shown.toFixed(4));
       items.forEach((it, k) => it.classList.toggle('is-on', shown >= at[k] * 0.98 && shown > 0.01));
+      if (track && slide) {
+        const from = at[SHOW - 1];
+        track.style.setProperty('--x', (slide * Math.min(1, Math.max(0, (shown - from) / (1 - from)))).toFixed(1));
+      }
     };
     const frame = (now) => {
       const dt = last ? Math.min(0.1, Math.max(0, (now - last) / 1000)) : 1 / 60;
       last = now;
-      shown = goal + (shown - goal) * Math.exp(-dt / TAU);
+      shown = goal + (shown - goal) * Math.exp(-dt / (pinned ? TAU_PIN : TAU));
       if (Math.abs(goal - shown) < 0.001) shown = goal; // under a pixel left: land, and stop the loop
       paint();
       raf = shown === goal ? 0 : requestAnimationFrame(frame);
     };
     const update = () => {
-      const r = routeLine.getBoundingClientRect();
+      const r = (pinned ? pin : routeLine).getBoundingClientRect();
       const vh = screenH; // steady while a phone's toolbars slide (see the top of this file)
-      goal = Math.min(1, Math.max(0, (vh * START - r.top) / (vh * (START - END) + r.height)));
+      goal = pinned
+        ? Math.min(1, Math.max(0, (stickTop - r.top) / Math.max(1, pin.offsetHeight - stick.offsetHeight)))
+        : Math.min(1, Math.max(0, (vh * START - r.top) / (vh * (START - END) + r.height)));
       // the steps start fading in as soon as the line comes onto the screen (the usual reveal waits until a block
       // is 8% in on desktop), so their text is in place by the time the plane leaves the first stop
       if (!revealed && r.top < vh) { revealed = true; items.forEach((it) => it.classList.add('in')); }
@@ -1335,10 +1501,10 @@
     };
     measure();
     if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); update(); }).observe(steps);
-    else addEventListener('resize', () => { measure(); update(); });
+    if (pin || !('ResizeObserver' in window)) addEventListener('resize', () => { measure(); update(); }); // the pin follows the window's height
     scrollFns.push(update);
     update();
-  }
+  });
 
   /* ---------- Counters (run only on real numbers) ---------- */
   let sampleVersion = 0;

@@ -1,0 +1,7 @@
+/* Shared notes for the site style files (bundled into /assets/css/site.css after styles.css).
+   - Scroll effects read a 0..1 progress from a CSS variable (default --p) written by MFX in js/site/00-core.js.
+   - Animate transform, opacity, clip-path and filter only, so nothing moves the layout.
+   - Without JavaScript (and for search engines) every section shows in its finished state: hide or offset
+     things only under html.js.
+   - Reduced motion: effects stay on, because they follow the visitor's own scrolling, but move shorter
+     distances (MFX.reduced()). Nothing loops or moves on its own except the hero videos, which can be paused. */

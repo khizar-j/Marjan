@@ -1,5 +1,5 @@
-// Writes partials/v2/tour-visas.html and partials/v2/visa-files.html (client priorities 1 and 2, Nov 2026).
-// Edit the country data below, then run from website/src:  node ../tools/countries.mjs partials/v2  (and rebuild).
+// Writes partials/home/tour-visas.html and partials/home/visa-files.html (client priorities 1 and 2, Nov 2026).
+// Edit the country data below, then run from website/src:  node ../tools/countries.mjs partials/home  (and rebuild).
 // Each country is a compact tile; tapping it opens a sheet (<dialog>) with the full details.
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -81,19 +81,20 @@ ${c.tour.map((t) => `            <li>{{icon check}}${esc(t)}</li>`).join('\n')}
       <p class="cs__links"><a class="link-arrow" href="/services/international-tour-packages/">International tour packages {{icon arrow-right}}</a><a class="link-arrow" href="/services/visa-consultancy/">Visa services {{icon arrow-right}}</a></p>
     </div>
     <div class="cs__cta">
-      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="International tour package" data-quote-note="${attr(`${c.name} tour package and visa`)}">{{icon mail}}Get a quote</a>
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="International tour package" data-quote-note="${attr(`${c.name} tour package and visa`)}">Get a quote</a>
       <a class="btn btn--outline" href="#" data-wa data-wa-msg="${attr(`${WA}I'd like details of your ${c.name} tour packages and visa.`)}">{{icon whatsapp}}Ask our team</a>
     </div>
   </div>
 </dialog>`;
 
 const tourHtml = `<!-- ============ 3b · TOUR PACKAGES & VISIT VISAS (client priority 1, Nov 2026)
-     Compact flag tiles; each opens a sheet with the full details (main.js "Country sheets"). No prices. ============ -->
+     Compact flag tiles; each opens a sheet with the full details (main.js "Country sheets"). No prices.
+     The title and lead are slots: the home page uses the defaults, the visa page passes its own. ============ -->
 <section class="cx-sec section" id="tour-packages-visas" aria-labelledby="cx-title">
   <div class="container">
     <div class="section-head section-head--split">
-      <h2 id="cx-title" data-reveal>International Tour Packages &amp; Visit Visas</h2>
-      <p class="section-head__lead" data-reveal style="--d:1">Our most-booked countries, as a complete holiday or just the visa. Tap a country to see what is included.</p>
+      <h2 id="cx-title" data-reveal>{{arg title|International Tour Packages &amp; Visit Visas}}</h2>
+      <p class="section-head__lead" data-reveal style="--d:1">{{arg lead|Our most-booked countries, as a complete holiday or just the visa. Tap a country to see what is included.}}</p>
     </div>
     <ul class="cx-grid">
 ${TOURS.map(tourTile).join('\n')}
@@ -166,7 +167,7 @@ ${SCHENGEN.map(([cc, n]) => `          <li>${flag(cc)}${n}</li>`).join('\n')}
       <p class="cs__links"><a class="link-arrow" href="/services/visa-consultancy/">Visa consultancy &amp; processing {{icon arrow-right}}</a></p>
     </div>
     <div class="cs__cta">
-      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Visa file processing" data-quote-note="${attr(c.quote)}">{{icon mail}}Get a quote</a>
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Visa file processing" data-quote-note="${attr(c.quote)}">Get a quote</a>
       <a class="btn btn--outline" href="#" data-wa data-wa-msg="${attr(`${WA}I'd like help with my ${c.name} visa file.`)}">{{icon whatsapp}}Ask our team</a>
     </div>
   </div>
