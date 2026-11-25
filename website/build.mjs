@@ -171,7 +171,7 @@ for (const [dir, bundle] of [['css', 'site.css'], ['js', 'site.js']]) {
   writeFileSync(join(OUT, 'assets', dir, bundle), parts.map((f) => `/* ---- site/${f} ---- */\n${readFileSync(join(from, f), 'utf8')}`).join('\n'));
   rmSync(join(OUT, 'assets', dir, 'site'), { recursive: true, force: true });
 }
-for (const f of ['robots.txt', 'llms.txt']) {
+for (const f of ['robots.txt', 'llms.txt', '_redirects']) {
   const p = join(SRC, f);
   if (existsSync(p)) cpSync(p, join(OUT, f));
 }
@@ -198,3 +198,16 @@ for (const file of pages) {
   writeFileSync(out, html);
   console.log(`built ${rel}  (${(Buffer.byteLength(html) / 1024).toFixed(1)} KB)`);
 }
+
+// sitemap.xml: every built page except noindex ones (the old /v2/ redirect), at its live URL.
+const SITE = 'https://marjantravels.com';
+const urls = pages
+  .filter((file) => !/<meta name="robots" content="[^"]*noindex/.test(readFileSync(file, 'utf8')))
+  .map((file) => '/' + relative(join(SRC, 'pages'), file).split('\\').join('/').replace(/index\.html$/, ''))
+  .sort();
+writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((u) => `  <url><loc>${SITE}${u}</loc></url>`).join('\n')}
+</urlset>
+`);
+console.log(`built sitemap.xml  (${urls.length} pages)`);

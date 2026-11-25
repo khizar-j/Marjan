@@ -1,12 +1,16 @@
 <!-- ============ 9 · REVIEWS (carousel, no photos). The cards are dealt in from the right as you scroll and their stars light up (js/site/40-closing.js) ============ -->
 <!-- SAMPLE REVIEWS FOR THE DESIGN PREVIEW ONLY. Before launch, replace every review below with a REAL Google review
      (first name, city, service, month), copied word for word. Never publish invented reviews. The visible "Sample reviews"
-     tag was removed on 24 Nov (user request), so nothing on the page marks these as samples any more: they still are.
+     tag (.rv-sample, below the heading) was put back for launch on 25 Nov: keep it until every review is real.
      No Review schema on this page. -->
 <section class="reviews section" aria-labelledby="reviews-title">
   <div class="container">
     <div class="rv-head">
-      <h2 id="reviews-title" data-reveal>What Our Travellers Say</h2>
+      <div>
+        <h2 id="reviews-title" data-reveal>What Our Travellers Say</h2>
+        <!-- Required while the reviews below are samples: remove this tag only when every review is a real one. -->
+        <p class="rv-sample" data-reveal>Sample reviews: real customer reviews coming soon</p>
+      </div>
       <div class="rv-nav" data-reveal style="--d:1">
         <button class="rv-btn rv-btn--prev" type="button" data-rv-prev aria-label="Previous reviews">{{icon arrow-right}}</button>
         <button class="rv-btn" type="button" data-rv-next aria-label="Next reviews">{{icon arrow-right}}</button>
