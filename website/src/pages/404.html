@@ -1,0 +1,41 @@
+{{> head}}
+<title>Page not found | Marjan Travel &amp; Tours</title>
+<meta name="description" content="This page could not be found. Go to the Marjan Travel &amp; Tours home page, our services, or contact us on WhatsApp.">
+<!-- 404 page: Cloudflare serves it for any address that does not exist (wrangler.jsonc "not_found_handling").
+     noindex, and the sitemap leaves it out. Links are root-relative, so it works at any depth. -->
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/service.css">
+<script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/service.js" defer></script>
+</head>
+<body class="has-hero site">
+{{> sprite}}
+{{> header}}
+
+<main id="main">
+
+<section class="uhero uhero--plain" aria-labelledby="uhero-title" data-uhero>
+  <div class="uhero__media" aria-hidden="true"></div>
+  <div class="container uhero__inner">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><span aria-current="page">Page not found</span></li>
+      </ol>
+    </nav>
+    <h1 class="uhero__title" id="uhero-title">Sorry, we couldn't find that page</h1>
+    <p class="uhero__lead">The link may be old or mistyped. Start from the home page, browse our Umrah, visa and tour services, or message us and we'll help you find what you need.</p>
+    <div class="uhero__btns">
+      <a class="btn btn--primary btn--lg" href="/">Go to home page</a>
+      <a class="btn btn--glass btn--lg" href="/services/">Our services</a>
+      <a class="btn btn--glass btn--lg" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like help planning a trip.">{{icon whatsapp}}WhatsApp us</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+{{> footer}}
+</body>
+</html>
