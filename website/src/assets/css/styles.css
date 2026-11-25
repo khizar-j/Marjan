@@ -1121,6 +1121,7 @@ html:not(.sample) .stat dd .ph { font-size: .5em; vertical-align: .35em; letter-
    REVIEWS — carousel with arrows, swipe and dots; no photos
    ========================================================================== */
 .rv-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 40px; margin-bottom: clamp(26px, 4vw, 42px); }
+.rv-sample { display: inline-block; margin: 10px 0 0; padding: 5px 10px; border-radius: 8px; font-size: .8rem; font-weight: 600; color: #6B4C00; background: rgba(255, 196, 40, .3); }
 .stars { display: inline-flex; gap: 2px; color: var(--gold); }
 .stars .i { width: 18px; height: 18px; }
 .rv-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
