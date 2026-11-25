@@ -10,7 +10,9 @@
     "command": "node website/build.mjs"
   },
   "assets": {
-    "directory": "./website/dist"
+    "directory": "./website/dist",
+    // Unknown addresses get website/src/pages/404.html with a 404 status.
+    "not_found_handling": "404-page"
   },
   "routes": [
     { "pattern": "marjantravels.com", "custom_domain": true },
