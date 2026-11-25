@@ -1,19 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Marjan Travel & Tours: static site served by Cloudflare Workers.
+  // Marjan Travel & Tours: static site served by Cloudflare Workers (assets only).
+  // Live at marjantravels.com since 25 Nov 2026. Old /design-branch/... preview
+  // addresses are 301-redirected to the real pages by website/src/_redirects.
   "name": "marjan",
   "compatibility_date": "2026-11-16",
-  // Pre-launch: worker.js serves the site under /design-branch and a
-  // "Coming soon" page everywhere else. Remove "main" and "run_worker_first" at launch.
-  "main": "worker.js",
   // Build the site into website/dist before every deploy.
   "build": {
     "command": "node website/build.mjs"
   },
   "assets": {
-    "directory": "./website/dist",
-    "binding": "ASSETS",
-    "run_worker_first": true
+    "directory": "./website/dist"
   },
   "routes": [
     { "pattern": "marjantravels.com", "custom_domain": true },

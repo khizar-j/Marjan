@@ -1,0 +1,3 @@
+# Old preview addresses: send them to the same page on the live site.
+/design-branch/* /:splat 301
+/design-branch / 301
