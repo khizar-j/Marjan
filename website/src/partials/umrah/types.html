@@ -1,0 +1,398 @@
+<!-- ============ UMRAH · PACKAGE TYPES (the same tiles and sheets as the home page's country sections:
+     main.js "Country sheets", css "COUNTRIES"; umrah.css "Package types"). Written by tools/umrah.mjs: edit the data
+     there, not here. No prices (client request). ============ -->
+<section class="cx-sec section" id="umrah-package-types" aria-labelledby="utypes-title">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <h2 id="utypes-title" data-reveal>Umrah Packages for Every Pilgrim</h2>
+      <p class="section-head__lead" data-reveal style="--d:1">Pick your hotel level and the way you travel. Tap a package to see what is included.</p>
+    </div>
+    <ul class="cx-grid">
+      <li data-reveal style="--d:0">
+        <button class="cx" type="button" data-cs-open="cs-u-economy" aria-haspopup="dialog" aria-controls="cs-u-economy">
+          <span class="cx__flag cx__flag--more">{{icon bus}}</span>
+          <span class="cx__meta"><strong>Economy</strong><small>Shuttle to the Haram</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:1">
+        <button class="cx" type="button" data-cs-open="cs-u-4-star" aria-haspopup="dialog" aria-controls="cs-u-4-star">
+          <span class="cx__flag cx__flag--more">{{icon hotel}}</span>
+          <span class="cx__meta"><strong>4-Star</strong><small>Walk to every prayer</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:2">
+        <button class="cx" type="button" data-cs-open="cs-u-5-star" aria-haspopup="dialog" aria-controls="cs-u-5-star">
+          <span class="cx__flag cx__flag--more">{{icon star}}</span>
+          <span class="cx__meta"><strong>5-Star &amp; VIP</strong><small>Steps from the Haram</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:3">
+        <button class="cx" type="button" data-cs-open="cs-u-family" aria-haspopup="dialog" aria-controls="cs-u-family">
+          <span class="cx__flag cx__flag--more">{{icon users}}</span>
+          <span class="cx__meta"><strong>Family</strong><small>Everyone together</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:0">
+        <button class="cx" type="button" data-cs-open="cs-u-two" aria-haspopup="dialog" aria-controls="cs-u-two">
+          <span class="cx__flag cx__flag--more">{{icon heart}}</span>
+          <span class="cx__meta"><strong>For 2 persons</strong><small>A double room</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:1">
+        <button class="cx" type="button" data-cs-open="cs-u-group" aria-haspopup="dialog" aria-controls="cs-u-group">
+          <span class="cx__flag cx__flag--more">{{icon compass}}</span>
+          <span class="cx__meta"><strong>Group</strong><small>With a group leader</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:2">
+        <button class="cx" type="button" data-cs-open="cs-u-ramadan" aria-haspopup="dialog" aria-controls="cs-u-ramadan">
+          <span class="cx__flag cx__flag--more">{{icon moon}}</span>
+          <span class="cx__meta"><strong>Ramadan {{season ramadan-year}}</strong><small>Book early</small></span>
+          <span class="cx__go">{{icon plus}}</span>
+        </button>
+      </li>
+      <li data-reveal style="--d:3">
+        <a class="cx cx--more" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like a custom Umrah package.">
+          <span class="cx__flag cx__flag--more">{{icon whatsapp}}</span>
+          <span class="cx__meta"><strong>Custom Umrah</strong><small>Ask on WhatsApp</small></span>
+          <span class="cx__go">{{icon arrow-up-right}}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<dialog class="cs cs--umrah" id="cs-u-economy" aria-labelledby="cs-u-economy-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1693590614566-1d3ea9ef32f7" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="Pilgrims in the courtyard of Masjid al-Haram, Makkah"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon bus}}</span>
+        <div><h3 id="cs-u-economy-t">Economy Umrah</h3><p>Shuttle to the Haram</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">Our most affordable option, with clean, comfortable hotels a short shuttle ride from the Haram.</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}Clean, comfortable hotels with a Haram shuttle</li>
+            <li>{{icon check}}Quad, triple or double rooms</li>
+            <li>{{icon check}}Coach transfers &amp; Makkah–Madinah transport</li>
+            <li>{{icon check}}Ziyarat in Makkah &amp; Madinah</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>Younger pilgrims, and anyone who wants the blessing of Umrah on a careful budget.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="Economy Umrah package">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your Economy Umrah packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="cs cs--umrah" id="cs-u-4-star" aria-labelledby="cs-u-4-star-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1580418827493-f2b22c0a76cb" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="Hotels and the clock tower beside Masjid al-Haram, Makkah"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon hotel}}</span>
+        <div><h3 id="cs-u-4-star-t">4-Star Umrah</h3><p>Walk to every prayer</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">The best balance of comfort and value, with hotels close enough to walk to every prayer.</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}4-star hotels within walking distance of the Haram</li>
+            <li>{{icon check}}Breakfast at most hotels</li>
+            <li>{{icon check}}Coach transfers &amp; Makkah–Madinah transport</li>
+            <li>{{icon check}}Ziyarat in Makkah &amp; Madinah</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>Families and pilgrims who want to walk to every prayer at a sensible price.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="4-Star Umrah package">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your 4-Star Umrah packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="cs cs--umrah" id="cs-u-5-star" aria-labelledby="cs-u-5-star-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1771170975771-0c14516310b1" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="The Abraj Al Bait clock tower above Masjid al-Haram, Makkah"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon star}}</span>
+        <div><h3 id="cs-u-5-star-t">5-Star &amp; VIP Umrah</h3><p>Steps from the Haram</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">Premium hotels steps from the Haram, many in the Abraj Al Bait (Clock Tower) area.</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}5-star hotels steps from the Haram</li>
+            <li>{{icon check}}Private airport transfers</li>
+            <li>{{icon check}}The Haramain high-speed train as an option</li>
+            <li>{{icon check}}Ziyarat in Makkah &amp; Madinah</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>Elderly pilgrims, and families who want the shortest walk to the mosque.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="5-Star &amp; VIP Umrah package">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your 5-Star &amp; VIP Umrah packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="cs cs--umrah" id="cs-u-family" aria-labelledby="cs-u-family-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1572358899655-f63ece97bfa5" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="Pilgrims walking in the courtyard of Masjid an-Nabawi, Madinah"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon users}}</span>
+        <div><h3 id="cs-u-family-t">Family Umrah</h3><p>Everyone together</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">Family rooms, child pricing and help for elderly parents, planned so the whole family stays together.</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}Family rooms planned around you</li>
+            <li>{{icon check}}Child pricing</li>
+            <li>{{icon check}}Wheelchair assistance for elders</li>
+            <li>{{icon check}}Transport that keeps you together</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>Parents, children and grandparents travelling as one group.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="Family Umrah package">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your Family Umrah packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="cs cs--umrah" id="cs-u-two" aria-labelledby="cs-u-two-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1591604129939-f1efa4d9f7fa" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="Masjid an-Nabawi in Madinah in the warm evening light"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon heart}}</span>
+        <div><h3 id="cs-u-two-t">Umrah for 2 Persons</h3><p>A double room</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">Popular with married couples and pairs of friends: a double room, with every other service the same as our group packages.</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}A double room, economy to 5-star</li>
+            <li>{{icon check}}Umrah visa &amp; return flights</li>
+            <li>{{icon check}}Transfers &amp; Makkah–Madinah transport</li>
+            <li>{{icon check}}Ziyarat in both cities</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>Married couples, and two friends or relatives travelling together.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="Umrah for 2 Persons package" data-quote-travellers="2">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your Umrah for 2 Persons packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="cs cs--umrah" id="cs-u-group" aria-labelledby="cs-u-group-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1591004272853-1462c050dca8" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="Umrah pilgrims around the Kaaba in Masjid al-Haram, Makkah"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon compass}}</span>
+        <div><h3 id="cs-u-group-t">Group Umrah</h3><p>With a group leader</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">Fixed-date departures with a group leader who guides you through every ritual.</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}Fixed departure dates</li>
+            <li>{{icon check}}A group leader for every ritual</li>
+            <li>{{icon check}}Women-friendly groups &amp; room sharing</li>
+            <li>{{icon check}}Guidance in Urdu before you fly</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>First-time pilgrims, women travelling without family, and anyone who prefers company.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="Group Umrah package">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your Group Umrah packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="cs cs--umrah" id="cs-u-ramadan" aria-labelledby="cs-u-ramadan-t">
+  <div class="cs__scrim" data-cs-close></div>
+  <div class="cs__box">
+    <button class="cs__close" type="button" data-cs-close aria-label="Close">{{icon close}}</button>
+    <div class="cs__head cs__head--photo">
+      {{img id="1780265861345-a787b955b505" ratio="16/9" widths="480,800,1200" sizes="(min-width: 760px) 720px, 100vw" w="800" alt="Masjid al-Haram at night during Ramadan"}}
+      <div class="cs__title">
+        <span class="cs__flag cs__flag--icon">{{icon moon}}</span>
+        <div><h3 id="cs-u-ramadan-t">Ramadan Umrah {{season ramadan-year}}</h3><p>Book early</p></div>
+      </div>
+    </div>
+    <div class="cs__body" data-native-scroll>
+      <p class="cs__lead">Ramadan {{season ramadan-hijri}} AH is expected to begin around {{season ramadan-start}}, subject to moon sighting. The Prophet ﷺ said that Umrah in Ramadan is equal in reward to Hajj (Sahih al-Bukhari and Sahih Muslim).</p>
+      <div class="cs__cols">
+        <div class="cs__col">
+          <h4>{{icon kaaba}}What you get</h4>
+          <ul class="cs__list">
+            <li>{{icon check}}Ramadan dates of your choice, including the last ten nights</li>
+            <li>{{icon check}}Hotels near the Haram, booked early</li>
+            <li>{{icon check}}Visa, flights &amp; transport included</li>
+            <li>{{icon check}}Guidance in Urdu before you fly</li>
+          </ul>
+        </div>
+        <div class="cs__col">
+          <h4>{{icon users}}Best for</h4>
+          <p>Pilgrims seeking the greatest reward. Hotels near the Haram sell out months ahead, so plan early.</p>
+          <p class="cs__note">Choose 7 to 28 days. We confirm your hotels, dates and price in a written quotation before you pay.</p>
+        </div>
+      </div>
+      <div class="cs__inc">
+        <p>Every package includes</p>
+        <ul>
+          <li>{{icon passport}}Umrah visa</li>
+          <li>{{icon plane}}Return flights</li>
+          <li>{{icon hotel}}Hotels</li>
+          <li>{{icon bus}}Transport</li>
+          <li>{{icon compass}}Ziyarat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cs__cta">
+      <a class="btn btn--primary" href="#get-a-quote" data-quote-pick="Umrah package" data-quote-note="Ramadan Umrah package">Get a quote</a>
+      <a class="btn btn--outline" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your Ramadan Umrah packages.">{{icon whatsapp}}Ask our team</a>
+    </div>
+  </div>
+</dialog>

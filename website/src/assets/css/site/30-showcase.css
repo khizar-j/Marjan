@@ -1,0 +1,43 @@
+/* Showcase sections: destinations and numbers.
+   js/site/30-showcase.js writes the scroll progress into --ds-e / --ds-l and the dot layer's own style.
+   Every value defaults to 1 (finished), so without JavaScript each section simply shows as it is.
+   All rules are scoped to body.site. */
+
+/* ---------- Destinations: the photo rises in and settles from a slightly larger size, the caption
+   follows, then the places slide in one by one ---------- */
+.site .dest .dsh { --ds-rise: 56px; --ds-grow: .06; --ds-cap: 22px; --ds-dx: 0px; --ds-sh: .1; }
+@media (min-width: 1024px) { .site .dest .dsh { --ds-dx: 40px; --ds-sh: 0; } }
+@media (prefers-reduced-motion: reduce) { .site .dest .dsh { --ds-rise: 14px; --ds-grow: .02; --ds-cap: 8px; --ds-sh: .04; } }
+@media (prefers-reduced-motion: reduce) and (min-width: 1024px) { .site .dest .dsh { --ds-dx: 12px; --ds-sh: 0; } }
+
+.js .site .dest .dsh__stage {
+  --k: calc(1 - var(--ds-e, 1));
+  translate: 0 calc(var(--k) * var(--ds-rise));
+  scale: calc(1 + var(--k) * var(--ds-grow));
+  opacity: clamp(0, .15 + var(--ds-e, 1) * 1.5, 1);
+}
+.js .site .dest .dsh:focus-within { --ds-e: 1 !important; --ds-l: 1 !important; } /* keyboard focus always shows every place */
+.js .site .dest .dsh__cap {
+  --t: clamp(0, var(--ds-l, 1) * 2.2 - .2, 1);
+  opacity: var(--t);
+  translate: 0 calc((1 - var(--t)) * var(--ds-cap));
+}
+.js .site .dest .dsh__list > li {
+  --t: clamp(0, (var(--ds-l, 1) - var(--i, 0) * .1) * 2, 1);
+  opacity: var(--t);
+  translate: calc((1 - var(--t)) * var(--ds-dx)) 0;
+  scale: calc(1 - (1 - var(--t)) * var(--ds-sh));
+}
+
+/* ---------- Numbers: a soft dot pattern drifts behind the figures as you scroll ---------- */
+.site .stats__sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.site .stats__dots {
+  position: absolute; inset: -20px -120px -20px 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, .26) 1.1px, transparent 1.7px) 0 0 / 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 95% at 50% 50%, transparent 30%, #000 85%);
+  mask-image: radial-gradient(ellipse 75% 95% at 50% 50%, transparent 30%, #000 85%);
+}
+
+/* while a figure counts, the running value (data-n) is drawn over the real one, which keeps its place and width */
+.site .stats [data-n] { display: inline-block; position: relative; color: transparent; }
+.site .stats [data-n]::after { content: attr(data-n); content: attr(data-n) / ""; position: absolute; inset: 0; text-align: right; color: #fff; white-space: nowrap; }

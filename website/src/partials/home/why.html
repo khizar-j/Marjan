@@ -1,0 +1,26 @@
+<!-- ============ 4 · WHY CHOOSE US (six reasons around an arch-shaped photo)
+     Scroll effect (js/site/20-story.js): the arch photo opens as you scroll and the reasons arrive one by one around it ============ -->
+<section class="why section section--dark" aria-labelledby="why-title">
+  <div class="container">
+    <div class="section-head section-head--center" data-reveal>
+      <h2 id="why-title">Why Travellers Choose Marjan Travel &amp; Tours</h2>
+    </div>
+    <div class="arch" data-arch>
+      <ul class="arch__col arch__col--l">
+        <li class="arch__item" data-arrive><span class="arch__icon">{{icon shield}}</span><div><h3>A licensed company</h3><p>Marjan Travel &amp; Tours is a licensed travel company with its own office in Bahria Town, Lahore, where you are always welcome to meet the team.</p></div></li>
+        <li class="arch__item" data-arrive><span class="arch__icon">{{icon layers}}</span><div><h3>One team for everything</h3><p>Visa, flights, hotels, transport and tours are handled together, so nothing falls through the gaps between different agents.</p></div></li>
+        <li class="arch__item" data-arrive><span class="arch__icon">{{icon receipt}}</span><div><h3>Clear, itemised pricing</h3><p>You receive a written quotation that lists every cost. No hidden charges appear after you pay.</p></div></li>
+      </ul>
+      <figure class="arch__media"><!-- the arch photo can differ per page: include this partial with photo="why/NAME" and photo-alt="…" to
+           use assets/img/why/NAME-900.webp (4:5; one file per photo since 24 Nov, user request); the home page keeps lake-camp, Services uses fairy-meadows (23 Nov) -->
+        <div class="arch__photo"><img src="/assets/img/{{arg photo|why/lake-camp}}-900.webp" sizes="(min-width: 1024px) 360px, 300px" alt="{{arg photo-alt|Two tents and three campers beside a turquoise mountain lake, with snow-capped peaks behind}}" width="640" height="800" loading="lazy" decoding="async"></div>
+        <figcaption class="arch__badge"><span class="arch__badge-icon">{{icon users}}</span><span><strong>5,500+ travellers</strong><small>helped in 6+ years</small></span></figcaption>
+      </figure>
+      <ul class="arch__col arch__col--r">
+        <li class="arch__item" data-arrive><span class="arch__icon">{{icon eye}}</span><div><h3>Honest visa advice</h3><p>If your file has a weak point, we tell you before you spend money on fees, and we show you how to strengthen it.</p></div></li>
+        <li class="arch__item" data-arrive><span class="arch__icon">{{icon headset}}</span><div><h3>Support while you travel</h3><p>Our WhatsApp support line is available from 9am to 9pm, 7 days a week, while you are on your trip.</p></div></li>
+        <li class="arch__item" data-arrive><span class="arch__icon">{{icon compass}}</span><div><h3>Local know-how</h3><p>Our tour team has travelled the routes we sell, from the Karakoram Highway to the streets of Istanbul, so our advice comes from experience.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>

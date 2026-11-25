@@ -1,0 +1,30 @@
+<!-- ============ UMRAH · HERO (the client's Umrah clip, looping, over its poster; service.js "Hero video")
+     The poster (the clip's first frame) shows at once; the muted clip is added after the page has loaded: -1080.mp4 on
+     most screens, -m.mp4 (an upright cut) on phones held upright. Save-Data and slow connections keep the poster only;
+     like the home page, it plays with reduced motion on too (the pause button stops it). The hero stays put while the
+     rest of the page rises over it (service.js "The sheet"). ============ -->
+<section class="uhero" aria-labelledby="uhero-title" data-uhero data-video="/assets/video/hero-umrah">
+  <div class="uhero__media">
+    <picture>
+      <source media="(max-width: 639.98px) and (orientation: portrait)" srcset="/assets/video/hero-umrah-m.webp">
+      <img src="/assets/video/hero-umrah.webp" width="1600" height="900" fetchpriority="high" alt="Pilgrims in white circling the Kaaba in Masjid al-Haram, Makkah: Umrah packages from Pakistan {{season-text season}}">
+    </picture>
+    <div class="uhero__shade" aria-hidden="true"></div>
+  </div>
+  <div class="container uhero__inner">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><a href="/services/">Services</a></li>
+        <li><span aria-current="page">Umrah Packages</span></li>
+      </ol>
+    </nav>
+    <h1 class="uhero__title" id="uhero-title">Umrah Packages {{season season}} from Pakistan</h1>
+    <p class="uhero__lead">All-inclusive 7 to 28-day Umrah packages from Lahore, Karachi, Islamabad and other cities: visa, flights, hotels and transport, arranged by one team.</p>
+    <div class="uhero__btns">
+      <a class="btn btn--primary btn--lg" href="#get-a-quote" data-quote-pick="Umrah package">Get an Umrah quote {{icon arrow-right}}</a>
+      <a class="btn btn--glass btn--lg" href="#" data-wa data-wa-msg="Assalam o Alaikum Marjan Travel &amp; Tours! I'd like details of your Umrah packages.">{{icon whatsapp}}WhatsApp our Umrah desk</a>
+    </div>
+  </div>
+  <button class="uhero__pause" type="button" data-uhero-pause aria-label="Pause the background video" hidden>{{icon pause}}{{icon play}}</button>
+</section>

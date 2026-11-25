@@ -1,0 +1,109 @@
+/* Story sections: Introduction, Services and Why choose us (behaviour in js/site/20-story.js).
+   Scroll progress arrives as CSS variables: --turn (seal), --fill / --in (services), --open (arch photo).
+   Without JavaScript every section shows in its finished state; starting states are set under .js only. */
+
+/* ---------- Intro: comes in with the scroll, then the statement lights up word by word ---------- */
+/* The introduction comes in once the page has risen halfway over the hero: js/site/10-hero.js writes the opacity,
+   translate and scale of .intro__aside and .intro__body inline (no CSS needed; without JavaScript they are shown) */
+.site .intro__statement .sw { opacity: .35; transition: opacity .45s var(--ease); }
+.site .intro__statement .sw.on, .site .intro__statement a:focus-visible .sw { opacity: 1; } /* a focused link is always fully lit */
+.site .intro__statement.is-split a:not(.on):not(:focus-visible) { background-size: 0 1.5px; } /* each link's underline draws once it is lit */
+.site .seal__ring { animation: none; rotate: calc(var(--turn, 0) * 300deg); }
+
+/* ---------- Services ---------- */
+/* Phones and tablets: every service open with its photo; the photo rises in and the line under it draws as it scrolls in */
+@media (max-width: 1023.98px) {
+  .site .svx__item .svx__media { display: block; aspect-ratio: 16 / 9; margin-bottom: 16px; } /* every row alike, the open one too */
+  .site .svx__panel { grid-template-rows: 1fr; }
+  .site .svx__title { color: var(--ink); }
+  .site .svx__item.is-shut .svx__media { display: none; }
+  .site .svx__item.is-shut .svx__panel { grid-template-rows: 0fr; }
+  .site .svx__item.is-shut .svx__title { color: var(--ink-3); }
+  /* between services: a plain grey divider (no blue line drawing in), easy to see on the tinted background */
+  .site .svx__list, .site .svx__item { border-color: rgba(11, 21, 51, .2); }
+  .site .svx__bar { display: none; }
+  .site .svx__head { padding-top: 40px; }
+  .site .svx__panel .link-arrow { margin-bottom: 40px; }
+  .js .site .svx__media { opacity: calc(.3 + var(--in, 0) * .7); translate: 0 calc((1 - var(--in, 0)) * 32px); scale: calc(.94 + var(--in, 0) * .06); }
+}
+/* Phones: compact rows (2:1 photo, the copy, then the link). The copy shows in full: it used to stop after three lines,
+   mid-sentence (audit, 22 Nov) */
+@media (max-width: 639.98px) {
+  .site .svx__head { padding-block: 32px 12px; gap: 14px; } /* 32px: 20px more room after each divider */
+  .site .svx__icon { width: 40px; height: 40px; }
+  .site .svx__item .svx__media { aspect-ratio: 2 / 1; margin-bottom: 12px; }
+  .site .svx__panel p { font-size: .95rem; line-height: 1.5; }
+  .site .svx__panel .link-arrow { margin: 6px 0 34px; } /* 34px: 20px more room before each divider */
+}
+/* Tablets: photo beside the text */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .site .svx__item { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: 32px; padding-top: 28px; }
+  .site .svx__item .svx__media { grid-area: 1 / 1 / 3; aspect-ratio: 4 / 3; margin: 0 0 28px; }
+  .site .svx__head { grid-area: 1 / 2; padding-top: 0; }
+  .site .svx__panel { grid-area: 2 / 2; }
+  .site .svx__bar { grid-area: 3 / 1 / 4 / 3; }
+}
+/* Desktop: list beside a photo frame. The photos sit in the frame like a vertical strip: the open service's photo is
+   in view, the ones before it wait above (.is-above) and the ones after it below. Moving down the list pushes the old
+   photo up and out while the next one rises in from the bottom; moving back up does the reverse. Only the photos
+   coming in or going out (.is-leaving, set for a moment by the JS) animate, so a jump never sweeps others across. */
+@media (min-width: 1024px) {
+  .site .svx__item:nth-child(2) { --d: 1; }
+  .site .svx__item:nth-child(3) { --d: 2; }
+  .site .svx__item:nth-child(4) { --d: 3; }
+  .site .svx__item:nth-child(5) { --d: 4; }
+  .js .site .svx__item[data-reveal] { translate: none; scale: none; } /* fade only: a moved (or scaled) row would hold the photo */
+  .site .svx__media, .site .svx__item.is-active .svx__media { opacity: 1; z-index: 0; background: none; transition: none; }
+  .site .svx__item.is-active .svx__media { z-index: 1; }
+  .site .svx__media img { translate: 0 100%; scale: 1.06; transition: none; }
+  .site .svx__item.is-above .svx__media img { translate: 0 -100%; }
+  .site .svx__item.is-active .svx__media img { animation: none; translate: none; scale: 1; }
+  .site .svx__item.is-active .svx__media img,
+  .site .svx__item.is-leaving .svx__media img { transition: translate .9s var(--ease-io), scale 1.3s var(--ease); }
+  .site .svx__bar, .site .svx__item.is-active .svx__bar { transform: scaleX(var(--fill, 0)); }
+}
+/* Pinned scene (about 1.8 extra screens of scrolling) in which the scroll steps through the services. The JS adds
+   .is-loose (a plain list) when the scene would not fit under the header; short laptops get tighter rows. */
+@media (min-width: 1024px) and (min-height: 650px) {
+  .js .site .svx { --svh: min(640px, var(--vh-l, 100vh) - var(--header-h) - 24px); min-height: var(--svh); }
+  .js .site .svx-track:not(.is-loose)::after { content: ""; display: block; height: calc(var(--vh-l, 100vh) * 1.8); }
+  .js .site .svx-track:not(.is-loose) .svx { position: sticky; top: calc(var(--header-h) + (var(--vh-l, 100vh) - var(--header-h) - var(--svh)) / 2); }
+}
+@media (min-width: 1024px) and (max-height: 739.98px) {
+  .site .svx__head { padding-block: 12px; }
+  .site .svx__panel .link-arrow { margin-block: 10px 16px; }
+}
+
+/* ---------- Why choose us ---------- */
+/* The arch photo opens from a small arch at the bottom and settles from a gentle zoom */
+.js .site .arch__media { --open: 0; }
+.site .arch__photo img { clip-path: inset(calc((1 - var(--open, 1)) * 30%) calc((1 - var(--open, 1)) * 24%) 0 round 999px 999px 28px 28px); scale: calc(1 + (1 - var(--open, 1)) * .25); }
+.site .arch__media::before { opacity: calc(.25 + var(--open, 1) * .75); scale: calc(.94 + var(--open, 1) * .06); }
+.js .site .arch__badge { opacity: 0; translate: -50% 14px; transition: opacity .5s var(--ease), translate .6s var(--ease); }
+.js .site .arch__media.is-open .arch__badge { opacity: 1; translate: -50% 0; }
+/* The reasons arrive one by one (their icons land a moment later) */
+.js .site [data-arrive] { opacity: 0; translate: 0 22px; transition: opacity .8s var(--ease) var(--wait, 0s), translate .9s var(--ease) var(--wait, 0s); }
+.js .site [data-arrive].in, .js .site .arch__col [data-arrive].in { opacity: 1; translate: none; }
+@media (max-width: 1023.98px) { .js .site [data-arrive] { transition-duration: .45s; } } /* phones and tablets: quicker */
+.site .arch__icon { transition: background-color .3s, color .3s, box-shadow .3s, transform .45s var(--ease), scale .7s cubic-bezier(.3, 1.45, .5, 1) calc(var(--wait, 0s) + .18s); }
+.js .site [data-arrive]:not(.in) .arch__icon { scale: .55; }
+@media (min-width: 1024px) { /* from the arch outwards */
+  .js .site .arch__col--l [data-arrive] { translate: 40px 0; }
+  .js .site .arch__col--r [data-arrive] { translate: -40px 0; }
+}
+
+/* ---------- Reduced motion: same scroll-led effects, shorter moves, no zoom ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .site .seal__ring { rotate: calc(var(--turn, 0) * 120deg); }
+  .site .arch__photo img { scale: 1; }
+  .site .arch__media::before { scale: 1; }
+  .js .site .arch__badge { translate: -50% 4px; }
+  .js .site [data-arrive], .js .site .arch__col--l [data-arrive], .js .site .arch__col--r [data-arrive] { translate: 0 8px; }
+  .js .site [data-arrive]:not(.in) .arch__icon { scale: .9; }
+}
+@media (max-width: 1023.98px) and (prefers-reduced-motion: reduce) {
+  .js .site .svx__media { translate: 0 calc((1 - var(--in, 0)) * 8px); scale: none; }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) { /* the photos still push up (asked for), with no zoom */
+  .site .svx__media img, .site .svx__item.is-active .svx__media img { scale: 1; }
+}

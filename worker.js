@@ -128,7 +128,7 @@ export default {
         .on('[data-src]', rewriteAttr('data-src'))
         .on('[action]', rewriteAttr('action'))
         .on('[poster]', rewriteAttr('poster'))
-        // v2 hero: js/v2/10-hero.js builds the clip URLs from data-video (`${data-video}-m.mp4`)
+        // Hero videos: js/site/10-hero.js builds the clip URLs from data-video (`${data-video}-m.mp4`)
         .on('[data-video]', rewriteAttr('data-video'))
         // the phone posters in the hero <picture> (<source srcset> / data-srcset until needed), preload imagesrcset
         .on('[srcset]', rewriteAttr('srcset', prefixSrcset))

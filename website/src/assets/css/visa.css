@@ -1,0 +1,290 @@
+/* Visa page only (22 Nov, user request: a richer version of two sections, to try here first; if the client likes them,
+   move these rules into service.css and use them on the other pages). Loaded after service.css. Script: visa.js.
+   - Document checklist (.udocs): choose a visa, the documents it needs stay bright, tick what you have; the navy card
+     counts them and sends the list on WhatsApp. Each group of documents is an accordion that closes by itself once
+     every document in it is ticked. Phones and tablets (23 Nov, user request): the visa tabs (one row) and a one-line
+     count stick under the top bar as one navy bar, so both stay in sight down the long list. A document the chosen
+     visa does not need (.udoc.is-off, 24 Nov, user request) is greyed and can't be ticked, and shows its own status
+     chip (.udoc__off, "Not required for a … visa") on a line under the text, beside the visa tag (.udoc__meta)
+   - Why visas are refused (.urisk, navy): five reasons as tabs beside one panel on desktop, an accordion on phones;
+     the panel is navy glass with a soft red and a soft blue block, in the section's own colours (23 Nov, user request:
+     the white panel stood apart from the dark section); then the promise as four cards (.upledge), a swipe row on
+     phones */
+
+/* ---------- Document checklist ---------- */
+.udocs__grid { display: grid; gap: 20px; }
+@media (min-width: 960px) {
+  .udocs__grid { grid-template-columns: minmax(300px, .72fr) minmax(0, 1.28fr); gap: clamp(28px, 3.6vw, 56px); align-items: start; }
+  .udocs__aside { position: sticky; top: calc(var(--header-h) + 24px); display: grid; gap: 16px; }
+}
+/* the visa choice: four radio rows, each with how many documents it needs */
+.udocs__types { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.udocs__types legend { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* "Your visa": for screen readers; no eyebrow on screen */
+.udocs__type {
+  position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px 10px 10px;
+  border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1.5px var(--mist-200); cursor: pointer; transition: box-shadow .25s, background-color .25s;
+}
+.udocs__type:hover { box-shadow: inset 0 0 0 1.5px var(--blue-300); }
+.udocs__type input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+.udocs__ti { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--blue-50); color: var(--blue-600); transition: background-color .25s, color .25s; }
+.udocs__ti .i { width: 20px; height: 20px; }
+.udocs__tn { display: grid; font-size: .98rem; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+.udocs__tn small { font-size: .8rem; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
+.udocs__tc { display: grid; place-items: center; min-width: 32px; height: 26px; padding: 0 8px; border-radius: 999px; background: var(--mist-100); font-size: .8rem; font-weight: 800; color: var(--ink-3); transition: background-color .25s, color .25s; }
+.udocs__type:has(input:checked) { background: var(--blue-50); box-shadow: inset 0 0 0 2px var(--blue-600); }
+.udocs__type:has(input:checked) .udocs__ti { background: var(--blue-600); color: #fff; }
+.udocs__type:has(input:checked) .udocs__tc { background: var(--blue-600); color: #fff; }
+.udocs__type:has(input:focus-visible) { outline: 2px solid var(--blue-500); outline-offset: 2px; }
+
+/* the navy card: a ring that fills as you tick, what is left, and the WhatsApp button */
+.udocs__card {
+  display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 18px; align-items: center; padding: clamp(20px, 2.4vw, 26px);
+  border-radius: var(--r-lg); color: #fff; box-shadow: var(--shadow-1);
+  background: radial-gradient(90% 120% at 100% 0%, rgba(47, 164, 245, .28), rgba(47, 164, 245, 0) 60%), linear-gradient(150deg, var(--navy-800), var(--navy-950));
+}
+.udocs__meter { position: relative; width: 76px; height: 76px; }
+.udocs__meter svg { display: block; width: 100%; height: 100%; rotate: -90deg; }
+.udocs__track, .udocs__fill { fill: none; stroke-width: 7; }
+.udocs__track { stroke: rgba(255, 255, 255, .14); }
+.udocs__fill { stroke: var(--blue-300); stroke-linecap: round; stroke-dasharray: var(--p, 0) 100; transition: stroke-dasharray .6s var(--ease), stroke .3s; }
+.udocs__card.is-empty .udocs__fill { opacity: 0; }
+.udocs__card.is-done .udocs__fill { stroke: #6EE7A8; }
+.udocs__num { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; }
+.udocs__num > span { font-size: .8rem; font-weight: 650; color: rgba(255, 255, 255, .62); }
+.udocs__num { grid-auto-flow: column; justify-content: center; align-items: center; gap: 1px; }
+.udocs__status strong { display: block; font-size: 1.06rem; letter-spacing: -.01em; }
+.udocs__status p { margin-top: 4px; font-size: .88rem; color: rgba(255, 255, 255, .76); }
+.udocs__send { grid-column: 1 / -1; justify-content: center; width: 100%; background: #fff; color: var(--blue-700); box-shadow: none; }
+.udocs__send:hover { background: var(--mist-100); }
+.udocs__send .i { color: var(--wa); }
+.udocs__fine { grid-column: 1 / -1; margin-top: -8px; font-size: .78rem; text-align: center; color: rgba(255, 255, 255, .62); }
+.udocs__mini { display: none; } /* the one-line count, phones and tablets only */
+
+/* the three groups of documents */
+.udocs__list { display: grid; gap: 16px; }
+.udocs__group { padding: 8px; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-1); }
+/* each group's title is a button: tap to close or open it; it closes by itself once all its documents are ticked */
+.udocs__gh { font-size: 1.06rem; line-height: 1.3; letter-spacing: -.01em; }
+.udocs__gh button {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 0; border-radius: 14px;
+  background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; transition: background-color .2s;
+}
+.udocs__gh button:hover { background: var(--mist-50); }
+.udocs__gh button:focus-visible { outline: 2px solid var(--blue-500); outline-offset: 2px; }
+.udocs__gt { min-width: 0; }
+.udocs__gh small { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: var(--mist-100); font-family: var(--font-body); font-size: .78rem; font-weight: 700; letter-spacing: 0; color: var(--ink-3); white-space: nowrap; transition: background-color .3s, color .3s; }
+.udocs__gh small.is-done { background: var(--blue-50); color: var(--blue-600); }
+.udocs__gicon { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: var(--blue-50); color: var(--blue-600); transition: background-color .3s, color .3s; }
+.udocs__gicon .i { width: 19px; height: 19px; }
+.udocs__group.is-done .udocs__gicon { background: var(--blue-600); color: #fff; }
+.udocs__chev { flex: none; width: 20px; height: 20px; color: var(--ink-3); rotate: 180deg; transition: rotate .35s var(--ease); }
+.udocs__group.is-shut .udocs__chev { rotate: 0deg; }
+/* the documents fold away smoothly (grid rows 1fr to 0fr), and leave the tab order once folded */
+.udocs__body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .5s var(--ease-io), opacity .35s; }
+.udocs__body > ul { min-height: 0; overflow: hidden; transition: visibility 0s; }
+.udocs__group.is-shut .udocs__body { grid-template-rows: 0fr; opacity: 0; }
+.udocs__group.is-shut .udocs__body > ul { visibility: hidden; transition: visibility 0s .5s; }
+.udocs.is-still .udocs__body, .udocs.is-still .udocs__body > ul, .udocs.is-still .udocs__chev { transition: none; }
+/* the fold stays under reduced motion, like the FAQ's: it is a gentle change of height, not a slide or a zoom */
+.udoc label {
+  position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px 14px; align-items: start; padding: 12px;
+  border-radius: 14px; cursor: pointer; transition: background-color .2s;
+}
+.udoc label:hover { background: var(--mist-50); }
+.udoc input { position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0; }
+.udoc__box {
+  display: grid; place-items: center; width: 26px; height: 26px; margin-top: 1px; border-radius: 8px; background: #fff;
+  box-shadow: inset 0 0 0 2px var(--mist-300); transition: background-color .2s, box-shadow .2s;
+}
+.udoc__box .i { width: 16px; height: 16px; color: #fff; stroke-width: 3; opacity: 0; scale: .5; transition: opacity .2s, scale .25s var(--ease); }
+.udoc label:hover .udoc__box { box-shadow: inset 0 0 0 2px var(--blue-300); }
+.udoc input:checked + .udoc__box { background: var(--blue-600); box-shadow: none; }
+.udoc input:checked + .udoc__box .i { opacity: 1; scale: 1; }
+.udoc input:focus-visible + .udoc__box { outline: 2px solid var(--blue-500); outline-offset: 2px; }
+.udoc input:checked ~ .udoc__text strong { color: var(--blue-700); }
+.udoc:has(input:checked) label { background: var(--blue-50); }
+.udoc__text { font-size: .94rem; line-height: 1.55; color: var(--ink-2); }
+.udoc__text strong { color: var(--ink); font-weight: 650; transition: color .2s; }
+/* the visas a document is for, and its status, on their own line under the text (24 Nov, user request: the status
+   used to follow the sentence and read as part of it) */
+.udoc__meta { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.udoc__tag { padding: 2px 10px; border-radius: 999px; background: var(--mist-100); font-size: .75rem; font-weight: 700; line-height: 1.6; color: var(--ink-3); white-space: nowrap; transition: opacity .3s; }
+.udoc__off {
+  display: none; align-items: center; gap: 5px; padding: 2px 10px 2px 6px; border-radius: 999px; background: #fff;
+  box-shadow: inset 0 0 0 1px var(--mist-300); font-size: .75rem; font-weight: 700; line-height: 1.6; color: var(--ink-2); white-space: nowrap;
+}
+.udoc__off .i { flex: none; width: 14px; height: 14px; padding: 2px; border-radius: 50%; background: var(--mist-200); color: var(--ink-2); stroke-width: 3; }
+/* not required for the visa you chose: can't be ticked (the box is disabled in visa.js), faded, and the chip says why */
+.udoc.is-off label, .udoc.is-off label:hover { cursor: default; background: none; }
+.udoc.is-off .udoc__box, .udoc.is-off label:hover .udoc__box { background: var(--mist-100); box-shadow: inset 0 0 0 2px var(--mist-200); }
+.udoc.is-off .udoc__text, .udoc.is-off .udoc__tag { opacity: .5; }
+.udoc.is-off .udoc__off { display: inline-flex; }
+.udoc__text { transition: opacity .3s; }
+@media (max-width: 639.98px) {
+  .udocs__group { padding: 4px; }
+  .udocs__gh { font-size: 1rem; }
+  .udocs__gh button { gap: 10px; padding: 10px; }
+  .udocs__gicon { width: 34px; height: 34px; border-radius: 10px; }
+  .udocs__gicon .i { width: 18px; height: 18px; }
+  .udoc label { gap: 8px 12px; padding: 12px 10px; }
+  .udoc__text { font-size: .9rem; }
+}
+
+/* phones and tablets: one navy bar sticks under the top bar (and moves up when the top bar slides away): the four
+   visa tabs in one row, then the ring, a one-line count and a small Send button. The list scrolls under it. */
+@media (max-width: 959.98px) {
+  .udocs__grid { display: block; } /* a sticky item in a grid can only move inside its own grid cell */
+  .udocs__aside {
+    position: sticky; top: calc(var(--header-h) + 8px); z-index: 6; display: grid; gap: 10px; padding: 8px;
+    border-radius: 22px; color: #fff; box-shadow: var(--shadow-2);
+    background: radial-gradient(80% 140% at 100% 0%, rgba(47, 164, 245, .24), rgba(47, 164, 245, 0) 60%), linear-gradient(150deg, var(--navy-800), var(--navy-950));
+    transition: top .3s var(--ease);
+  }
+  body:has(.site-header.is-hidden) .udocs__aside { top: 8px; }
+  .udocs__list { margin-top: 14px; }
+  .udocs__types { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .udocs__type {
+    grid-template-columns: none; justify-items: center; align-content: center; gap: 3px; min-height: 42px; padding: 9px 4px; border-radius: 14px;
+    background: rgba(255, 255, 255, .07); box-shadow: none; text-align: center;
+  }
+  .udocs__type:hover { box-shadow: none; background: rgba(255, 255, 255, .12); }
+  .udocs__ti { width: auto; height: auto; border-radius: 0; background: none; color: var(--blue-300); }
+  .udocs__ti .i { width: 18px; height: 18px; }
+  .udocs__tn { font-size: .8rem; line-height: 1.2; letter-spacing: 0; color: rgba(255, 255, 255, .88); }
+  .udocs__tn small, .udocs__tc { display: none; }
+  .udocs__type:has(input:checked) { background: #fff; box-shadow: none; }
+  .udocs__type:has(input:checked) .udocs__ti { background: none; color: var(--blue-600); }
+  .udocs__type:has(input:checked) .udocs__tn { color: var(--ink); }
+  .udocs__type:has(input:focus-visible) { outline-color: var(--blue-300); }
+  /* the count: no card of its own, one line in the bar */
+  .udocs__card { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; padding: 0 0 0 4px; border-radius: 0; background: none; box-shadow: none; }
+  .udocs__meter { width: 44px; height: 44px; }
+  .udocs__track, .udocs__fill { stroke-width: 8; }
+  .udocs__num { font-size: .875rem; }
+  .udocs__num > span { font-size: .75rem; }
+  .udocs__status strong, .udocs__status p, .udocs__fine { display: none; }
+  .udocs__mini { display: grid; min-width: 0; line-height: 1.25; }
+  .udocs__mini b { overflow: hidden; font-size: .9rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .udocs__mini small { overflow: hidden; font-size: .75rem; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; color: rgba(255, 255, 255, .7); }
+  .udocs__card.is-done .udocs__mini b { color: #6EE7A8; }
+  .udocs__send { grid-column: auto; --h: 40px; gap: 7px; width: auto; padding: 0 15px; font-size: .875rem; }
+  .udocs__send .i { width: 18px; height: 18px; }
+}
+/* phones: "Send" alone, and the visa tabs as words only (no icons) */
+@media (max-width: 559.98px) {
+  .udocs__opt, .udocs__ti { display: none; }
+  .udocs__tn { font-size: .82rem; }
+}
+@media (max-width: 359.98px) { .udocs__tn { font-size: .75rem; } }
+@media (min-width: 560px) and (max-width: 959.98px) {
+  /* tablets: room for the icon beside the name */
+  .udocs__type { grid-auto-flow: column; justify-content: center; align-items: center; gap: 8px; padding: 10px 8px; }
+  .udocs__tn { font-size: .9rem; }
+}
+
+/* ---------- Why visas are refused (navy) ---------- */
+.urisk .section-head__lead { color: rgba(255, 255, 255, .78); }
+.urisk__wrap { display: grid; gap: 10px; }
+.urisk__tab {
+  display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: 0; border-radius: var(--r);
+  background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); color: #fff; font: inherit;
+  text-align: left; cursor: pointer; transition: background-color .25s, box-shadow .25s;
+}
+.urisk__tab:hover { background: rgba(255, 255, 255, .09); }
+.urisk__tab:focus-visible { outline: 2px solid var(--blue-300); outline-offset: 2px; }
+.urisk__n { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(124, 196, 250, .14); color: var(--blue-300); font-size: .92rem; font-weight: 800; transition: background-color .25s, color .25s; }
+.urisk__t { display: grid; gap: 2px; min-width: 0; }
+.urisk__t strong { font-size: 1.02rem; letter-spacing: -.01em; }
+.urisk__t small { font-size: .82rem; color: rgba(255, 255, 255, .64); transition: color .25s; }
+.urisk__chev { flex: none; width: 20px; height: 20px; margin-left: auto; color: rgba(255, 255, 255, .6); transition: rotate .3s var(--ease), color .25s; }
+.urisk__item.is-open .urisk__n { background: var(--blue-500); color: #fff; }
+
+.urisk__panel {
+  padding: clamp(18px, 2.6vw, 34px); border-radius: var(--r-lg); color: #fff;
+  background: radial-gradient(70% 90% at 100% 0%, rgba(47, 164, 245, .16), rgba(47, 164, 245, 0) 65%), rgba(255, 255, 255, .05);
+  box-shadow: inset 0 0 0 1px rgba(124, 196, 250, .22);
+}
+.urisk__h { font-size: clamp(1.35rem, 1.1rem + .8vw, 1.75rem); color: #fff; }
+.urisk__bad, .urisk__good { padding: 18px 20px; border-radius: var(--r); }
+.urisk__bad { margin-top: 20px; background: rgba(240, 68, 56, .09); box-shadow: inset 0 0 0 1px rgba(253, 162, 155, .2); }
+.urisk__good { margin-top: 12px; background: rgba(124, 196, 250, .08); box-shadow: inset 0 0 0 1px rgba(124, 196, 250, .2); }
+.urisk__label { display: inline-flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; letter-spacing: -.01em; color: #fff; } /* a plain heading, not an uppercase eyebrow */
+.urisk__label .i { width: 24px; height: 24px; padding: 5px; border-radius: 50%; color: #fff; stroke-width: 3; }
+.urisk__bad .urisk__label .i { background: #E5483D; }
+.urisk__good .urisk__label .i { background: var(--blue-500); }
+.urisk__bad p { margin-top: 10px; font-size: 1rem; font-weight: 600; line-height: 1.5; color: #fff; }
+.urisk__good ul { display: grid; gap: 10px; margin-top: 12px; }
+.urisk__good li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; font-size: .94rem; line-height: 1.5; color: rgba(255, 255, 255, .84); }
+.urisk__good li .i { width: 18px; height: 18px; margin-top: 2px; color: var(--blue-300); stroke-width: 2.6; }
+
+/* phones and tablets: an accordion; the open reason becomes one glass card, its title already in the button */
+@media (max-width: 959.98px) {
+  .urisk__item { border-radius: var(--r); transition: background-color .3s, box-shadow .3s; }
+  .urisk__item.is-open { background: rgba(124, 196, 250, .08); box-shadow: inset 0 0 0 1.5px rgba(124, 196, 250, .4); }
+  .urisk__item.is-open .urisk__tab { background: transparent; box-shadow: none; }
+  .urisk__item.is-open .urisk__chev { rotate: 180deg; color: var(--blue-300); }
+  .urisk__panel { padding: 0; background: none; box-shadow: none; }
+  .urisk__h { display: none; }
+  .urisk__bad { margin-top: 2px; }
+  .urisk__bad, .urisk__good { margin-inline: 16px; padding: 16px; }
+  .urisk__good { margin-bottom: 16px; } /* spacing as margins inside the wrapper, so a folded panel is truly 0px */
+  /* the fold: the same as the document groups, opening and closing (ease-in-out: it starts and lands softly) */
+  .js .urisk__panel { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .5s var(--ease-io), opacity .35s; }
+  .js .urisk__in { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s .5s; }
+  .js .urisk__item.is-open .urisk__panel { grid-template-rows: 1fr; opacity: 1; }
+  .js .urisk__item.is-open .urisk__in { visibility: visible; transition: visibility 0s; }
+  .urisk__bad p { font-size: .95rem; }
+}
+/* desktop: the five reasons on the left, the open one's panel on the right */
+@media (min-width: 960px) {
+  .js .urisk__wrap { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); grid-template-rows: repeat(5, auto) 1fr; gap: 10px clamp(32px, 4vw, 56px); }
+  .js .urisk__item { display: contents; }
+  .js .urisk__tab { grid-column: 1; padding: 16px 18px; }
+  .js .urisk__item:nth-child(1) .urisk__tab { grid-row: 1; }
+  .js .urisk__item:nth-child(2) .urisk__tab { grid-row: 2; }
+  .js .urisk__item:nth-child(3) .urisk__tab { grid-row: 3; }
+  .js .urisk__item:nth-child(4) .urisk__tab { grid-row: 4; }
+  .js .urisk__item:nth-child(5) .urisk__tab { grid-row: 5; }
+  /* One card that never changes height: all five panels share its grid cell (hidden ones still take room, so the cell
+     is as tall as the longest reason). The card is drawn once, behind them (::before), and stays still while the
+     text of one reason fades out and the next fades in. No drop shadow: the site uses none on navy. */
+  .js .urisk__wrap::before {
+    content: ""; grid-column: 2; grid-row: 1 / -1; border-radius: var(--r-lg);
+    background: radial-gradient(70% 90% at 100% 0%, rgba(47, 164, 245, .16), rgba(47, 164, 245, 0) 65%), rgba(255, 255, 255, .05);
+    box-shadow: inset 0 0 0 1px rgba(124, 196, 250, .22);
+  }
+  .js .urisk__panel {
+    grid-column: 2; grid-row: 1 / -1; align-self: stretch; background: none; box-shadow: none;
+    opacity: 0; visibility: hidden; transition: opacity .3s var(--ease-io), visibility 0s .3s;
+  }
+  .js .urisk__item.is-open .urisk__panel { opacity: 1; visibility: visible; transition: opacity .4s var(--ease-io) .1s, visibility 0s; }
+  .js .urisk__chev { rotate: -90deg; opacity: 0; transition: opacity .25s, translate .3s var(--ease); }
+  .js .urisk__tab:hover .urisk__chev { opacity: 1; }
+  .js .urisk__item.is-open .urisk__tab { background: rgba(124, 196, 250, .14); box-shadow: inset 0 0 0 1.5px rgba(124, 196, 250, .55); }
+  .js .urisk__item.is-open .urisk__chev { opacity: 1; color: var(--blue-300); translate: 4px 0; }
+}
+
+/* ---------- The promise: four cards under the reasons ---------- */
+.upledge { display: grid; gap: 28px; margin-top: clamp(48px, 6vw, 80px); padding-top: clamp(40px, 5vw, 56px); border-top: 1px solid rgba(255, 255, 255, .12); }
+@media (min-width: 960px) { .upledge { grid-template-columns: minmax(0, .82fr) minmax(0, 2.2fr); gap: clamp(32px, 4vw, 56px); align-items: start; } }
+.upledge__head h3 { font-size: clamp(1.45rem, 1.15rem + 1vw, 2rem); line-height: 1.15; color: #fff; }
+.upledge__head p { margin-top: 10px; color: rgba(255, 255, 255, .74); }
+.upledge__grid { display: grid; gap: 12px; }
+@media (min-width: 640px) { .upledge__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
+/* phones: one row you swipe sideways, a card and a half in view (so the next one shows there is more), edge to edge
+   like the tour cards (.tours__grid in styles.css) */
+@media (max-width: 639.98px) {
+  .upledge__grid {
+    grid-auto-flow: column; grid-auto-columns: 70%; column-gap: 12px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scrollbar-width: none; margin-inline: calc(var(--gutter) * -1); padding: 2px var(--gutter) 6px;
+    scroll-padding-inline: var(--gutter);
+  }
+  .upledge__grid::-webkit-scrollbar { display: none; }
+  .upledge__grid li { scroll-snap-align: start; padding: 20px; }
+}
+.upledge__grid li { padding: 22px; border-radius: var(--r); background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: background-color .3s; }
+.upledge__grid li:hover { background: rgba(255, 255, 255, .08); }
+.upledge__i { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(124, 196, 250, .14); color: var(--blue-300); }
+.upledge__i .i { width: 21px; height: 21px; }
+.upledge__grid h4 { margin-top: 14px; font-size: 1.06rem; letter-spacing: -.01em; color: #fff; }
+.upledge__grid p { margin-top: 6px; font-size: .92rem; line-height: 1.55; color: rgba(255, 255, 255, .78); }
