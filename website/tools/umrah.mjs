@@ -152,13 +152,14 @@ const TYPES = [
     lead: 'Fixed-date departures with a group leader who guides you through every ritual.',
     gets: ['Fixed departure dates', 'A group leader for every ritual', 'Women-friendly groups & room sharing', 'Guidance in Urdu before you fly'],
     best: 'First-time pilgrims, women travelling without family, and anyone who prefers company.' },
-  { k: 'ramadan', icon: 'moon', name: 'Ramadan Umrah {{season ramadan-year}}', plain: 'Ramadan Umrah', short: 'Ramadan {{season ramadan-year}}', sub: 'Book early', img: '1780265861345-a787b955b505', alt: 'Masjid al-Haram at night during Ramadan',
+  { k: 'ramadan', icon: 'moon', name: 'Ramadan Umrah', short: 'Ramadan', sub: 'Book early', img: '1780265861345-a787b955b505', alt: 'Masjid al-Haram at night during Ramadan',
     lead: 'Ramadan {{season ramadan-hijri}} AH is expected to begin around {{season ramadan-start}}, subject to moon sighting. The Prophet ﷺ said that Umrah in Ramadan is equal in reward to Hajj (Sahih al-Bukhari and Sahih Muslim).',
     gets: ['Ramadan dates of your choice, including the last ten nights', 'Hotels near the Haram, booked early', 'Visa, flights & transport included', 'Guidance in Urdu before you fly'],
     best: 'Pilgrims seeking the greatest reward. Hotels near the Haram sell out months ahead, so plan early.' },
 ];
 // Ramadan dates are {{season}} shortcodes (build.mjs, assets/js/seasons.js), so they move on to the next Ramadan by
-// themselves; `plain` is the name without them, for attributes (the quote note, the WhatsApp message).
+// themselves. No year in the names (client request 27 Nov: "Ramadan packages", not "Ramadan 2027"); `plain`, when
+// set, is the name for attributes (the quote note, the WhatsApp message).
 const tile = (t, i) => `      <li data-reveal style="--d:${i % 4}">
         <button class="cx" type="button" data-cs-open="cs-u-${t.k}" aria-haspopup="dialog" aria-controls="cs-u-${t.k}">
           <span class="cx__flag cx__flag--more">{{icon ${t.icon}}}</span>

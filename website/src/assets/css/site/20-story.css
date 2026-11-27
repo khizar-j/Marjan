@@ -62,16 +62,25 @@
   .site .svx__item.is-leaving .svx__media img { transition: translate .9s var(--ease-io), scale 1.3s var(--ease); }
   .site .svx__bar, .site .svx__item.is-active .svx__bar { transform: scaleX(var(--fill, 0)); }
 }
-/* Pinned scene (about 1.8 extra screens of scrolling) in which the scroll steps through the services. The JS adds
-   .is-loose (a plain list) when the scene would not fit under the header; short laptops get tighter rows. */
+/* Pinned scene (about 1.8 extra screens of scrolling) in which the scroll steps through the services. Short laptops
+   get tighter rows; when the scene still would not fit under the header the JS tries .is-tight (tighter rows and
+   slightly smaller service text) and then .is-loose (a plain list). */
 @media (min-width: 1024px) and (min-height: 650px) {
-  .js .site .svx { --svh: min(640px, var(--vh-l, 100vh) - var(--header-h) - 24px); min-height: var(--svh); }
+  .js .site .svx { --svh: min(640px, var(--vh-l, 100vh) - var(--header-h) - 24px); min-height: max(var(--svh), var(--svx-min, 0px)); }
+  /* no scroll anchoring in the scene: a service opening must never make the browser move the page (see --svx-min) */
+  .js .site .svx-track:not(.is-loose) { overflow-anchor: none; }
   .js .site .svx-track:not(.is-loose)::after { content: ""; display: block; height: calc(var(--vh-l, 100vh) * 1.8); }
   .js .site .svx-track:not(.is-loose) .svx { position: sticky; top: calc(var(--header-h) + (var(--vh-l, 100vh) - var(--header-h) - var(--svh)) / 2); }
 }
 @media (min-width: 1024px) and (max-height: 739.98px) {
   .site .svx__head { padding-block: 12px; }
   .site .svx__panel .link-arrow { margin-block: 10px 16px; }
+}
+@media (min-width: 1024px) and (min-height: 650px) {
+  .site .svx-track.is-tight .svx__head { padding-block: 12px; }
+  .site .svx-track.is-tight .svx__icon { width: 40px; height: 40px; } /* the icon sets the row height */
+  .site .svx-track.is-tight .svx__panel p { font-size: .95rem; }
+  .site .svx-track.is-tight .svx__panel .link-arrow { margin-block: 10px 16px; }
 }
 
 /* ---------- Why choose us ---------- */

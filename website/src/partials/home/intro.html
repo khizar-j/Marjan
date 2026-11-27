@@ -1,7 +1,9 @@
-<!-- ============ 2 · INTRODUCTION (entity statement / AI quick answer)
+<!-- ============ 2 · INTRODUCTION (entity statement / AI quick answer). Text from the client (27 Nov): heading, statement with
+     a link to each service, a second paragraph, four points and the closing line, laid out like the client's example
+     (its small label over the heading was left out: the site has no small labels over headings).
      The section comes in with the scroll once the page has risen halfway over the hero (--rise, js/site/10-hero.js);
      then the statement lights up word by word and the seal turns with the scroll (js/site/20-story.js) ============ -->
-<section class="intro section" data-story-intro aria-label="About Marjan Travel &amp; Tours">
+<section class="intro section" data-story-intro aria-labelledby="intro-title">
   <div class="container intro__grid">
     <div class="intro__aside">
       <div class="seal" aria-hidden="true">
@@ -10,8 +12,16 @@
       </div>
     </div>
     <div class="intro__body">
-      <p class="intro__statement" data-words>Marjan Travel &amp; Tours is a travel agency based in Lahore, Pakistan, that offers <a href="/services/visa-consultancy/">visa consultancy and processing</a>, <a href="/services/umrah-packages/">Umrah packages</a>, <a href="/services/pakistan-tour-packages/">domestic tour packages across Pakistan</a> (including Skardu, Gilgit, Swat, Naran Kaghan, Murree and Kashmir), <a href="/services/international-tour-packages/">international tour packages</a> (including Dubai, Azerbaijan, Thailand, Malaysia, Singapore, Indonesia and Sri Lanka) and <a href="/services/corporate-tour-packages/">corporate tours</a> in Pakistan and abroad, plus air tickets, hotel bookings and travel insurance. Travellers can book by phone, on WhatsApp or at our office in Bahria Town, Lahore.</p>
-      <p class="intro__more">Over the past 6 years, we have helped 5,500+ families, pilgrims and companies travel with confidence. Every trip starts with a free consultation and a clear, written quotation, so you always know exactly what you are paying for.</p>
+      <h2 id="intro-title" class="intro__title">Your Dreams. Our Expertise. Endless Destinations.</h2>
+      <p class="intro__statement" data-words>At <strong>Marjan Travel &amp; Tours</strong>, we turn your travel dreams into unforgettable journeys. Based in Bahria Town, Lahore, Pakistan, we bring all your travel needs together under one roof — from professional <a href="/services/visa-consultancy/">visa consultancy and processing</a> and spiritually fulfilling <a href="/services/umrah-packages/">Umrah packages</a> to breathtaking <a href="/services/pakistan-tour-packages/">domestic tour packages across Pakistan</a> and exciting <a href="/services/international-tour-packages/">international tour packages</a>.</p>
+      <p class="intro__more">Discover the beauty of Pakistan’s northern areas or explore incredible destinations around the world. Whether it’s a honeymoon, family holiday, spiritual journey or corporate retreat, we help you plan every detail.</p>
+      <ul class="intro__points cs__list cs__list--2">
+        <li>{{icon check}}Personalised travel planning</li>
+        <li>{{icon check}}Transparent pricing</li>
+        <li>{{icon check}}Customised tour packages</li>
+        <li>{{icon check}}Dedicated customer support</li>
+      </ul>
+      <p class="intro__sign">Dream it. Book it. Live it.</p>
     </div>
   </div>
 </section>
