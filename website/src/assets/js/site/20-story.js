@@ -105,18 +105,35 @@
       if (wide.matches) { items.forEach((it) => it.classList.remove('is-shut')); open(idx); }
       else items.forEach((it, k) => fold(k, it.classList.contains('is-shut')));
     };
-    // pin only when the whole scene (with its longest service open) fits under the header; otherwise a plain list
+    // pin only when the whole scene (with its longest service open) fits under the header. If it doesn't, try tighter
+    // rows first (.is-tight: the client's longer Umrah and holiday texts, 27 Nov, need it on common laptop windows such
+    // as 1440 × 789 and 1536 × 730); only if it still doesn't fit, a plain list (.is-loose)
+    let tallest = 0; // the list with its longest service open
+    const fits = () => {
+      top = parseFloat(getComputedStyle(svs).top) || 0;
+      tallest = Math.ceil(heads.reduce((h, x) => h + x.offsetHeight + 2, 1)
+        + Math.max(...items.map((it) => $('.svx__panel > div', it).scrollHeight)));
+      return top + Math.max(tallest, svs.offsetHeight) <= M.vh() + 1; // steady: not innerHeight (see js/site/00-core.js)
+    };
     const measure = () => {
       step = -1;
       base = null;
-      track.classList.remove('is-loose');
+      track.classList.remove('is-loose', 'is-tight');
+      svs.style.removeProperty('--svx-min');
       pin = pinned.matches;
       if (!pin) return;
-      top = parseFloat(getComputedStyle(svs).top) || 0;
-      const list = heads.reduce((h, x) => h + x.offsetHeight + 2, 0)
-        + Math.max(...items.map((it) => $('.svx__panel > div', it).scrollHeight));
-      pin = top + Math.max(list, svs.offsetHeight) <= M.vh() + 1; // steady: not innerHeight (see js/site/00-core.js)
+      pin = fits();
+      if (!pin) {
+        track.classList.add('is-tight');
+        pin = fits();
+        if (!pin) track.classList.remove('is-tight');
+      }
       track.classList.toggle('is-loose', !pin);
+      // The scene keeps one height whichever service is open: as tall as the list with its longest service open.
+      // When it grew and shrank with each service (the client's longer Umrah and holiday texts, 27 Nov, made the list
+      // taller than the frame on big screens), the browser moved the page to make up for it, that opened the next
+      // service, which moved it back, and the scroll got stuck flipping between two services.
+      if (pin) svs.style.setProperty('--svx-min', `${tallest}px`);
       if (pin) room = Math.max(1, parseFloat(getComputedStyle(track, '::after').height) || 1);
     };
     // position in the list; after a click the scroll carries on from that service (never jumping back)

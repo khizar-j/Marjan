@@ -645,28 +645,28 @@
     if (was && SEASON.text('season') !== was) d.title = d.title.split(was).join(SEASON.text('season')); // "Umrah Packages 2026–27"
   }
   const ramadanYear = SEASON.text('ramadan-year') || ($('[data-season="ramadan-year"]') || {}).textContent || '';
-  const RAMADAN_PKG = `Ramadan Umrah ${ramadanYear}`.trim(); // the hero's package
-  const RAMADAN_WHEN = `Ramadan ${ramadanYear}`.trim(); // "When" for it (short: the phone field is ~140px)
+  const RAMADAN_WHEN = `Ramadan ${ramadanYear}`.trim(); // "When" for the Ramadan package (short: the phone field is ~140px)
 
-  /* ---------- "When" lists (hero planner and quote form): Flexible plus the next 12 months ----------
-     Umrah follows two dates of the Islamic calendar, so the list follows the package:
-     - Ramadan Umrah: Ramadan is one month (29 or 30 days), so "When" is set to it and locked; there is no month to pick.
-     - Any other Umrah: the months around Hajj, when Saudi Arabia stops Umrah visas, are listed but can't be picked
-       (SEASON.hajjMonth: at least half the month from 1 Dhul Qadah to 14 Dhul Hijjah; see seasons.js).
-     Both are the calendar's expected dates (the moon sighting can move them a day). */
+  /* ---------- "When" lists (hero planner and quote form) ----------
+     Built in the visitor's browser from today's date, so the months move on by themselves (no rebuild needed).
+     - 'short' (Umrah and holidays abroad, client request 27 Nov): Flexible dates, this month and the next 3, then
+       "Planning ahead (3+ months)" for anything later.
+     - 'any' (Pakistan tours, visas, corporate and the rest of the quote form): Flexible plus the next 12 months.
+     - 'ramadan' (the Umrah page's Ramadan package, through "Get a quote"): Ramadan is one month, so "When" is set to it
+       and locked; there is no month to pick. Its year is the calendar's expected date (the moon sighting can move it a day).
+     No month is blocked: Marjan also offers private Hajj packages, so the Hajj months stay open (client request 27 Nov). */
   const fmtMonth = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
-  const monthKind = (text) => (/ramadan/i.test(text) ? 'ramadan' : /umrah/i.test(text) ? 'umrah' : 'any');
   const builtMonths = new WeakMap();
   const travelMonths = (select, kind = 'any') => {
     select.toggleAttribute('data-locked', kind === 'ramadan'); // the custom dropdown below turns this into a fixed field
     let html = `<option selected>${RAMADAN_WHEN}</option>`;
     if (kind !== 'ramadan') {
       const now = window.MarjanSeasonsToday || new Date(); // the test day, if seasons.js is being tested
-      html = '<option>Flexible</option>' + Array.from({ length: 12 }, (_, i) => {
+      const short = kind === 'short';
+      html = (short ? '<option>Flexible dates</option>' : '<option>Flexible</option>') + Array.from({ length: short ? 4 : 12 }, (_, i) => {
         const m = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        return kind === 'umrah' && SEASON.hajjMonth(m.getFullYear(), m.getMonth())
-          ? `<option disabled>${fmtMonth.format(m)} · Hajj season</option>` : `<option>${fmtMonth.format(m)}</option>`;
-      }).join('');
+        return `<option>${fmtMonth.format(m)}</option>`;
+      }).join('') + (short ? '<option data-short="In 3+ months">Planning ahead (3+ months)</option>' : '');
     }
     if (builtMonths.get(select) === html) return; // same list: leave the visitor's pick alone
     builtMonths.set(select, html);
@@ -682,16 +682,16 @@
   if (hero) {
     const JOURNEYS = {
       umrah: {
-        name: 'Umrah', label: 'Package', caption: 'Masjid al-Haram, Makkah', travellers: 2,
-        // the package types on the Umrah page (tools/umrah.mjs TYPES), so both pages offer the same packages
-        options: ['Economy Umrah', '4-Star Umrah', '5-Star & VIP Umrah', 'Family Umrah', 'Group Umrah', RAMADAN_PKG, 'Custom Umrah package'], selected: 1,
+        name: 'Umrah', label: 'Package', caption: 'Masjid al-Haram, Makkah', travellers: 2, when: 'short',
+        // the hotel levels only (client request 27 Nov); keep the first list in partials/home/hero.html the same
+        options: ['Economy Package', '2-Star Package', '3-Star Package', '4-Star Package', '5-Star / VIP Package'], selected: 3,
       },
       north: {
         name: 'Pakistan tour', label: 'Destination', caption: 'Hunza Valley, Gilgit-Baltistan', travellers: 2,
-        options: ['Skardu', 'Naran Kaghan', 'Murree', 'Kashmir', 'Swat', 'Gilgit', 'Help me choose'],
+        options: ['Skardu', 'Naran & Kaghan', 'Murree', 'Kashmir', 'Swat', 'Gilgit', 'Help me choose'],
       },
       abroad: {
-        name: 'International holiday', label: 'Destination', caption: 'Dubai skyline, United Arab Emirates', travellers: 2,
+        name: 'International holiday', label: 'Destination', caption: 'Dubai skyline, United Arab Emirates', travellers: 2, when: 'short',
         options: ['Azerbaijan', 'Thailand', 'Indonesia (Bali)', 'Malaysia', 'Dubai', 'Sri Lanka', 'Singapore', 'Somewhere else'],
       },
       visa: {
@@ -728,12 +728,9 @@
     let elapsed = 0;
     let last = performance.now();
 
-    // the package list in the HTML names the Ramadan of the build day: bring it up to today's
-    [...optSel.options].forEach((o) => { if (/^Ramadan Umrah/.test(o.text)) o.text = RAMADAN_PKG; });
-    // "When": follows the package (Ramadan Umrah fixes it; other Umrah can't pick the Hajj months), see above
-    const syncMonths = () => travelMonths(monthSel, monthKind(optSel.value));
+    // "When": the short list for Umrah and holidays abroad, the 12-month list for the rest (see the "When" lists above)
+    const syncMonths = () => travelMonths(monthSel, JOURNEYS[keys[idx]].when);
     syncMonths();
-    optSel.addEventListener('change', syncMonths);
 
     const loadSlide = (s) => {
       const img = s && $('img[data-srcset]', s);
@@ -1032,14 +1029,15 @@
      WhatsApp with the same details filled in. Without JavaScript the form posts to FormSubmit's own page. */
   const quoteForm = $('[data-quote-form]');
   if (quoteForm) {
-    // "When" follows the service: an Umrah package can't pick the Hajj months, and the Ramadan package (its note, put
-    // in by "Get a quote") fixes it to Ramadan until that note is taken out of the notes box (see the "When" lists above)
+    // "When" follows the service: Umrah and international tours get the short list, and the Ramadan package (its note,
+    // put in by "Get a quote") fixes it to Ramadan until that note is taken out of the notes box (see the "When" lists above)
     const month = $('[data-month-select]', quoteForm);
+    const SHORT_WHEN = ['Umrah package', 'International tour package'];
     const syncMonths = () => {
       const { service, notes } = quoteForm.elements;
       const auto = quoteForm.dataset.autoNote || '';
-      const kind = service.value !== 'Umrah package' ? 'any'
-        : auto && /ramadan/i.test(auto) && notes.value.includes(auto) ? 'ramadan' : 'umrah';
+      const kind = !SHORT_WHEN.includes(service.value) ? 'any'
+        : service.value === 'Umrah package' && auto && /ramadan/i.test(auto) && notes.value.includes(auto) ? 'ramadan' : 'short';
       travelMonths(month, kind);
     };
     syncMonths();
@@ -1139,7 +1137,7 @@
     let typed = '';
     let typedAt = 0;
     const items = () => [...list.children];
-    const pickable = (li) => li && li.getAttribute('aria-disabled') !== 'true'; // e.g. not "May 2027 · Hajj season"
+    const pickable = (li) => li && li.getAttribute('aria-disabled') !== 'true'; // a disabled option can't be picked
     const move = (from, dir) => { // the next option that can be picked, going down (1) or up (-1)
       const all = items();
       for (let i = from + dir; i >= 0 && i < all.length; i += dir) if (pickable(all[i])) { setActive(i); return; }
@@ -1274,6 +1272,9 @@
       const sync = () => {
         const o = select.options[select.selectedIndex];
         value.textContent = o ? o.text : '';
+        // an option can carry a shorter text for the closed field (data-short), shown only when the full one doesn't
+        // fit: "Planning ahead (3+ months)" in the hero's ~110px "When" on phones. The list and the form keep the full text.
+        if (o && o.dataset.short && value.scrollWidth > value.clientWidth) value.textContent = o.dataset.short;
         const empty = !o || o.disabled || o.value === '';
         btn.classList.toggle('is-placeholder', empty);
         if (!empty) { wrap.classList.remove('is-invalid'); btn.removeAttribute('aria-invalid'); error.remove(); }
@@ -1286,6 +1287,7 @@
       };
       sync();
       select.addEventListener('change', sync);
+      addEventListener('resize', () => { if (select.selectedOptions[0]?.dataset.short) sync(); }); // fits again, or no longer
       // Coming back with Back (Chrome, when it doesn't keep the page whole) or refreshing in Firefox, the browser puts
       // a typed-in form's choices back without a change event, so the button showed one service over another
       // (24 Nov site check). Chrome does it just before pageshow. The hero planner opts out (autocomplete="off").

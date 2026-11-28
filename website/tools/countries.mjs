@@ -13,25 +13,25 @@ const WA = "Assalam o Alaikum Marjan Travel & Tours! ";
 const TOURS = [
   { cc: 'az', name: 'Azerbaijan', sub: 'Baku, Gabala, Shahdag', img: '1596306499300-0b7b1689b9f6', alt: 'The Flame Towers above Baku, Azerbaijan',
     tour: ['Baku Old City & the Flame Towers', 'Gabala cable cars & Nohur Lake', 'Shahdag resort, with snow in winter', 'Gobustan rock art & mud volcanoes'],
-    visa: 'Azerbaijan e-visa, applied for online, so there is no embassy visit.' },
+    visa: 'Get hassle-free Azerbaijan tourist visa (e-visa) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
   { cc: 'th', name: 'Thailand', sub: 'Bangkok, Phuket, Pattaya', img: '1506665531195-3566af2b4dfa', alt: 'Boats in a bay on Phi Phi Island, Thailand',
     tour: ['Bangkok temples & floating markets', 'Phuket & the Phi Phi Islands', 'Pattaya beaches & Coral Island', 'Safari World & Dream World'],
-    visa: 'Thailand tourist visa (e-visa), with your file checked by us before it is submitted.' },
+    visa: 'Get hassle-free Thailand tourist visa (e-visa) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
   { cc: 'id', name: 'Indonesia', sub: 'Bali', img: '1604999333679-b86d54738315', alt: 'Pura Ulun Danu Bratan temple on Lake Bratan, Bali, Indonesia',
     tour: ['Ubud rice terraces & Monkey Forest', 'Tanah Lot & Uluwatu at sunset', 'Nusa Dua, Kuta & Seminyak beaches', 'A day trip to Nusa Penida'],
-    visa: 'Indonesia visit visa (e-visa), applied for online.' },
+    visa: 'Get hassle-free Indonesia tourist visa (e-visa) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
   { cc: 'my', name: 'Malaysia', sub: 'Kuala Lumpur, Langkawi', img: '1596422846543-75c6fc197f07', alt: 'The Petronas Towers and the Kuala Lumpur skyline at dusk',
     tour: ['Petronas Towers & a KL city tour', 'Genting Highlands & Batu Caves', 'Langkawi cable car & island hopping', 'Day trips to Putrajaya & Malacca'],
-    visa: 'Malaysia eVisa, applied for online, so there is no embassy visit.' },
+    visa: 'Get hassle-free Malaysia tourist visa (e-visa) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
   { cc: 'ae', name: 'Dubai', sub: 'United Arab Emirates', img: '1518684079-3c830dcef090', alt: 'Burj Al Arab on the coast of Dubai',
     tour: ['Desert safari & barbecue dinner', 'Burj Khalifa & the Dubai Fountain', 'Dhow cruise in Dubai Marina', 'Abu Dhabi & the Grand Mosque'],
-    visa: 'UAE visit visas for 30 or 60 days, applied for online, so there is no embassy visit.' },
+    visa: 'Get hassle-free Dubai tourist visa (30 or 60 days) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
   { cc: 'lk', name: 'Sri Lanka', sub: 'Kandy, Ella, Galle', img: '1566296314736-6eaac1ca0cb9', alt: 'A blue train crossing the Nine Arch Bridge in Ella, Sri Lanka',
     tour: ['Kandy & the Temple of the Tooth', 'Train to Ella through tea country', 'Sigiriya Rock Fortress', 'Galle Fort & south coast beaches'],
-    visa: 'Sri Lanka ETA (electronic travel authorisation), applied for online.' },
+    visa: 'Get hassle-free Sri Lanka tourist visa (ETA) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
   { cc: 'sg', name: 'Singapore', sub: 'Marina Bay, Sentosa', img: '1565967511849-76a60a516170', alt: 'The Merlion and Marina Bay Sands lit up at night, Singapore',
     tour: ['Marina Bay & Gardens by the Bay', 'Sentosa & Universal Studios', 'Night Safari & Singapore Zoo', 'Chinatown & Orchard Road shopping'],
-    visa: 'Singapore visit visa (e-visa), applied for online.' },
+    visa: 'Get hassle-free Singapore invitation letter (LOI) and tourist visa (e-visa) with professional guidance, document verification, and application processing. Apply separately or combine your visa with our customised holiday packages.' },
 ];
 
 const tourTile = (c, i) => `      <li data-reveal style="--d:${i % 4}">
@@ -64,8 +64,7 @@ ${c.tour.map((t) => `            <li>{{icon check}}${esc(t)}</li>`).join('\n')}
         </div>
         <div class="cs__col">
           <h4>{{icon passport}}Visit visa</h4>
-          <p>${esc(c.visa)} Book it with your package or on its own.</p>
-          <p class="cs__note">We check the latest rules and give you your exact document list before you apply.</p>
+          <p>${esc(c.visa)}</p>
         </div>
       </div>
       <div class="cs__inc">
@@ -122,7 +121,7 @@ const FILES = [
     about: 'UK Standard Visitor visas for tourism, family visits and business, with biometrics at the visa application centre.',
     we: ['Online application form completed', 'Cover letter & travel itinerary', 'Bank & income documents reviewed', 'Biometrics appointment booked'] },
   { cc: 'ca', name: 'Canada', full: 'Canada', type: 'Visitor visa', quote: 'Canada visa file', img: '1503614472-8c93d56e92ce', alt: 'Moraine Lake in the Rocky Mountains, Banff, Canada',
-    about: 'Canadian visitor visas for tourism, family visits and business, applied for online, with biometrics at the visa application centre.',
+    about: 'Canadian visitor visas for tourism, family visits and business, with biometrics at the visa application centre.',
     we: ['Online application completed', 'Invitation & family papers checked', 'Proof of funds & home ties reviewed', 'Biometrics appointment booked'] },
   { cc: 'eu', name: 'Schengen', full: 'Schengen area', type: '29 European countries', quote: 'Schengen visa file', img: '1499856871958-5b9627545d1a', alt: 'The Pont Alexandre III bridge in Paris at dusk',
     about: 'One short-stay Schengen visa (up to 90 days) for tourism, family visits or business, valid across 29 European countries.',
@@ -150,6 +149,7 @@ const fileSheet = (c) => `<dialog class="cs cs--file" id="cs-${c.cc}" aria-label
     </div>
     <div class="cs__body" data-native-scroll>
       <p class="cs__lead">${esc(c.about)}</p>
+      <p class="cs__lead">From preparing the cover letter and travel plan to arranging flight reservations and hotel bookings for your visa file, we do it all and make sure all your documents are fully prepared.</p>
       <div class="cs__col">
         <h4>{{icon check}}What we do for you</h4>
         <ul class="cs__list cs__list--2">
